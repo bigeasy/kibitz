@@ -1,0 +1,37 @@
+{
+    "name":         "kibitz",
+    "version":      "9.9.9",
+    "description":  "Consensus for web applications.",
+    "author":       "Alan Gutierrez <alan@prettyrobots.com>",
+    "homepage":     "https://bigeasy.github.io/kibitz",
+    "bugs":         "https://github.com/bigeasy/kibitz/issues",
+    "keywords":
+    [
+                    "consensus", "paxos"
+    ],
+    "contributors":
+    [
+    ],
+    "dependencies":
+    {
+    },
+    "devDependencies":
+    {
+                    "proof": "0.0.50"
+    },
+    "main":         "kibitz.js",
+    "scripts":
+    {
+                    "test": "proof platform win32 && proof test */*/*.t.js || t/test"
+    },
+    "licenses":
+    [{
+                    "type": "MIT",
+                    "url": "http://github.com/bigeasy/kibitz/raw/master/LICENSE"
+    }],
+    "repository":
+    {
+                    "type": "git",
+                    "url": "http://github.com/bigeasy/kibitz.git"
+    }
+}
