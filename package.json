@@ -1,6 +1,6 @@
 {
     "name":         "kibitz",
-    "version":      "9.9.9",
+    "version":      "0.0.0",
     "description":  "Consensus for web applications.",
     "author":       "Alan Gutierrez <alan@prettyrobots.com>",
     "homepage":     "https://bigeasy.github.io/kibitz",
