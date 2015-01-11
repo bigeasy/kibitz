@@ -14,6 +14,8 @@ function prove (async, assert) {
     var options = {
     }
 
+    new Kibitzer({}).logger(1) // defaults
+
     var bouquet = new Bouquet
     var binder = new Binder('http://127.0.0.1:8086')
     var containers = [ new Container(binder, options) ]
