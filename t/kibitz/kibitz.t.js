@@ -1,7 +1,7 @@
 var cadence = require('cadence')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(3, cadence(prove))
+require('proof')(5, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -15,6 +15,15 @@ function prove (async, assert) {
     }
 
     new Kibitzer({}).logger(1) // defaults
+
+    var kibitzer = new Kibitzer({
+        logger: function (level, context, error) {
+            assert(context, 'test', 'catcher context')
+            assert(error.message, 'catcher caught')
+        }
+    })
+
+    kibitzer.catcher('test')(null, new Error('caught'))
 
     var bouquet = new Bouquet
     var binder = new Binder('http://127.0.0.1:8086')
