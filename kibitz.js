@@ -167,15 +167,6 @@ Kibitzer.prototype.bootstrap = function (location) {
     this.legislator.location[id] = location
 }
 
-Kibitzer.prototype.address = function (url) {
-    this.send({
-        meta: true,
-        type: 'address',
-        id: this.legislator.id,
-        url: url
-    })
-}
-
 Kibitzer.prototype.send = function (message) {
     if (this.legislator.government.majority[0] == this.legislator.id) {
         throw new Error
