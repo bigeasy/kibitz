@@ -96,9 +96,8 @@ function Kibitzer (options) {
                 }
                 async([function () {
                     this.play(entry, async())
-                }, function (_, error) {
-                    this.logger('error', 'play', error)
-                }], function () {
+                }, this.catcher('play')
+                ], function () {
                     var wait
                     while ((wait = this.waits.min()) && Id.compare(wait.promise, entry.promise) <= 0) {
                         wait.callbacks.forEach(function (callback) {
