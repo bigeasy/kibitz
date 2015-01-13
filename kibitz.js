@@ -168,12 +168,6 @@ Kibitzer.prototype.bootstrap = function (location) {
     this.legislator.location[id] = location
 }
 
-Kibitzer.prototype.send = function (message) {
-    if (this.legislator.government.majority[0] == this.legislator.id) {
-        throw new Error
-    }
-}
-
 Kibitzer.prototype.join = cadence(function (async, url) {
     async(function () {
         this.ua.fetch({ url: url, timeout: 2500 }, async())
