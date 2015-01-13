@@ -52,7 +52,6 @@ function prove (async, assert) {
     }, function () {
         containers[2].kibitzer.join(binder.location + '/discover', async())
     }, function (response) {
-        console.log(response)
         containers[1].kibitzer.wait('2/0', async())
     }, function () {
         assert(containers[1].kibitzer.legislator.government.majority.length, 2, 'registered second participant')
@@ -61,11 +60,11 @@ function prove (async, assert) {
         }, {
             url: '/discover'
         }, async())
-        console.log('fetched')
     }, function (body, response) {
-        console.log(body)
+        containers[0].kibitzer.publish({ type: 'add', key: 1, value: 'a' }, async())
     }, function () {
-        console.log(containers[1].kibitzer.legislator.government)
+        containers[1].kibitzer.wait('2/1', async())
+    }, function () {
         console.log('stopping')
         bouquet.stop(async())
     })

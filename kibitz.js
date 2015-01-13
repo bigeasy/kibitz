@@ -54,29 +54,33 @@ function Kibitzer (options) {
         var outbox = this.legislator.outbox()
         return outbox.length ? outbox : null
     }.bind(this), cadence([function (async, outbox) {
-        async(function (route) {
-            var forwards = this.legislator.forwards(route.path, 0)
-            async(function () {
-                var serialized = {
-                    route:route,
-                    index: 1,
-                    messages: serializer.flatten(forwards)
-                }
-                this.ua.fetch({
-                    url: this.legislator.location[route.path[1]]
-                }, {
-                    url: '/receive',
-                    payload: serialized
-                }, async())
-            }, function (body, response) {
-                if (!response.okay) {
-                    setTimeout(async(), 2500)
-                }
-                var returns = response.okay ? body.returns : []
-                this.legislator.inbox(route, returns)
-                this.legislator.sent(route, forwards, returns)
-            })
-        })(outbox)
+        async(function () {
+            async(function (route) {
+                var forwards = this.legislator.forwards(route.path, 0)
+                async(function () {
+                    var serialized = {
+                        route:route,
+                        index: 1,
+                        messages: serializer.flatten(forwards)
+                    }
+                    this.ua.fetch({
+                        url: this.legislator.location[route.path[1]]
+                    }, {
+                        url: '/receive',
+                        payload: serialized
+                    }, async())
+                }, function (body, response) {
+                    if (!response.okay) {
+                        setTimeout(async(), 2500)
+                    }
+                    var returns = response.okay ? body.returns : []
+                    this.legislator.inbox(route, returns)
+                    this.legislator.sent(route, forwards, returns)
+                })
+            })(outbox)
+        }, function () {
+            this.consumer.nudge()
+        })
     }, this.catcher('publisher')
     ]).bind(this))
 
@@ -100,9 +104,7 @@ function Kibitzer (options) {
                 ], function () {
                     var wait
                     while ((wait = this.waits.min()) && Id.compare(wait.promise, entry.promise) <= 0) {
-                        wait.callbacks.forEach(function (callback) {
-                            callback(null, wait.promise)
-                        })
+                        wait.callbacks.forEach(function (callback) { callback() })
                         this.waits.remove(wait)
                     }
                 })
@@ -235,8 +237,6 @@ Kibitzer.prototype.join = cadence(function (async, url) {
             id: this.legislator.id,
             location: this.url
         }, true, async())
-    }, function () {
-        console.log("WOOT!")
     })
 })
 
@@ -288,12 +288,16 @@ Kibitzer.prototype.catcher = function (context) {
 }
 
 Kibitzer.prototype.wait = function (promise, callback) {
-    var wait = this.waits.find({ promise: promise })
-    if (!wait) {
-        wait = { promise: promise, callbacks: [] }
-        this.waits.insert(wait)
+    if (Id.compare(promise, this.client.uniform) <= 0) {
+        callback()
+    } else {
+        var wait = this.waits.find({ promise: promise })
+        if (!wait) {
+            wait = { promise: promise, callbacks: [] }
+            this.waits.insert(wait)
+        }
+        wait.callbacks.push(callback)
     }
-    wait.callbacks.push(callback)
 }
 
 module.exports = Kibitzer

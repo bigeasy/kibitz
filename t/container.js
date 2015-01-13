@@ -22,6 +22,19 @@ Container.prototype.dispatch = function () {
 }
 
 Container.prototype.play = cadence(function (async, entry) {
+    if (entry.internal) {
+        return
+    }
+    switch (entry.value.type) {
+    case 'add':
+        this.lookup.insert({ key: entry.value.key, value: entry.value.value })
+        break
+    case 'remove':
+        this.lookup.remove({ key: entry.value.key })
+        break
+    case 'abend':
+        throw new Error('abended')
+    }
     console.log('callled')
 })
 
