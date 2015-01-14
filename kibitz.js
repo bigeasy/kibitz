@@ -22,7 +22,9 @@ function Kibitzer (options) {
     this.enqueue = middleware.handle(this.enqueue.bind(this))
     this.sync = middleware.handle(this.sync.bind(this))
     this.participants = {}
-    this.legislator = new Legislator('0')
+    this.legislator = new Legislator(this.createIdentifier(), {
+        peferred: function () { return this.id[this.id.length - 1] == 'a' }
+    })
     this.cookies = {}
     this.logger = options.logger || function () { console.log(arguments) }
 
@@ -158,14 +160,10 @@ Kibitzer.prototype.createIdentifier = function (location) {
 }
 
 Kibitzer.prototype.bootstrap = function (location) {
-    var id = this.createIdentifier()
-    this.legislator = new Legislator(id, {
-        peferred: function () { return this.id[this.id.length - 1] == 'a' }
-    })
     this.legislator.bootstrap()
     this.client = new Client(this.legislator.id)
     this.client.prime(this.legislator.prime('1/0'))
-    this.legislator.location[id] = location
+    this.legislator.location[this.legislator.id] = location
 }
 
 Kibitzer.prototype.join = cadence(function (async, url) {
@@ -220,7 +218,7 @@ Kibitzer.prototype.join = cadence(function (async, url) {
             }
         })()
     }, function () {
-        this.legislator.immigrate(this.createIdentifier())
+        this.legislator.immigrate(this.legislator.id)
         this.client = new Client(this.legislator.id)
         this.legislator.initialize()
         this.client.prime(this.legislator.prime(this.since))
