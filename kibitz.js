@@ -1,5 +1,6 @@
 var UserAgent = require('inlet/http/ua')
-var cadence = require('cadence')
+var cadence = require('cadence/redux')
+require('cadence/loops')
 var Legislator = require('paxos/legislator')
 var Client = require('paxos/client')
 var middleware = require('inlet/http/middleware')
@@ -57,7 +58,7 @@ function Kibitzer (options) {
         return outbox.length ? outbox : null
     }.bind(this), cadence([function (async, outbox) {
         async(function () {
-            async(function (route) {
+            async.forEach(function (route) {
                 var forwards = this.legislator.forwards(route.path, 0)
                 async(function () {
                     var serialized = {
@@ -94,7 +95,7 @@ function Kibitzer (options) {
             setImmediate(async())
         }, function () {
             var promise = this.client.receive(entries)
-            async(function (entry) {
+            async.forEach(function (entry) {
                 var callback = this.cookies[entry.cookie]
                 if (callback) {
                     callback(null, entry)
@@ -212,7 +213,7 @@ Kibitzer.prototype.join = cadence(function (async, url) {
                     this.play(entry)
                 }, this)
                 if (previous == null) {
-                    return [ async, true ]
+                    return [ sync, true ]
                 }
                 break
             }
@@ -274,7 +275,7 @@ Kibitzer.prototype.leader = function () {
 }
 
 Kibitzer.prototype.catcher = function (context) {
-    return function (_, error) {
+    return function (error) {
         this.logger('error', context, error)
     }.bind(this)
 }
