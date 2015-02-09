@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Upgrade Turnstile to 0.0.9. #9.
  * Upgrade Cadence to 0.0.52. #8.
  * Upgrade to Cadence Redux. #7.
  * Upgrade Paxos to 0.0.3. #6.
