@@ -1,7 +1,7 @@
 var middleware = require('inlet/http/middleware')
 var Kibitzer = require('..')
 var RBTree = require('bintrees').RBTree
-var cadence = require('cadence')
+var cadence = require('cadence/redux')
 
 function Container (binder, options) {
     this.lookup = new RBTree(function (a, b) { return a.key - b.key })
