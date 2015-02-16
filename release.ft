@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Pulse `checkSchedule`. #13.
  * Rename main module to `kibitzer.js`. #11.
  * Remove `require.t.js`. #10.
  * Upgrade Turnstile to 0.0.9. #9.

@@ -66,7 +66,10 @@ function prove (async, assert) {
     }, function () {
         containers[1].kibitzer.wait('2/1', async())
     }, function () {
-        console.log('stopping')
+        console.log(containers[1].kibitzer.legislator.government)
+        containers[1].lookup.each(function (entry) {
+            console.log(entry)
+        })
         bouquet.stop(async())
     })
 }

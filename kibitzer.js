@@ -115,6 +115,10 @@ function Kibitzer (options) {
         })
     }, this.catcher('consumer')
     ]).bind(this))
+
+    setInterval(function () {
+        this.legislator.checkSchedule()
+    }.bind(this), 100).unref()
 }
 
 //Error.stackTraceLimit = Infinity
@@ -259,6 +263,7 @@ Kibitzer.prototype.enqueue = cadence(function (async, request) {
     request.body.entries.forEach(function (entry) {
         var outcome = this.legislator.post(entry.cookie, entry.value, entry.internal)
         // todo: I expect the cookie to be in the outcome.
+        // todo: test receiving entries, enqueuing, when we are not the leader.
         if (outcome.posted) {
             response.posted = true
             response.entries.push({ cookie: entry.cookie, promise: outcome.promise })
@@ -282,9 +287,11 @@ Kibitzer.prototype.catcher = function (context) {
 
 Kibitzer.prototype.wait = function (promise, callback) {
     if (Id.compare(promise, this.client.uniform) <= 0) {
+        // todo: test by calling a promise that has already been received.
         callback()
     } else {
         var wait = this.waits.find({ promise: promise })
+        // todo: test by calling wait twice.
         if (!wait) {
             wait = { promise: promise, callbacks: [] }
             this.waits.insert(wait)
