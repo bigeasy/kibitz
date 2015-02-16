@@ -65,8 +65,12 @@ function prove (async, assert) {
         containers[0].kibitzer.publish({ type: 'add', key: 1, value: 'a' }, async())
     }, function () {
         containers[1].kibitzer.wait('2/1', async())
+        containers[1].kibitzer.wait('2/1', async())
     }, function () {
         console.log(containers[1].kibitzer.legislator.government)
+        // test waiting for something that has already arrived.
+        containers[1].kibitzer.wait('2/1', async())
+    }, function () {
         containers[1].lookup.each(function (entry) {
             console.log(entry)
         })

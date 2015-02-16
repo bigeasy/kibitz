@@ -287,11 +287,9 @@ Kibitzer.prototype.catcher = function (context) {
 
 Kibitzer.prototype.wait = function (promise, callback) {
     if (Id.compare(promise, this.client.uniform) <= 0) {
-        // todo: test by calling a promise that has already been received.
         callback()
     } else {
         var wait = this.waits.find({ promise: promise })
-        // todo: test by calling wait twice.
         if (!wait) {
             wait = { promise: promise, callbacks: [] }
             this.waits.insert(wait)
