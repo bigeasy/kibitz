@@ -27,8 +27,8 @@ function Kibitzer (options) {
     this.participants = {}
     this.legislator = new Legislator(this.createIdentifier(), {
         peferred: function () { return this.id[this.id.length - 1] == 'a' },
-        ping: [ 1000, 1000 ],
-        timeout: [ 5000, 5000 ]
+        ping: [ 250, 250 ],
+        timeout: [ 2000, 2000 ]
     })
     this.cookies = {}
     this.logger = options.logger || function () { console.log(arguments) }

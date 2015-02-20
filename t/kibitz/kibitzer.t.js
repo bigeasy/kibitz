@@ -90,6 +90,8 @@ function prove (async, assert) {
     }, function () {
         containers[3].kibitzer.join(binder.location + '/discover', async())
     }, function () {
+        setTimeout(async(), 350)
+    }, function () {
         bouquet.stop(async())
     })
 }
