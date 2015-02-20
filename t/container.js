@@ -35,19 +35,19 @@ Container.prototype.play = cadence(function (async, entry) {
     case 'abend':
         throw new Error('abended')
     }
-    console.log('callled')
 })
 
-Container.prototype.brief = function (previous) {
-    var key = previous || this.lookup.max()
-    if (key == null) {
-        return { previous: null, entries: [] }
+Container.prototype.brief = function (next) {
+    var sought = next ? { key: next } : this.lookup.max()
+    if (sought == null) {
+        return { next: null, entries: [] }
     }
-    var iterator = this.lookup.upperBound({ key: key }), entries = [], entry, count = 24
-    while (count-- && (entry = iterator.prev())) {
+    var iterator = this.lookup.findIter(sought), entries = [], entry, count = 24
+    while ((entry = iterator.data()) && count--) {
         entries.push({ type: 'add', value: entry })
+        iterator.prev()
     }
-    return { previous: iterator.data(), entries: entries }
+    return { next: entry && entry.key, entries: entries }
 }
 
 module.exports = Container

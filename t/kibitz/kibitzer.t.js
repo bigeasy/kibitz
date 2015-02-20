@@ -29,6 +29,7 @@ function prove (async, assert) {
     var bouquet = new Bouquet
     var binder = new Binder('http://127.0.0.1:8086')
     var containers = [ new Container(binder, options) ]
+    var waitFor
 
     async(function () {
         bouquet.start(containers[0], async())
@@ -39,6 +40,7 @@ function prove (async, assert) {
     }], function () {
         containers[0].kibitzer.bootstrap(binder.location)
     }, function () {
+        console.log('here')
         var binder = new Binder('http://127.0.0.1:8087')
         containers.push(new Container(binder, options))
         bouquet.start(containers[1], async())
@@ -67,13 +69,25 @@ function prove (async, assert) {
         containers[1].kibitzer.wait('2/1', async())
         containers[1].kibitzer.wait('2/1', async())
     }, function () {
-        console.log(containers[1].kibitzer.legislator.government)
         // test waiting for something that has already arrived.
         containers[1].kibitzer.wait('2/1', async())
     }, function () {
         containers[1].lookup.each(function (entry) {
             console.log(entry)
         })
+        var i = 0, loop = async(function () {
+            if (i++ === 48) return [ loop ]
+            async(function () {
+                containers[2].kibitzer.publish({ type: 'add', key: i, value: 'a' }, async())
+            })
+        })()
+    }, function () {
+        var binder = new Binder('http://127.0.0.1:8089')
+        containers.push(new Container(binder, options))
+        bouquet.start(containers[3], async())
+    }, function () {
+        containers[3].kibitzer.join(binder.location + '/discover', async())
+    }, function () {
         bouquet.stop(async())
     })
 }
