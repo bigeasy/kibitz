@@ -47,11 +47,8 @@ function Kibitzer (options) {
                 }
             }, async())
         }, function (body, response) {
-            if (!response.okay || !body.posted) {
-                this.client.published(null)
-            } else {
-                this.client.published(body.entries)
-            }
+            var published = this._response(response, body, 'posted', 'entries', null)
+            this.client.published(published)
         })
     }, this.catcher('subscriber')
     ]).bind(this))
@@ -77,7 +74,7 @@ function Kibitzer (options) {
                         payload: serialized
                     }, async())
                 }, function (body, response) {
-                    var returns = response.okay ? body.returns : []
+                    var returns = this._response(response, body, 'returns', 'returns', [])
                     this.legislator.inbox(route, returns)
                     this.legislator.sent(route, forwards, returns)
                 })
@@ -118,6 +115,13 @@ function Kibitzer (options) {
         })
     }, this.catcher('consumer')
     ]).bind(this))
+}
+
+Kibitzer.prototype._response = function (response, body, condition, values, failure) {
+    if (response.okay && body[condition]) {
+        return body[values]
+    }
+    return failure
 }
 
 //Error.stackTraceLimit = Infinity
