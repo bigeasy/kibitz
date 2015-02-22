@@ -60,7 +60,6 @@ function Kibitzer (options) {
         async(function () {
             async.forEach(function (route) {
                 var forwards = this.legislator.forwards(route, 0)
-//                console.log('SENDING', this.legislator.id, this.legislator.government.majority[0], route, forwards)
                 async(function () {
                     var serialized = {
                         route:route,
@@ -134,18 +133,16 @@ Kibitzer.prototype.discover = cadence(function (async) {
 })
 
 Kibitzer.prototype._checkSchedule = function () {
-    setInterval(function () {
+    this._interval = setInterval(function () {
         if (this.legislator.checkSchedule()) {
             this.publisher.nudge()
         }
-//        console.log(this.legislator.id, this.legislator.greatest)
-    }.bind(this), 50).unref()
+    }.bind(this), 50)
 }
 
 Kibitzer.prototype.receive = cadence(function (async, request) {
     var work = request.body
     var route = work.route, index = work.index, expanded = serializer.expand(work.messages)
-//    console.log('RECIEVED', route, expanded)
     async(function () {
         this.legislator.inbox(route, expanded)
         route = this.legislator.routeOf(route.path, route.pulse)
@@ -297,7 +294,6 @@ Kibitzer.prototype.enqueue = cadence(function (async, request) {
 
 Kibitzer.prototype.catcher = function (context) {
     return function (error) {
-//        console.log(error.stack)
         this.logger('error', context, error)
     }.bind(this)
 }
@@ -312,6 +308,13 @@ Kibitzer.prototype.wait = function (promise, callback) {
             this.waits.insert(wait)
         }
         wait.callbacks.push(callback)
+    }
+}
+
+Kibitzer.prototype.stop = function () {
+    if (this._interval != null) {
+        clearInterval(this._interval)
+        this._interval = null
     }
 }
 

@@ -90,8 +90,12 @@ function prove (async, assert) {
     }, function () {
         containers[3].kibitzer.join(binder.location + '/discover', async())
     }, function () {
+        assert(containers[3].kibitzer.legislator.government.majority.length, 2, 'registered third participant')
         setTimeout(async(), 350)
     }, function () {
+        containers.forEach(function (container) {
+            container.kibitzer.stop()
+        })
         bouquet.stop(async())
     })
 }

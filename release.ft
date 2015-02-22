@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Implement explicit stop of interval loop. #15.
  * Pulse `checkSchedule`. #13.
  * Rename main module to `kibitzer.js`. #11.
  * Remove `require.t.js`. #10.
