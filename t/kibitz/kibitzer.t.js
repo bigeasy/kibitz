@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(7, cadence(prove))
+require('proof')(8, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
