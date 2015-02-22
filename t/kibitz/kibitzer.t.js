@@ -21,7 +21,8 @@ function prove (async, assert) {
             assert(context, 'test', 'catcher context')
             if (!error) throw new Error
             assert(error.message, 'catcher caught')
-        }
+        },
+        preferred: true
     })
 
     assert(kibitzer._response({ okay: false }, null, null, null, 1), 1, 'not okay')

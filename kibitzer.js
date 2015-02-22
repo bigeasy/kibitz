@@ -26,7 +26,7 @@ function Kibitzer (options) {
     this.sync = middleware.handle(this.sync.bind(this))
     this.participants = {}
     this.legislator = new Legislator(this.createIdentifier(), {
-        peferred: function () { return this.id[this.id.length - 1] == 'a' },
+        prefer: function () { return this.id[this.id.length - 1] == 'a' },
         ping: [ 250, 250 ],
         timeout: [ 2000, 2000 ]
     })
@@ -168,7 +168,7 @@ Kibitzer.prototype.receive = cadence(function (async, request) {
     })
 })
 
-Kibitzer.prototype.createIdentifier = function (location) {
+Kibitzer.prototype.createIdentifier = function () {
     // return String(++KibitzerId)
     var hash = crypto.createHash('md5')
     hash.update(crypto.pseudoRandomBytes(1024))
