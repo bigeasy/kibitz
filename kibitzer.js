@@ -18,9 +18,9 @@ function Kibitzer (options) {
     this.brief = options.brief
     this.url = options.url
     this.play = options.play
-    this.discover = middleware.handle(this.discover.bind(this))
-    this.receive = middleware.handle(this.receive.bind(this))
-    this.enqueue = middleware.handle(this.enqueue.bind(this))
+    this.discover = middleware.handle(this._discover.bind(this))
+    this.receive = middleware.handle(this._receive.bind(this))
+    this.enqueue = middleware.handle(this._enqueue.bind(this))
     this.sync = middleware.handle(this.sync.bind(this))
     this.participants = {}
     this.legislator = new Legislator(this.createIdentifier(), {
@@ -122,7 +122,7 @@ Kibitzer.prototype._response = function (response, body, condition, values, fail
 }
 
 //Error.stackTraceLimit = Infinity
-Kibitzer.prototype.discover = cadence(function (async) {
+Kibitzer.prototype._discover = cadence(function (async) {
     var urls = []
     for (var key in this.legislator.location) {
         urls.push(this.legislator.location[key])
@@ -138,7 +138,7 @@ Kibitzer.prototype._checkSchedule = function () {
     }.bind(this), 50)
 }
 
-Kibitzer.prototype.receive = cadence(function (async, request) {
+Kibitzer.prototype._receive = cadence(function (async, request) {
     var work = request.body
     var route = work.route, index = work.index, expanded = serializer.expand(work.messages)
     async(function () {
@@ -277,8 +277,8 @@ Kibitzer.prototype.sync = cadence(function (async, request) {
     }
 })
 
-Kibitzer.prototype.enqueue = cadence(function (async, request) {
-    var response = { entries: [] }
+Kibitzer.prototype._enqueue = cadence(function (async, request) {
+    var response = { posted: false, entries: [] }
     request.body.entries.forEach(function (entry) {
         var outcome = this.legislator.post(entry.cookie, entry.value, entry.internal)
         // todo: I expect the cookie to be in the outcome.

@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(9, cadence(prove))
+require('proof')(10, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -102,6 +102,13 @@ function prove (async, assert) {
         setTimeout(async(), 1000)
     }, function () {
         assert(containers[4].kibitzer.legislator.government.majority.length, 3, 'registered fourth participant')
+        containers[4].kibitzer._enqueue({
+            body: {
+                entries: [{ cookie: 'x', value: 1, internal: false }]
+            }
+        }, async())
+    }, function (response) {
+        assert(!response.posted, 'enqueue not leader')
         setTimeout(async(), 350)
     }, function () {
         containers.forEach(function (container) {
