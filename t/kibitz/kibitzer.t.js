@@ -97,6 +97,9 @@ function prove (async, assert) {
         containers.forEach(function (container) {
             container.kibitzer.stop()
         })
+        containers.forEach(function (container) {
+            container.kibitzer.stop()
+        })
         bouquet.stop(async())
     })
 }
