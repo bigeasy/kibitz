@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(8, cadence(prove))
+require('proof')(9, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -92,6 +92,16 @@ function prove (async, assert) {
         containers[3].kibitzer.join(binder.location + '/discover', async())
     }, function () {
         assert(containers[3].kibitzer.legislator.government.majority.length, 2, 'registered third participant')
+    }, function () {
+        var binder = new Binder('http://127.0.0.1:8090')
+        containers.push(new Container(binder, options))
+        bouquet.start(containers[4], async())
+    }, function () {
+        containers[4].kibitzer.join(binder.location + '/discover', async())
+    }, function () {
+        setTimeout(async(), 1000)
+    }, function () {
+        assert(containers[4].kibitzer.legislator.government.majority.length, 3, 'registered fourth participant')
         setTimeout(async(), 350)
     }, function () {
         containers.forEach(function (container) {

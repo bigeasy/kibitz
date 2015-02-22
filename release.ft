@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Test five member parliament. #16.
  * Implement explicit stop of interval loop. #15.
  * Pulse `checkSchedule`. #13.
  * Rename main module to `kibitzer.js`. #11.

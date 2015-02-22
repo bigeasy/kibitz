@@ -62,7 +62,7 @@ function Kibitzer (options) {
                 var forwards = this.legislator.forwards(route, 0)
                 async(function () {
                     var serialized = {
-                        route:route,
+                        route: route,
                         index: 1,
                         messages: serializer.flatten(forwards)
                     }
@@ -144,27 +144,31 @@ Kibitzer.prototype.receive = cadence(function (async, request) {
     var work = request.body
     var route = work.route, index = work.index, expanded = serializer.expand(work.messages)
     async(function () {
-        this.legislator.inbox(route, expanded)
         route = this.legislator.routeOf(route.path, route.pulse)
+        this.legislator.inbox(route, expanded)
         if (index + 1 < route.path.length) {
             async(function () {
                 var forwards = this.legislator.forwards(route, index)
-                this.ua.fetch(function () {
-                    url: this.addresses[route.path[index + 1]]
+                var serialized = {
+                    route: route,
+                    index: index + 1,
+                    messages: serializer.flatten(forwards)
+                }
+                this.ua.fetch({
+                    url: this.legislator.location[route.path[index + 1]]
                 }, {
                     url: '/receive',
-                    messages: serializer.flatten(forwards)
-                })
+                    payload: serialized
+                }, async())
             }, function (body, response) {
-                // todo: should raise!
-                if (response.okay) {
-                    this.legislator.inbox(body.returns)
-                }
+                var returns = this._response(response, body, 'returns', 'returns', [])
+                this.legislator.inbox(route, returns)
             })
         }
     }, function () {
+        var returns = this.legislator.returns(route, index)
         this.consumer.nudge()
-        return { returns: this.legislator.returns(route, index) }
+        return { returns: returns }
     })
 })
 
@@ -247,7 +251,7 @@ Kibitzer.prototype.join = cadence(function (async, url) {
         this.client.prime(this.legislator.prime(this.since))
         assert(this.client.length, 'no entries in client')
         this.consumer.nudge()
-        var cookie = this.publish({
+        this.publish({
             type: 'naturalize',
             id: this.legislator.id,
             location: this.url
