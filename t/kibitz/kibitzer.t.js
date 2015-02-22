@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(10, cadence(prove))
+require('proof')(11, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -109,6 +109,11 @@ function prove (async, assert) {
         }, async())
     }, function (response) {
         assert(!response.posted, 'enqueue not leader')
+    }, [function () {
+        containers[4].kibitzer.pull([ 'http://127.0.0.1:8091', 'http://127.0.0.1:8091' ], async())
+    }, function (error) {
+        assert(error.message, 'cannot find a participant to sync with', 'cannot sync')
+    }], function () {
         setTimeout(async(), 350)
     }, function () {
         containers.forEach(function (container) {

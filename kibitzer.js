@@ -185,61 +185,64 @@ Kibitzer.prototype.bootstrap = function (location) {
     this._checkSchedule()
 }
 
+Kibitzer.prototype.pull = cadence(function (async, urls) {
+    if (urls.length == 0) {
+        throw new Error('no other participants')
+    }
+    var index = 0, dataset = 'log', next = null
+    var sync = async(function () {
+        this.ua.fetch({
+            url: urls[index]
+        }, {
+            url: '/sync',
+            payload: {
+                dataset: dataset,
+                next: next
+            }
+        }, async())
+    }, function (body, response) {
+        if (!response.okay) {
+            if (++index == urls.length) {
+                throw new Error('cannot find a participant to sync with')
+            } else {
+                return [ sync() ]
+            }
+        }
+        switch (dataset) {
+        case 'log':
+            this.legislator.inject(body.entries)
+            if (body.next == null) {
+                dataset = 'meta'
+                next = null
+            }
+            next = body.next
+            break
+        case 'meta':
+            this.legislator.location = body.location
+            this.since = body.promise
+            dataset = 'user'
+            break
+        case 'user':
+            async(function () {
+                async.forEach(function (entry) {
+                    this.play(entry, async())
+                })(body.entries)
+            }, function () {
+                next = body.next
+                if (next == null) {
+                    return [ sync ]
+                }
+            })
+            break
+        }
+    })()
+})
+
 Kibitzer.prototype.join = cadence(function (async, url) {
     async(function () {
         this.ua.fetch({ url: url, timeout: 2500 }, async())
     }, function (body, response) {
-        var urls = body.urls
-        if (urls.length == 0) {
-            throw new Error('no other participants')
-        }
-        var index = 0, dataset = 'log', next = null
-        var sync = async(function () {
-            this.ua.fetch({
-                url: body.urls[index]
-            }, {
-                url: '/sync',
-                payload: {
-                    dataset: dataset,
-                    next: next
-                }
-            }, async())
-        }, function (body, response) {
-            if (!response.okay) {
-                if (++index == urls.length) {
-                    throw new Error('cannot find a participant to sync with')
-                } else {
-                    return [ sync() ]
-                }
-            }
-            switch (dataset) {
-            case 'log':
-                this.legislator.inject(body.entries)
-                if (body.next == null) {
-                    dataset = 'meta'
-                    next = null
-                }
-                next = body.next
-                break
-            case 'meta':
-                this.legislator.location = body.location
-                this.since = body.promise
-                dataset = 'user'
-                break
-            case 'user':
-                async(function () {
-                    async.forEach(function (entry) {
-                        this.play(entry, async())
-                    })(body.entries)
-                }, function () {
-                    next = body.next
-                    if (next == null) {
-                        return [ sync ]
-                    }
-                })
-                break
-            }
-        })()
+        this.pull(body.urls, async())
     }, function () {
         this.legislator.immigrate(this.legislator.id)
         this._checkSchedule()
