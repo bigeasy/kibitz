@@ -11,8 +11,6 @@ var serializer = require('paxos/serializer')
 var Id = require('paxos/id')
 var RBTree = require('bintrees').RBTree
 
-var KibitzerId = 0
-
 function Kibitzer (options) {
     this.waits = new RBTree(function (a, b) { return Id.compare(a.promise, b.promise) })
     this.preferred = !!options.preferred
@@ -173,7 +171,6 @@ Kibitzer.prototype.receive = cadence(function (async, request) {
 })
 
 Kibitzer.prototype.createIdentifier = function () {
-    // return String(++KibitzerId)
     var hash = crypto.createHash('md5')
     hash.update(crypto.pseudoRandomBytes(1024))
     var preferred = this.preferred ? 'a' : '7'
