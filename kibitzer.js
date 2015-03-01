@@ -24,7 +24,7 @@ function Kibitzer (options) {
     this.sync = middleware.handle(this.sync.bind(this))
     this.participants = {}
     this.legislator = new Legislator(this.createIdentifier(), {
-        prefer: function () { return this.id[this.id.length - 1] == 'a' },
+        prefer: function () { return this.legislator.id[0] === 'a' }.bind(this),
         ping: [ 250, 250 ],
         timeout: [ 2000, 2000 ]
     })
@@ -174,7 +174,7 @@ Kibitzer.prototype.createIdentifier = function () {
     var hash = crypto.createHash('md5')
     hash.update(crypto.pseudoRandomBytes(1024))
     var preferred = this.preferred ? 'a' : '7'
-    return hash.digest('hex') + preferred
+    return preferred + hash.digest('hex')
 }
 
 Kibitzer.prototype.bootstrap = function (location) {
