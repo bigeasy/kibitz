@@ -24,7 +24,7 @@ function Kibitzer (options) {
     this.sync = middleware.handle(this.sync.bind(this))
     this.participants = {}
     this.legislator = new Legislator(this.createIdentifier(), {
-        prefer: function () { return this.legislator.id[0] === 'a' }.bind(this),
+        prefer: function (id) { return id[0] === 'a' },
         ping: [ 250, 250 ],
         timeout: [ 2000, 2000 ]
     })
