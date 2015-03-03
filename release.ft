@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Upgrade Inlet to 0.0.14. #28.
  * User a binder to specify discovery. #26.
  * Upgrade Paxos to 0.0.5. #22.
  * Test five member parliament. #16.
