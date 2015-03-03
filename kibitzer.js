@@ -21,7 +21,8 @@ function Kibitzer (id, options) {
     this.poll = options.poll || [ 5000, 7000 ]
 
     this.ping = options.ping
-    this.timeout = options.timeout
+    this.timeout = (typeof options.timeout == 'number')
+                 ? [ options.timeout, options.timeout ] : options.timeout
 
     this.preferred = !! options.preferred
     this.happenstance = new Scheduler(options.clock || function () { return Date.now() })
@@ -41,7 +42,7 @@ function Kibitzer (id, options) {
     this.client = new Client(this.legislator.id)
     this.cookies = {}
     this.logger = options.logger || function () { console.log(arguments) }
-    this.discoveryUrl = options.discoveryUrl
+    this.discovery = options.discovery
 
     this.subscriber = turnstile(function () {
         var outbox = this.client.outbox()
@@ -327,7 +328,7 @@ Kibitzer.prototype.whenPreferred = cadence(function (async) {
 
 Kibitzer.prototype.shouldRejoin = cadence(function (async, type, condition) {
     async(function () {
-        this.ua.fetch({ url: this.discoveryUrl, timeout: this.timeout[0] }, async())
+        this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
     }, function (body, response) {
         if (response.okay && condition(body)) {
             this._rejoin(async())
@@ -340,7 +341,7 @@ Kibitzer.prototype.shouldRejoin = cadence(function (async, type, condition) {
 Kibitzer.prototype.whenJoin = cadence(function (async) {
     async([function () {
         async(function () {
-            this.ua.fetch({ url: this.discoveryUrl, timeout: 2500 }, async())
+            this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
         }, function (body, response) {
             if (response.okay && body.urls.length) {
                 assert(this.islandId == null, 'island id not reset')

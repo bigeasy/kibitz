@@ -24,7 +24,7 @@ function prove (async, assert) {
     var options = {
         ping: [ 150, 350 ],
         preferred: false,
-        discoveryUrl: balancer.binder.location + '/discover'
+        discovery: [ balancer.binder, { url: '/discover' } ]
     }
     var port = 8086
     var containers = []
@@ -57,7 +57,7 @@ function prove (async, assert) {
         }, function () {
             console.log('starting balanced')
             var binder, container, joined = 0
-            options = { preferred: true, discoveryUrl: options.discoveryUrl }
+            options = { preferred: true, discovery: options.discovery }
             var loop = async(function () {
                 if (containers.length == 5) return [ loop ]
                 binder = new Binder('http://127.0.0.1:' + port++)

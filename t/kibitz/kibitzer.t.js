@@ -68,7 +68,7 @@ function prove (async, assert) {
     var balancer = new Balancer(new Binder('http://127.0.0.1:8080'))
     var options = {
         preferred: true,
-        discoveryUrl: balancer.binder.location + '/discover'
+        discovery: new Binder(balancer.binder.location + '/discover')
     }
 
     var bouquet = new Bouquet
@@ -96,7 +96,7 @@ function prove (async, assert) {
     }, function () {
         options = {
             preferred: false,
-            discoveryUrl: options.discoveryUrl
+            discovery: [ options.discovery, {} ]
         }
         var binder = new Binder('http://127.0.0.1:8088')
         containers.push(new Container(binder, createIdentifier(), options))
