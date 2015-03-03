@@ -3,13 +3,12 @@ var Kibitzer = require('..')
 var RBTree = require('bintrees').RBTree
 var cadence = require('cadence/redux')
 
-function Container (binder, options) {
+function Container (binder, id, options) {
     this.lookup = new RBTree(function (a, b) { return a.key - b.key })
     this.binder = binder
-    options.play = this.play.bind(this)
-    options.brief = this.brief.bind(this)
+    options.player = this
     options.url = binder.location
-    this.kibitzer = new Kibitzer(options)
+    this.kibitzer = new Kibitzer(id, options)
 }
 
 Container.prototype.dispatch = function () {
@@ -48,6 +47,11 @@ Container.prototype.brief = function (next) {
         iterator.prev()
     }
     return { next: entry && entry.key, entries: entries }
+}
+
+Container.prototype.scram = function (callback) {
+    this.lookup = new RBTree(function (a, b) { return a.key - b.key })
+    callback()
 }
 
 module.exports = Container
