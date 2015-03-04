@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(15, cadence(prove))
+require('proof')(14, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -23,11 +23,11 @@ function prove (async, assert) {
         preferred: true
     })
 
-    kibitzer._discover({
+/*    kibitzer._discover({
         raise: function (statusCode) {
             assert(statusCode, 517, 'discover with no island')
         }
-    }, function () {})
+    }, function () {}) */
 
     kibitzer._sync({
         body: { islandId: 'a' },

@@ -24,10 +24,11 @@ function Kibitzer (id, options) {
     this.timeout = (typeof options.timeout == 'number')
                  ? [ options.timeout, options.timeout ] : options.timeout
 
+    this.islandId = null
+    this.previousIslandId = id + '/1'
     this.preferred = !! options.preferred
     this.happenstance = new Scheduler(options.clock || function () { return Date.now() })
     this.joining = []
-    this.islandId = null
     this.waits = new RBTree(function (a, b) { return Id.compare(a.promise, b.promise) })
     this.preferred = !!options.preferred
     this.ua = new UserAgent
@@ -179,10 +180,12 @@ Kibitzer.prototype._urls = function () {
 
 Kibitzer.prototype._discover = cadence(function (async, request) {
     var urls = this._urls()
-    if (urls.length === 0) {
-        request.raise(517)
-    }
-    return { islandId: this.islandId, urls: urls }
+    urls.sort(function (left, right) {
+        var a = this.legislator.location[this.legislator.id] == left
+        var b = this.legislator.location[this.legislator.id] == right
+        return (a && b) || !(a || b) ? 0 : a ? -1 : 1
+    }.bind(this))
+    return { id: this.legislator.id, islandId: this.islandId, urls: urls }
 })
 
 Kibitzer.prototype._checkSchedule = function () {
@@ -238,6 +241,7 @@ Kibitzer.prototype.pull = cadence(function (async, urls) {
         }, {
             url: '/sync',
             payload: {
+                sourceId: this.id,
                 islandId: this.islandId,
                 dataset: dataset,
                 next: next
@@ -306,11 +310,12 @@ Kibitzer.prototype._joined = function () {
     this.joining.splice(0, this.joining.length).forEach(function (callback) { callback() })
 }
 
-Kibitzer.prototype._rejoin = cadence(function (async) {
+Kibitzer.prototype._rejoin = cadence(function (async, body) {
     async(function () {
         this.scram(async())
     }, function () {
-        this._schedule('join', 0)
+        if (body) this._naturalize(body, async())
+        else this._schedule('join', 0)
     })
 })
 
@@ -330,11 +335,36 @@ Kibitzer.prototype.shouldRejoin = cadence(function (async, type, condition) {
     async(function () {
         this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
     }, function (body, response) {
-        if (response.okay && condition(body)) {
-            this._rejoin(async())
+        if (response.okay && body.urls.length && condition(body)) {
+            this._rejoin(body, async())
         } else {
             this._schedule(type, this.timeout)
         }
+    })
+})
+
+Kibitzer.prototype._naturalize = cadence(function (async, body) {
+    assert(this.islandId == null, 'island id not reset')
+    this.islandId = body.islandId
+    async(function () {
+        this.pull(body.urls, async())
+    }, function () {
+        this.bootstrapped = false
+        this.legislator.immigrate(this.legislator.id)
+        this.legislator.initialize()
+        this.client.prime(this.legislator.prime(this.since))
+        assert(this.client.length, 'no entries in client')
+        this.consumer.workers = 1
+        this.publisher.workers = 1
+        this.subscriber.workers = 1
+        this.consumer.nudge()
+        this.publish({
+            type: 'naturalize',
+            id: this.legislator.id,
+            location: this.url
+        }, true, async())
+    }, function () {
+        this._joined()
     })
 })
 
@@ -344,31 +374,12 @@ Kibitzer.prototype.whenJoin = cadence(function (async) {
             this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
         }, function (body, response) {
             if (response.okay && body.urls.length) {
-                assert(this.islandId == null, 'island id not reset')
-                this.islandId = body.islandId
-                async(function () {
-                    this.pull(body.urls, async())
-                }, function () {
-                    this.legislator.immigrate(this.legislator.id)
-                    this.legislator.initialize()
-                    this.client.prime(this.legislator.prime(this.since))
-                    assert(this.client.length, 'no entries in client')
-                    this.consumer.workers = 1
-                    this.publisher.workers = 1
-                    this.subscriber.workers = 1
-                    this.consumer.nudge()
-                    this.publish({
-                        type: 'naturalize',
-                        id: this.legislator.id,
-                        location: this.url
-                    }, true, async())
-                }, function () {
-                    this._joined()
-                })
-            } else if (response.statusCode !== 503 || !this.preferred) {
+                this._naturalize(body, async())
+            } else if (!this.preferred) {
                 this._schedule('join', this.timeout)
             } else {
-                this.islandId = this.legislator.id
+                this.bootstrapped = true
+                this.islandId = this.legislator.id // this.previousIslandId = Id.increment(this.previousIslandId, 1)
                 this.consumer.workers = 1
                 this.publisher.workers = 1
                 this.subscriber.workers = 1
@@ -393,9 +404,10 @@ Kibitzer.prototype.publish = cadence(function (async, entry, internal) {
     this.subscriber.nudge()
 })
 
+//Error.stackTraceLimit = Infinity
 Kibitzer.prototype._sync = cadence(function (async, request) {
     var body = request.body
-    if (this.islandId != request.body.islandId) {
+    if (this.islandId !== request.body.islandId) {
         request.raise(517)
     }
     switch (body.dataset) {
