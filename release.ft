@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * User specified binder wrapper. #35.
  * Naturalize immediately. #30.
  * Upgrade Inlet to 0.0.14. #28.
  * User a binder to specify discovery. #26.

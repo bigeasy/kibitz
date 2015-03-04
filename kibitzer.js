@@ -4,6 +4,7 @@ require('cadence/loops')
 var Legislator = require('paxos/legislator')
 var Client = require('paxos/client')
 var Scheduler = require('happenstance')
+var Binder = require('inlet/net/binder')
 var middleware = require('inlet/http/middleware')
 var crypto = require('crypto')
 var assert = require('assert')
@@ -43,6 +44,7 @@ function Kibitzer (id, options) {
     this.client = new Client(this.legislator.id)
     this.cookies = {}
     this.logger = options.logger || function () { console.log(arguments) }
+    this.createBinder = options.createBinder || function (url) { return new Binder(url) }
     this.discovery = options.discovery
 
     this.subscriber = turnstile(function () {
@@ -50,9 +52,9 @@ function Kibitzer (id, options) {
         return outbox.length ? outbox : null
     }.bind(this), cadence([function (async, value) {
         async(function () {
-            this.ua.fetch({
-                url: this.legislator.location[this.legislator.government.majority[0]]
-            }, {
+            this.ua.fetch(
+                this.createBinder(this.legislator.location[this.legislator.government.majority[0]])
+            , {
                 url: '/enqueue',
                 payload: {
                     islandId: this.islandId,
@@ -80,9 +82,9 @@ function Kibitzer (id, options) {
                         index: 1,
                         messages: serializer.flatten(forwards)
                     }
-                    this.ua.fetch({
-                        url: this.legislator.location[route.path[1]]
-                    }, {
+                    this.ua.fetch(
+                        this.createBinder(this.legislator.location[route.path[1]])
+                    , {
                         url: '/receive',
                         payload: serialized
                     }, async())
@@ -215,9 +217,9 @@ Kibitzer.prototype._receive = cadence(function (async, request) {
                     index: index + 1,
                     messages: serializer.flatten(forwards)
                 }
-                this.ua.fetch({
-                    url: this.legislator.location[route.path[index + 1]]
-                }, {
+                this.ua.fetch(
+                    this.createBinder(this.legislator.location[route.path[index + 1]])
+                , {
                     url: '/receive',
                     payload: serialized
                 }, async())
@@ -236,9 +238,9 @@ Kibitzer.prototype._receive = cadence(function (async, request) {
 Kibitzer.prototype.pull = cadence(function (async, urls) {
     var index = 0, dataset = 'log', next = null
     var sync = async(function () {
-        this.ua.fetch({
-            url: urls[index]
-        }, {
+        this.ua.fetch(
+            this.createBinder(urls[index])
+        , {
             url: '/sync',
             payload: {
                 sourceId: this.id,
