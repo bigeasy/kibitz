@@ -261,6 +261,7 @@ Kibitzer.prototype.pull = cadence(function (async, urls) {
             case 'log':
                 this.legislator.inject(body.entries)
                 if (body.next == null) {
+                    // todo: fast forward client!
                     dataset = 'meta'
                     next = null
                 }
@@ -289,7 +290,6 @@ Kibitzer.prototype.pull = cadence(function (async, urls) {
 })
 
 Kibitzer.prototype.join = cadence(function (async, url) {
-    this.logger('info', 'join')
     if (this._urls().length) {
         return []
     }
@@ -389,7 +389,8 @@ Kibitzer.prototype.whenJoin = cadence(function (async) {
             this.logger('info', 'join', {
                 kibitzerId: this.legislator.id,
                 statusCode: response.statusCode,
-                payload: body
+                payload: body,
+                preferred: this.preferred
             })
             if (response.okay && body.urls.length) {
                 this._naturalize(body, async())
