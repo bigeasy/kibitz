@@ -287,6 +287,7 @@ Kibitzer.prototype.pull = cadence(function (async, urls) {
 })
 
 Kibitzer.prototype.join = cadence(function (async, url) {
+    this.logger('info', 'join')
     if (this._urls().length) {
         return []
     }
@@ -335,6 +336,9 @@ Kibitzer.prototype.shouldRejoin = cadence(function (async, type, condition) {
     async(function () {
         this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
     }, function (body, response) {
+        this.logger('info', type + 'Rediscover', {
+            statusCode: response.statusCode, payload: body
+        })
         if (response.okay && body.urls.length && condition(body)) {
             this._rejoin(body, async())
         } else {
