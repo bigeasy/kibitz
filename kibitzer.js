@@ -339,7 +339,9 @@ Kibitzer.prototype.shouldRejoin = cadence(function (async, type, condition) {
         this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
     }, function (body, response) {
         this.logger('info', type + 'Rediscover', {
-            statusCode: response.statusCode, payload: body
+            kibitzerId: this.legislator.id,
+            statusCode: response.statusCode,
+            payload: body
         })
         if (response.okay && body.urls.length && condition(body)) {
             this._rejoin(body, async())
@@ -355,6 +357,11 @@ Kibitzer.prototype._naturalize = cadence(function (async, body) {
     async(function () {
         this.pull(body.urls, async())
     }, function () {
+        this.logger('info', 'naturalize', {
+            kibitzerId: this.legislator.id,
+            islandId: this.islandId,
+            preferred: this.preferred
+        })
         this.bootstrapped = false
         this.legislator.immigrate(this.legislator.id)
         this.legislator.initialize()
@@ -379,9 +386,18 @@ Kibitzer.prototype.whenJoin = cadence(function (async) {
         async(function () {
             this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
         }, function (body, response) {
+            this.logger('info', 'join', {
+                kibitzerId: this.legislator.id,
+                statusCode: response.statusCode,
+                payload: body
+            })
             if (response.okay && body.urls.length) {
                 this._naturalize(body, async())
             } else if (!this.preferred) {
+                this.logger('info', 'joinRetry', {
+                    kibitzerId: this.legislator.id,
+                    preferred: this.preferred
+                })
                 this._schedule('join', this.timeout)
             } else {
                 this.bootstrapped = true
@@ -390,6 +406,11 @@ Kibitzer.prototype.whenJoin = cadence(function (async) {
                 this.publisher.workers = 1
                 this.subscriber.workers = 1
                 this.legislator.bootstrap()
+                this.logger('info', 'bootstrap', {
+                    kibitzerId: this.legislator.id,
+                    islandId: this.islandId,
+                    preferred: this.preferred
+                })
                 this.client.prime(this.legislator.prime('1/0'))
                 this.legislator.location[this.legislator.id] = this.url
                 this._joined()
