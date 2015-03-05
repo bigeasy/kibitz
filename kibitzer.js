@@ -25,6 +25,8 @@ function Kibitzer (id, options) {
     this.timeout = (typeof options.timeout == 'number')
                  ? [ options.timeout, options.timeout ] : options.timeout
 
+    this.syncLength = options.syncLength || 250
+
     this.islandId = null
     this.previousIslandId = id + '/1'
     this.preferred = !! options.preferred

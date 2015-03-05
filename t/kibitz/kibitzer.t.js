@@ -68,7 +68,8 @@ function prove (async, assert) {
     var balancer = new Balancer(new Binder('http://127.0.0.1:8080'))
     var options = {
         preferred: true,
-        discovery: new Binder(balancer.binder.location + '/discover')
+        syncLength: 24,
+        discovery: [ balancer.binder, { url: '/discover' } ]
     }
 
     var bouquet = new Bouquet
@@ -94,10 +95,7 @@ function prove (async, assert) {
     }, function () {
         assert(containers[1].kibitzer.legislator.government.constituents.length, 1, 'registered first participant')
     }, function () {
-        options = {
-            preferred: false,
-            discovery: [ options.discovery, {} ]
-        }
+        options.preferred = false
         var binder = new Binder('http://127.0.0.1:8088')
         containers.push(new Container(binder, createIdentifier(), options))
         bouquet.start(containers[2], async())
