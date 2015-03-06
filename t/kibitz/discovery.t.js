@@ -42,7 +42,9 @@ function prove (async, assert) {
                 containers.push(container)
                 balanced.start(container, async())
             }, function () {
+                var id = container.kibitzer.legislator.id
                 container.kibitzer.join(function (error) {
+                        console.log("JOINED", id)
                     if (error) throw error
                     if (++joined === 3) {
                         assert(true, 'unbalanced joined')
@@ -93,6 +95,7 @@ function prove (async, assert) {
             }
         })()
     }, function () {
+        console.log("WHAT!!!", containers[2].kibitzer.happenstance.what[73], Date.now())
         assert(true, 'killed preferred')
         var loop = async(function () {
             if (containers.slice(0, 2).every(function (container) {
@@ -104,10 +107,13 @@ function prove (async, assert) {
             setTimeout(async(), 1000)
         })()
     }, function () {
+        setTimeout(async(), 3000)
+    }, function () {
         assert(true, 'killed not preferred')
-        containers.forEach(function (container) {
-            container.kibitzer.stop()
-        })
+        async.forEach(function (container) {
+            container.kibitzer.stop(async())
+        })(containers)
+    }, function () {
         balanced.stop(async())
     }, function () {
         bouquet.stop(async())

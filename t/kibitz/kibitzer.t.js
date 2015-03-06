@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(14, cadence(prove))
+require('proof')(13, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -12,16 +12,18 @@ function prove (async, assert) {
 
     var ua = new UserAgent
 
-    new Kibitzer('1', {}).logger(1) // defaults
-
     var kibitzer = new Kibitzer('1', {
-        logger: function (level, context, error) {
-            assert(context, 'test', 'catcher context')
-            if (!error) throw new Error
-            assert(error.message, 'catcher caught')
+        logger: function (level, message, context) {
+            assert(message, 'test', 'catcher context')
+            if (!context.error) throw new Error
+            assert(context.error.message, 'catcher caught')
         },
         preferred: true
     })
+
+    kibitzer.catcher('test')(new Error('caught'))
+    kibitzer = new Kibitzer('1', {})
+    kibitzer.logger('info', 'test', {}) // defaults
 
 /*    kibitzer._discover({
         raise: function (statusCode) {
@@ -50,15 +52,8 @@ function prove (async, assert) {
         }
     }, function () {})
 
-    kibitzer.joining.push(function (error) {
-        assert(error.message, 'joining', 'join error')
-    })
-    kibitzer._catchJoinError(new Error('joining'))
-
     assert(kibitzer._response({ okay: false }, null, null, null, 1), 1, 'not okay')
     assert(kibitzer._response({ okay: true }, { posted: false }, 'posted', null, 1), 1, 'value missing')
-
-    kibitzer.catcher('test')(new Error('caught'))
 
     var identifier = 0
     function createIdentifier () {
@@ -154,19 +149,21 @@ function prove (async, assert) {
         }, async())
     }, function (response) {
         assert(!response.posted, 'enqueue not leader')
-    }, function () {
-        containers[4].kibitzer.pull([ 'http://127.0.0.1:8091' ], async())
+    }, [function () {
+        containers[4].kibitzer.pull('http://127.0.0.1:8091', async())
     }, function (error) {
-        assert(!containers[4].islandId, 'cannot sync')
-    }, function () {
+        assert(error.message, 'unable to sync', 'cannot sync')
+    }], function () {
         setTimeout(async(), 350)
     }, function () {
-        containers.forEach(function (container) {
-            container.kibitzer.stop()
-        })
-        containers.forEach(function (container) {
-            container.kibitzer.stop()
-        })
+        async.forEach(function (container) {
+            container.kibitzer.stop(async())
+        })(containers)
+    }, function () {
+        async.forEach(function (container) {
+            container.kibitzer.stop(async())
+        })(containers)
+    }, function () {
         bouquet.stop(async())
     })
 }
