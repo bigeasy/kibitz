@@ -81,8 +81,8 @@ function prove (async, assert) {
         console.log('island started')
         setTimeout(async(), 1000)
     }, function () {
-        assert(containers[3].kibitzer.islandId, 'a4', 'bootstrapped')
-        assert(containers[4].kibitzer.islandId, 'a5', 'split brain')
+        assert(containers[3].kibitzer.islandId, 'a40', 'bootstrapped')
+        assert(containers[4].kibitzer.islandId, 'a50', 'split brain')
         balancer.servers.push(containers[4].binder)
         setTimeout(async(), 1000)
     }, function () {
@@ -90,7 +90,7 @@ function prove (async, assert) {
         var loop = async(function () {
             setTimeout(async(), 1000)
         }, function () {
-            if (containers[4].kibitzer.islandId == 'a4') {
+            if (containers[4].kibitzer.islandId == 'a40') {
                 return [ loop ]
             }
         })()
@@ -99,7 +99,7 @@ function prove (async, assert) {
         assert(true, 'killed preferred')
         var loop = async(function () {
             if (containers.slice(0, 2).every(function (container) {
-                return container.kibitzer.islandId == 'a4'
+                return container.kibitzer.islandId == 'a40'
             })) {
                 return [ loop ]
             }
