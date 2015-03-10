@@ -143,7 +143,7 @@ function prove (async, assert) {
         assert(containers[4].kibitzer.legislator.government.majority.length, 3, 'registered fourth participant')
         containers[4].kibitzer._enqueue({
             body: {
-                islandId: 'a1',
+                islandId: 'a10',
                 entries: [{ cookie: 'x', value: 1, internal: false }]
             }
         }, async())
