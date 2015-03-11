@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Assert correct island on pull. #45.
  * Implement disposable turnstiles. #44.
  * Monotonic island id. #43.
  * Concurrency rethink. #41.

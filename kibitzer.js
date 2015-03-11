@@ -336,9 +336,15 @@ Kibitzer.prototype._receive = cadence(function (async, request) {
     })
 })
 
+Kibitzer.prototype._checkPullIsland = function (islandId) {
+    if (this.islandId != islandId) {
+        throw new Error('island change')
+    }
+}
+
 Kibitzer.prototype.pull = cadence(function (async, url) {
     assert(url, 'url is missing')
-    var  dataset = 'log', payload, next = null
+    var dataset = 'log', payload, next = null, islandId = this.islandId
     var sync = async(function () {
         this.ua.fetch(
             this.createBinder(url)
@@ -352,6 +358,7 @@ Kibitzer.prototype.pull = cadence(function (async, url) {
             }
         }, async())
     }, function (body, response) {
+        this._checkPullIsland(islandId)
         this.logger('info', 'pulled', {
             kibitzerId: this.legislator.id,
             islandId: this.islandId,
@@ -384,6 +391,7 @@ Kibitzer.prototype.pull = cadence(function (async, url) {
                     async.forEach(function (entry) {
                         this.player.play(entry, async())
                     }, function () {
+                        this._checkPullIsland(islandId)
                         this._schedule('joining', this.timeout[0])
                     })(body.entries)
                 }, function () {
