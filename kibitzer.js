@@ -62,7 +62,6 @@ function Kibitzer (id, options) {
     })
     this.cookies = {}
     this.logger = options.logger || function (level, message, context) {
-        return
         var error
         if (error = context.error) {
             delete context.error
