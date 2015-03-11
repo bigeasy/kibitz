@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Implement disposable turnstiles. #44.
  * Monotonic island id. #43.
  * Concurrency rethink. #41.
  * Parameterize sync length. #40.
