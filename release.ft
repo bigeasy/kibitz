@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Shutdown current turnstiles on scram. #47.
  * Assert correct island on pull. #45.
  * Implement disposable turnstiles. #44.
  * Monotonic island id. #43.

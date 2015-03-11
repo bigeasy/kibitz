@@ -98,6 +98,9 @@ Kibitzer.prototype._unexceptional = function (error) {
 
 Kibitzer.prototype.scram = cadence(function (async) {
     async(function () {
+        this.consumer.workers = 0
+        this.publisher.workers = 0
+        this.subscriber.workers = 0
         this.legislator = this._createLegislator()
         this.client = new Client(this.legislator.id)
         this._createTurnstiles(this.instance = {
@@ -660,6 +663,7 @@ Kibitzer.prototype.wait = function (promise, callback) {
 }
 
 Kibitzer.prototype.stop = cadence(function (async) {
+    this.scheduler.workers = 0
     if (this._interval != null) {
         clearInterval(this._interval)
         this._interval = null
