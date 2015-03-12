@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Remove non-applicable conditional. #50.
  * Shutdown current turnstiles on scram. #47.
  * Assert correct island on pull. #45.
  * Implement disposable turnstiles. #44.

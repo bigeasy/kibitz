@@ -459,10 +459,9 @@ Kibitzer.prototype._rejoin = cadence(function (async, body) {
         this.available = false
         this.client.clear().forEach(function (request) {
             var callback = this.cookies[request.cookie]
-            if (callback) {
-                delete this.cookies[request.cookie]
-                callback(this._unexceptional(new Error('rejoining')))
-            }
+            assert(callback, 'request missing callback')
+            delete this.cookies[request.cookie]
+            callback(this._unexceptional(new Error('rejoining')))
         }, this)
         this.scram(async())
     }, function () {
