@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(14, cadence(prove))
+require('proof')(15, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -74,9 +74,23 @@ function prove (async, assert) {
 
     var bouquet = new Bouquet
     var binder = new Binder('http://127.0.0.1:8086')
+    var container = new Container(binder, 'f', {
+        discovery: [ balancer.binder, { url: '/discover' } ],
+        logger: function (level, message, context) {
+            if (message == 'join') {
+                throw new Error
+            } else if (level == 'error') {
+                assert(!context.error.unexceptional, 'exceptional error')
+            }
+        }
+    })
     var containers = [ new Container(binder, createIdentifier(), options) ]
 
     async(function () {
+        container.kibitzer.whenJoin(async())
+    }, function () {
+        container.kibitzer.stop(async())
+    }, function () {
         bouquet.start(balancer, async())
     }, function () {
         bouquet.start(containers[0], async())
