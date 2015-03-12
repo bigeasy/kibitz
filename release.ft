@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Test unexceptional error in a turnstile. #55.
  * Remove catch block from `whenJoin`. #54.
  * Test numeric timeout. #53.
  * Test catching exception in join. #52.

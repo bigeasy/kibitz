@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(15, cadence(prove))
+require('proof')(19, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -12,19 +12,28 @@ function prove (async, assert) {
 
     var ua = new UserAgent
 
+    var kibitzer = new Kibitzer('1', { timeout: 1001 })
+    assert(kibitzer.timeout[0], 1001, 'numeric timeout')
+
     var kibitzer = new Kibitzer('1', {
         logger: function (level, message, context) {
             assert(message, 'test', 'catcher context')
-            if (!context.error) throw new Error
-            assert(context.error.message, 'catcher caught')
-        },
-        preferred: true,
-        timeout: 1001
+            assert(level, 'error', 'exception message')
+            assert(!context.error.unexeptional, 'exception')
+        }
     })
 
-    assert(kibitzer.timeout[0], 1001, 'numeric timeout')
-
     kibitzer.catcher('test')(new Error('caught'))
+
+    var kibitzer = new Kibitzer('1', {
+        logger: function (level, message, context) {
+            assert(message, 'test', 'catcher context')
+            assert(level, 'info', 'unexceptional exception message')
+            assert(context.error.unexceptional, 'unexceptional exception')
+        }
+    })
+    kibitzer.catcher('test')(kibitzer._unexceptional(new Error('caught')))
+
     kibitzer = new Kibitzer('1', {})
     kibitzer.logger('info', 'test', {}) // defaults
 
@@ -33,11 +42,6 @@ function prove (async, assert) {
     } catch (error) {
         assert(error.message, 'island change', 'check pull island id')
     }
-/*    kibitzer._discover({
-        raise: function (statusCode) {
-            assert(statusCode, 517, 'discover with no island')
-        }
-    }, function () {}) */
 
     kibitzer._sync({
         body: { islandId: 'a' },
