@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(15, cadence(prove))
+require('proof')(16, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -18,8 +18,11 @@ function prove (async, assert) {
             if (!context.error) throw new Error
             assert(context.error.message, 'catcher caught')
         },
-        preferred: true
+        preferred: true,
+        timeout: 1001
     })
+
+    assert(kibitzer.timeout[0], 1001, 'numeric timeout')
 
     kibitzer.catcher('test')(new Error('caught'))
     kibitzer = new Kibitzer('1', {})

@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Test numeric timeout. #53.
  * Test catching exception in join. #52.
  * Mark island id exceptions as unexceptional. #51.
  * Remove non-applicable conditional. #50.
