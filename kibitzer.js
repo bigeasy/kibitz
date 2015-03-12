@@ -35,30 +35,34 @@ function Kibitzer (id, options) {
     options.ping || (options.ping = [ 250, 250 ])
     options.timeout || (options.timeout = [ 1000, 1000 ])
     this.poll = options.poll || [ 5000, 7000 ]
-
-    this.suffix = '0'
     this.ping = options.ping
     this.timeout = (typeof options.timeout == 'number')
                  ? [ options.timeout, options.timeout ] : options.timeout
 
     this.syncLength = options.syncLength || 250
 
-    this.islandId = null
-    this.previousIslandId = id + '/1'
     this.preferred = !! options.preferred
+
     this.happenstance = new Scheduler(options.clock || function () { return Date.now() })
+
     this.joining = []
-    this.waits = new RBTree(function (a, b) { return Id.compare(a.promise, b.promise) })
-    this.preferred = !!options.preferred
+
     this.ua = new UserAgent
+
     this.url = options.url
-    this.player = options.player
+
     this.discover = middleware.handle(this._discover.bind(this))
     this.receive = middleware.handle(this._receive.bind(this))
     this.enqueue = middleware.handle(this._enqueue.bind(this))
     this.sync = middleware.handle(this._sync.bind(this))
-    this.participants = {}
+
+    this.player = options.player
+
+    this.islandId = null
+    this.previousIslandId = id + '/1'
     this.baseId = id
+    this.suffix = '0'
+
     this.legislator = this._createLegislator()
     this.client = new Client(this.legislator.id)
     this._createTurnstiles(this.instance = {
@@ -67,6 +71,7 @@ function Kibitzer (id, options) {
         client: this.client,
         player: this.player
     })
+
     this.cookies = {}
     this.logger = options.logger || function (level, message, context) {
         var error
@@ -79,10 +84,13 @@ function Kibitzer (id, options) {
             console.log(error.stack)
         }
     }
+
     this.createBinder = options.createBinder || function (url) { return new Binder(url) }
     this.discovery = options.discovery
 
     this.available = false
+
+    this.waits = new RBTree(function (a, b) { return Id.compare(a.promise, b.promise) })
 
     this.scheduler = turnstile(function () {
         var events = this.happenstance.check()
