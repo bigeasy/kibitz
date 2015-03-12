@@ -1,18 +1,25 @@
-var UserAgent = require('inlet/http/ua')
-var cadence = require('cadence/redux')
-require('cadence/loops')
-var Legislator = require('paxos/legislator')
-var Client = require('paxos/client')
-var Scheduler = require('happenstance')
-var Binder = require('inlet/net/binder')
-var middleware = require('inlet/http/middleware')
 var crypto = require('crypto')
 var assert = require('assert')
-var turnstile = require('turnstile')
-var serializer = require('paxos/serializer')
-var Id = require('paxos/id')
+
 var RBTree = require('bintrees').RBTree
+
+var cadence = require('cadence/redux')
+require('cadence/loops')
+
+var Id = require('paxos/id')
+var Legislator = require('paxos/legislator')
+var Client = require('paxos/client')
+var serializer = require('paxos/serializer')
+
 var Monotonic = require('monotonic')
+
+var Scheduler = require('happenstance')
+
+var UserAgent = require('inlet/http/ua')
+var Binder = require('inlet/net/binder')
+var middleware = require('inlet/http/middleware')
+
+var turnstile = require('turnstile')
 
 function Ignore () {
 }
