@@ -299,9 +299,9 @@ Kibitzer.prototype._unexceptional = function (error) {
     return error
 }
 
-Kibitzer.prototype._checkPullIsland = function (islandId) {
+Kibitzer.prototype._checkPullIslandId = function (islandId) {
     if (this.islandId != islandId) {
-        throw new Error('island change')
+        throw this._unexceptional(new Error('island change'))
     }
 }
 
@@ -321,7 +321,7 @@ Kibitzer.prototype.pull = cadence(function (async, url) {
             }
         }, async())
     }, function (body, response) {
-        this._checkPullIsland(islandId)
+        this._checkPullIslandId(islandId)
         this.logger('info', 'pulled', {
             kibitzerId: this.legislator.id,
             islandId: this.islandId,
@@ -354,7 +354,7 @@ Kibitzer.prototype.pull = cadence(function (async, url) {
                     async.forEach(function (entry) {
                         this.player.play(entry, async())
                     }, function () {
-                        this._checkPullIsland(islandId)
+                        this._checkPullIslandId(islandId)
                         this._schedule('joining', this.timeout[0])
                     })(body.entries)
                 }, function () {

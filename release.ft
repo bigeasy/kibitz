@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Mark island id exceptions as unexceptional. #51.
  * Remove non-applicable conditional. #50.
  * Shutdown current turnstiles on scram. #47.
  * Assert correct island on pull. #45.
