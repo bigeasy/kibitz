@@ -1,7 +1,7 @@
 var cadence = require('cadence/redux')
 var UserAgent = require('inlet/http/ua')
 
-require('proof')(16, cadence(prove))
+require('proof')(15, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..'),
@@ -90,10 +90,6 @@ function prove (async, assert) {
     var containers = [ new Container(binder, createIdentifier(), options) ]
 
     async(function () {
-        container.kibitzer.whenJoin(async())
-    }, function () {
-        container.kibitzer.stop(async())
-    }, function () {
         bouquet.start(balancer, async())
     }, function () {
         bouquet.start(containers[0], async())

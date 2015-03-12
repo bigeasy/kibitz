@@ -471,51 +471,43 @@ Kibitzer.prototype._rejoin = cadence(function (async, body) {
 })
 
 Kibitzer.prototype.whenJoin = cadence(function (async) {
-    async([function () {
-        async(function () {
-            this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
-        }, function (body, response) {
-            this.logger('info', 'join', {
-                kibitzerId: this.legislator.id,
-                islandId: this.islandId,
-                statusCode: response.statusCode,
-                received: body,
-                preferred: this.preferred
-            })
-            if (response.okay && body.urls.length) {
-                this._naturalize(body, async())
-            } else if (!this.preferred) {
-                this.logger('info', 'retry', {
-                    kibitzerId: this.legislator.id,
-                    islandId: this.islandId,
-                    preferred: this.preferred
-                })
-                this._schedule('join', this.timeout)
-            } else {
-                this.bootstrapped = true
-                this.islandId = this.instance.islandId = this.legislator.id // this.previousIslandId = Id.increment(this.previousIslandId, 1)
-                this.consumer.workers = 1
-                this.publisher.workers = 1
-                this.subscriber.workers = 1
-                this.legislator.bootstrap()
-                this.logger('info', 'bootstrap', {
-                    kibitzerId: this.legislator.id,
-                    islandId: this.islandId,
-                    preferred: this.preferred
-                })
-                this.client.prime(this.legislator.prime('1/0'))
-                this.legislator.location[this.legislator.id] = this.url
-                this.available = true
-                this._joined()
-            }
-        })
-    }, function (error) {
-        this.logger(error.unexceptional ? 'info' : 'error', 'whenJoin', {
+    async(function () {
+        this.ua.fetch(this.discovery, { timeout: this.timeout[0] }, async())
+    }, function (body, response) {
+        this.logger('info', 'join', {
             kibitzerId: this.legislator.id,
             islandId: this.islandId,
-            error: error
+            statusCode: response.statusCode,
+            received: body,
+            preferred: this.preferred
         })
-    }])
+        if (response.okay && body.urls.length) {
+            this._naturalize(body, async())
+        } else if (!this.preferred) {
+            this.logger('info', 'retry', {
+                kibitzerId: this.legislator.id,
+                islandId: this.islandId,
+                preferred: this.preferred
+            })
+            this._schedule('join', this.timeout)
+        } else {
+            this.bootstrapped = true
+            this.islandId = this.instance.islandId = this.legislator.id // this.previousIslandId = Id.increment(this.previousIslandId, 1)
+            this.consumer.workers = 1
+            this.publisher.workers = 1
+            this.subscriber.workers = 1
+            this.legislator.bootstrap()
+            this.logger('info', 'bootstrap', {
+                kibitzerId: this.legislator.id,
+                islandId: this.islandId,
+                preferred: this.preferred
+            })
+            this.client.prime(this.legislator.prime('1/0'))
+            this.legislator.location[this.legislator.id] = this.url
+            this.available = true
+            this._joined()
+        }
+    })
 })
 
 Kibitzer.prototype.whenJoining = cadence(function (async) {

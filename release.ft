@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Remove catch block from `whenJoin`. #54.
  * Test numeric timeout. #53.
  * Test catching exception in join. #52.
  * Mark island id exceptions as unexceptional. #51.
