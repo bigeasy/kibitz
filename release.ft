@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Upgrade Paxos to 0.0.12. #56.
  * Test unexceptional error in a turnstile. #55.
  * Remove catch block from `whenJoin`. #54.
  * Test numeric timeout. #53.
