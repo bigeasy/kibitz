@@ -512,6 +512,10 @@ Kibitzer.prototype.whenJoin = cadence(function (async) {
 })
 
 Kibitzer.prototype.whenJoining = cadence(function (async) {
+    this.logger('info', 'joining', {
+        kibitzerId: this.legislator.id,
+        islandId: this.islandId
+    })
     this._rejoin(async())
 })
 
@@ -646,6 +650,10 @@ Kibitzer.prototype.wait = function (promise, callback) {
 }
 
 Kibitzer.prototype.scram = cadence(function (async) {
+    this.logger('info', 'scram', {
+        kibitzerId: this.legislator.id,
+        islandId: this.islandId
+    })
     async(function () {
         this.consumer.workers = 0
         this.publisher.workers = 0
