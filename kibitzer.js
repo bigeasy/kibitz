@@ -160,6 +160,9 @@ Kibitzer.prototype._createTurnstiles = function (instance) {
                 received: body
             })
             instance.client.published(published)
+            if (published.length === 0) {
+                setTimeout(async(), this.timeout[0])
+            }
         })
     }, this.catcher('subscriber')
     ]).bind(this))

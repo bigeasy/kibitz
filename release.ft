@@ -1,5 +1,6 @@
 ### Issue by Issue
 
+ * Wait after enqueuing failure. #61.
  * Remove `setImmediate` from consumer. #60.
  * Upgrade Inlet to 0.0.15. #58.
  * Upgrade Paxos to 0.0.12. #56.
