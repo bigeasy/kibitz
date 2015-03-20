@@ -208,8 +208,6 @@ Kibitzer.prototype._createTurnstiles = function (instance) {
         return entries.length ? entries : null
     }.bind(this), cadence([function (async, entries) {
         async(function () {
-            setImmediate(async())
-        }, function () {
             this.logger('info', 'consuming', {
                 kibitzerId: instance.legislator.id,
                 islandId: instance.islandId,
