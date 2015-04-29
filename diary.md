@@ -8,3 +8,11 @@ You can run Boot2Docker from /Applications, but from the command line:
     `boot2docker start` does what it says.
     `boot2docker shellinit` sets and displays default ENV variables.
     `docker run hello-world` verifies setup.
+
+`docker run` options:
+    `-P` publishes exposed ports
+    `-d` keeps container running in background
+
+`docker ps` is, er, `ps` for docker
+
+`boot2docker ip` gives the VM address.
