@@ -13,6 +13,15 @@ You can run Boot2Docker from /Applications, but from the command line:
     `-P` publishes exposed ports
     `-d` keeps container running in background
 
-`docker ps` is, er, `ps` for docker
+`docker ps` is, er, `ps` for docker. `-a` includes stopped containers, `-l` specifies the last container started.
 
 `boot2docker ip` gives the VM address.
+
+can `docker search` for and `docker pull` images.
+
+To create an image, touch a `Dockerfile` and run
+```
+docker --tls build -t <your username>/<app name> .
+```
+
+`stop`, `rm`, `rmi`, `build` <<< container/image commands
