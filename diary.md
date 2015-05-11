@@ -26,8 +26,10 @@ docker --tls build -t <your username>/<app name> .
 
 `stop`, `rm`, `rmi`, `build` <<< container/image commands
 
-`docker inspect` returns JSON that can be formatted for the desired output.
-you can use `--format=''` to specify a field ex: `docker inspect --format='{{.LogPath}}'
+ `docker inspect` returns JSON that can be formatted for the desired output.
+you can use `--format=''` to specify a field ex. `docker inspect --format='\{{.LogPath}}'
 
 docker only uses environment vars and /etc/hosts to communicate between linked containers.
 link with `--link` and a container name.
+
+data volumes lend persistent, container-agnostic data. can be shared and reused across containers. add '-v' and a directory to `create` or `run`.
