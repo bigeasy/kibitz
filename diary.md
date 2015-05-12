@@ -3,6 +3,8 @@
 `Boot2Docker` uses a Linux VM as the Docker host. `Boot2Docker` includes `Docker` in its install.
 Within the `Boot2Docker` VM, you can issue `docker` commands.
 
+Download here: https://github.com/boot2docker/osx-installer/releases/latest
+
 You can run Boot2Docker from /Applications, but from the command line:
     `boot2docker init` creates a new virtual machine.
     `boot2docker start` does what it says.
