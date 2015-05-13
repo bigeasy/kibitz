@@ -35,3 +35,7 @@ docker only uses environment vars and /etc/hosts to communicate between linked c
 link with `--link` and a container name.
 
 data volumes lend persistent, container-agnostic data. can be shared and reused across containers. add '-v' and a directory to `create` or `run`.
+
+Compose lets you define multi-container applications in a Dockerfile.
+you also need a `docker-compose.yml` to define your app's services.
+to run: `docker-compose up`
