@@ -43,3 +43,6 @@ to run: `docker-compose up`
 Compose installation:
 `curl -L https://github.com/docker/compose/releases/download/1.2.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose`
 `chmod +x /usr/local/bin/docker-compose`
+
+`docker-compose run [cmd]` lets you run commands on your services.
+`docker-compose stop`.
