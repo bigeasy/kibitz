@@ -46,3 +46,10 @@ Compose installation:
 
 `docker-compose run [cmd]` lets you run commands on your services.
 `docker-compose stop`.
+
+compose.yml:
+`links:
+    - service:alias
+or
+    - alias
+`
