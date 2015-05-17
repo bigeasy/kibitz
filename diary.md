@@ -53,3 +53,8 @@ compose.yml:
 or
     - alias
 `
+`external_links:
+    - container:alias
+or
+    - alias
+`
