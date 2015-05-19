@@ -64,3 +64,8 @@ or
 `expose:
     - "port"
 `
+
+Machine installation:
+`$ curl -L https://github.com/docker/machine/releases/download/v0.2.0/docker-machine_darwin-amd64 > /usr/local/bin/docker-machine
+`$ chmod +x /usr/local/bin/docker-machine
+"Machine makes it really easy to create Docker hosts on your computer, on cloud providers and inside your own data center. It creates servers, installs Docker on them, then configures the Docker client to talk to them."
