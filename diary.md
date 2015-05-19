@@ -58,3 +58,9 @@ or
 or
     - alias
 `
+`ports:
+    - "host:container"
+`
+`expose:
+    - "port"
+`
