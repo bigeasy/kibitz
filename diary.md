@@ -69,3 +69,13 @@ Machine installation:
 `$ curl -L https://github.com/docker/machine/releases/download/v0.2.0/docker-machine_darwin-amd64 > /usr/local/bin/docker-machine
 `$ chmod +x /usr/local/bin/docker-machine
 "Machine makes it really easy to create Docker hosts on your computer, on cloud providers and inside your own data center. It creates servers, installs Docker on them, then configures the Docker client to talk to them."
+
+`docker-machine create`
+optional `--driver` flag, can specify 'virtualbox'
+
+on every start run:
+`$ eval "$(docker-machine env dev)"
+$ docker ps` to copy env vars
+then you can run normal docker commands.
+`docker-machine [stop/start]
+can specify host as last argument ex: `docker-machine stop dev`
