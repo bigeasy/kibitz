@@ -79,3 +79,13 @@ $ docker ps` to copy env vars
 then you can run normal docker commands.
 `docker-machine [stop/start]
 can specify host as last argument ex: `docker-machine stop dev`
+
+can pass credentials for cloud platforms to `docker create` ex: `--digitalocean-access-token`
+
+ex:
+$ docker-machine create \
+    --driver digitalocean \
+    --digitalocean-access-token 0ab77166d407f479c6701652cee3a46830fef88b8199722b87821621736ab2d4 \
+    staging
+
+`docker-machine create -h` to view credential options
