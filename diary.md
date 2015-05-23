@@ -89,3 +89,8 @@ $ docker-machine create \
     staging
 
 `docker-machine create -h` to view credential options
+
+Host options:
+select active host with `docker-machine active HOSTNAME`
+create host without driver (just URL) for aliases:
+`$ docker-machine create --url=tcp://50.134.234.20:2376 custombox
