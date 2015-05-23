@@ -94,3 +94,13 @@ Host options:
 select active host with `docker-machine active HOSTNAME`
 create host without driver (just URL) for aliases:
 `$ docker-machine create --url=tcp://50.134.234.20:2376 custombox
+
+Docker Swarm
+native clustering for docker hosts.
+`docker pull swarm` to install
+
+$ docker run --rm swarm create <-- creates a swarm cluster, returns a unique `cluster_id`.
+
+For each node:
+`$ docker -H tcp://0.0.0.0:2375 -d` <-- start the docker daemon
+`docker run -d swarm join --addr=<node_ip:2375> token://<cluster_id>` <--- register nodes
