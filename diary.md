@@ -104,3 +104,12 @@ $ docker run --rm swarm create <-- creates a swarm cluster, returns a unique `cl
 For each node:
 `$ docker -H tcp://0.0.0.0:2375 -d` <-- start the docker daemon
 `docker run -d swarm join --addr=<node_ip:2375> token://<cluster_id>` <--- register nodes
+
+to start the swarm manager:
+`docker run -d -p <swarm_port>:2375 swarm manage token://<cluster_id>`
+
+then you can use normal docker commands like so:
+`docker -H tcp://<manager_ip:manager_port> info`
+
+swarm list:
+`docker run --rm swarm list token://<cluster_id>`
