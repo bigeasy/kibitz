@@ -113,3 +113,20 @@ then you can use normal docker commands like so:
 
 swarm list:
 `docker run --rm swarm list token://<cluster_id>`
+
+after `docker run swarm create`, you can Machine a swarm.
+
+create swarm master.
+`docker-machine create \
+    -d virtualbox \
+    --swarm \
+    --swarm-master \
+    --swarm-discovery token://<TOKEN-FROM-ABOVE> \
+    swarm-master`
+
+create more nodes.
+`docker-machine create \
+    -d virtualbox \
+    --swarm \
+    --swarm-discovery token://<TOKEN-FROM-ABOVE> \
+    swarm-node-00`
