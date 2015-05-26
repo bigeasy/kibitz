@@ -5,7 +5,7 @@ Within the `Boot2Docker` VM, you can issue `docker` commands.
 
 Download here: https://github.com/boot2docker/osx-installer/releases/latest
 
-You can run Boot2Docker from /Applications, but from the command line:
+You can run Boot2Docker from /Applications, or from the command line:
     `boot2docker init` creates a new virtual machine.
     `boot2docker start` does what it says.
     `boot2docker shellinit` sets and displays default ENV variables.
@@ -19,7 +19,11 @@ You can run Boot2Docker from /Applications, but from the command line:
 
 `boot2docker ip` gives the VM address.
 
-can `docker search` for and `docker pull` images.
+`docker info` returns a list of the containers, images, execution and storage drivers in use, as well as its basic configuration.
+
+`docker search` searches for images.
+
+`docker pull` grabs a pre-built image that does not need to be configured.
 
 To create an image, touch a `Dockerfile` and run
 ```
