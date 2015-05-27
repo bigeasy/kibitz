@@ -32,6 +32,10 @@ docker --tls build -t <your username>/<app name> .
 
 `stop`, `rm`, `rmi`, `build` <<< container/image commands
 
+`docker rm 'container-name'` will delete the container. There isn't a way to
+delete all containers but this hack will accomplish the task
+`docker rm docker ps -a -q`
+
  `docker inspect` returns JSON that can be formatted for the desired output.
 you can use `--format=''` to specify a field ex. `docker inspect --format='\{{.LogPath}}'
 
