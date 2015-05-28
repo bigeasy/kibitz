@@ -32,6 +32,8 @@ docker --tls build -t <your username>/<app name> .
 
 `stop`, `rm`, `rmi`, `build` <<< container/image commands
 
+What is the difference between `rm` and `rmi`?
+
 `docker rm 'container-name'` will delete the container. There isn't a way to
 delete all containers but this hack will accomplish the task
 `docker rm docker ps -a -q`
