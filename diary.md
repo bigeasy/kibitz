@@ -32,7 +32,9 @@ docker --tls build -t <your username>/<app name> .
 
 `stop`, `rm`, `rmi`, `build` <<< container/image commands
 
-What is the difference between `rm` and `rmi`?
+`rmi` removes tagged instances. You can remove an image using its short or long
+ID, its tag, or its digest. If an image has one or more tag or digest reference,
+you must remove all of them before the image is removed.
 
 `docker rm 'container-name'` will delete the container. There isn't a way to
 delete all containers but this hack will accomplish the task
