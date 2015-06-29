@@ -7,7 +7,7 @@ function execOut (error, stdout, stderr) {
 }
 
 if (os.platform == 'darwin') {
-    exec('$(boot2docker shellinit 2> /dev/null)', function(error, stdout) {
+    exec('$(boot2docker shellinit 2> /dev/null)', function(error) {
         execOut(arguments)
         if (error != null) {
             exec('boot2docker up', execOut)
