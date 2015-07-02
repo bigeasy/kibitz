@@ -3,7 +3,7 @@ var exec = require('child_process').exec
 var os = require('os')
 
 function execOut (error, stdout, stderr) {
-    for (arg in arguments) {if (arg) console.log(arg)}
+    for (arg in arguments) {if (arg != null) console.log(arg)}
 }
 
 if (os.platform == 'darwin') {
