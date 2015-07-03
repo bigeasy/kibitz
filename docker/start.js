@@ -10,6 +10,7 @@ if (os.platform == 'darwin') {
     exec('$(boot2docker shellinit 2> /dev/null)', function(error) {
         execOut(arguments)
         if (error != null) {
+            // boot2docker probably isn't running.
             exec('boot2docker up', execOut)
         }
     })
