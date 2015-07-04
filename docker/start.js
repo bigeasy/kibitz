@@ -17,3 +17,4 @@ if (os.platform == 'darwin') {
 }
 
 exec('docker pull marvambass/nginx-ssl-secure', execOut)
+exec('mkdir ~/kibitz', execOut)
