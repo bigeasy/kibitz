@@ -16,6 +16,6 @@ if (os.platform == 'darwin') {
     })
 }
 
-exec('docker pull nginx', execOut)
+exec('docker pull arvambass/nginx-ssl-secure', execOut)
 exec('mkdir ~/kibitz', execOut)
 exec('docker run -v ~/kibitz'

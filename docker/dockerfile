@@ -1,1 +1,1 @@
-FROM nginx
+FROM marvambass/nginx-ssl-secure
