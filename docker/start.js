@@ -12,6 +12,7 @@ if (os.platform == 'darwin') {
         if (error != null) {
             // boot2docker probably isn't running.
             exec('boot2docker up', execOut)
+            process.exit(1)
         }
     })
 }
