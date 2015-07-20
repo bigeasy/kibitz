@@ -131,3 +131,8 @@ create more nodes.
     --swarm \
     --swarm-discovery token://<TOKEN-FROM-ABOVE> \
     swarm-node-00`
+
+
+ANSIBLE
+
+guides: http://docs.ansible.com/ansible/guides.html
