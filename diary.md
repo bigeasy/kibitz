@@ -136,3 +136,4 @@ create more nodes.
 ANSIBLE
 
 guides: http://docs.ansible.com/ansible/guides.html
+example playbooks: https://github.com/ansible/ansible-examples
