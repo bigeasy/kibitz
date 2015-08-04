@@ -1,4 +1,4 @@
-FROM marvambass/nginx-ssl-secure
+FROM ubuntu
 
 RUN apt-get install curl
 RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | bash -
