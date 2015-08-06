@@ -17,7 +17,7 @@ if (os.platform == 'darwin') {
     })
 }
 
-exec('docker pull arvambass/nginx-ssl-secure', execOut)
+exec('docker pull ubuntu', execOut)
 exec('mkdir ~/kibitz', execOut)
 exec('git clone git@github.com:bigeasy/kibitz.git ~/kibitz')
 exec('docker build -t kibitz .')
