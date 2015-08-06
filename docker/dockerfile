@@ -1,9 +1,10 @@
 FROM ubuntu
 
-RUN apt-get install curl
+RUN apt-get install -y curl openssl
 RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | bash -
 RUN apt-get install --yes nodejs
 
 RUN mkdir /var/www
 
+ADD ssl.conf /etc/nginx/conf.d/ssl.conf
 ADD kibitz.js /var/www/kibitz.js
