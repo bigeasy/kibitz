@@ -18,6 +18,7 @@ if (os.platform == 'darwin') {
     })
 }
 
+fs.symlinkSync('../kibitzer.js', '.')
 exec('docker pull ubuntu', execOut)
 exec('mkdir ./kibitz', execOut)
 exec('git clone git@github.com:bigeasy/kibitz.git ./kibitz')
