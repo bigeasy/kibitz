@@ -18,9 +18,19 @@ if (os.platform == 'darwin') {
     })
 }
 
-fs.symlinkSync('../kibitzer.js', '.')
-exec('docker pull ubuntu', execOut)
-exec('mkdir ./kibitz', execOut)
-exec('git clone git@github.com:bigeasy/kibitz.git ./kibitz')
-exec('docker build -t kibitz .')
-exec('docker run -v ./kibitz ' + os.hostname() + '/kibitz')
+exec('mkdir ./kibitz', function () {
+    execOut(arguments)
+    exec('git clone git@github.com:bigeasy/kibitz.git ./kibitz', function () {
+        execOut(arguments)
+        fs.symlinkSync('../kibitzer.js', './kibitz/kibitzer.js', execOut)
+    })
+})
+
+exec('docker pull ubuntu', function () {
+    execOut(arguments)
+    exec('docker build -t kibitz .', function () {
+        execOut(arguments)
+        exec('docker run -v ./kibitz ' + os.hostname() + '/kibitz', execOut)
+    })
+})
+
