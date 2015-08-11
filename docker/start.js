@@ -4,7 +4,7 @@ var os = require('os')
 var fs = require('fs')
 
 function execOut (error, stdout, stderr) {
-    for (arg in arguments) {if (arg != null) console.log(arg)}
+    for (arg in arguments) {if (arg != null) console.log(arguments[arg])}
 }
 
 if (os.platform == 'darwin') {
