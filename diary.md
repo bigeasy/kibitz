@@ -137,3 +137,6 @@ ANSIBLE
 
 guides: http://docs.ansible.com/ansible/guides.html
 example playbooks: https://github.com/ansible/ansible-examples
+
+
+perhaps try running `boot2docker up` regardless? harmless anyway
