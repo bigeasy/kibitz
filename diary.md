@@ -7,8 +7,8 @@ Download here: https://github.com/boot2docker/osx-installer/releases/latest
 
 You can run Boot2Docker from /Applications, but from the command line:
     `boot2docker init` creates a new virtual machine.
-    `boot2docker start` does what it says.
     `boot2docker up` starts daemon and prints ports.
+    `boot2docker start` does what it says.
     `boot2docker shellinit` sets and displays default ENV variables.
     `docker run hello-world` verifies setup.
 
