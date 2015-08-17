@@ -12,6 +12,8 @@ You can run Boot2Docker from /Applications, but from the command line:
     `boot2docker shellinit` sets and displays default ENV variables.
     `docker run hello-world` verifies setup.
 
+
+#Docker
 `docker run` options:
     `-P` publishes exposed ports
     `-d` keeps container running in background
@@ -19,8 +21,6 @@ You can run Boot2Docker from /Applications, but from the command line:
 `docker ps` is, er, `ps` for docker. `-a` includes stopped containers, `-l` specifies the last container started.
 
 `boot2docker ip` gives the VM address.
-
-can `docker search` for and `docker pull` images.
 
 To create an image, touch a `Dockerfile` and run
 ```
@@ -37,6 +37,7 @@ link with `--link` and a container name.
 
 data volumes lend persistent, container-agnostic data. can be shared and reused across containers. add '-v' and a directory to `create` or `run`.
 
+#Docker Compose
 Compose lets you define multi-container applications in a Dockerfile.
 you also need a `docker-compose.yml` to define your app's services.
 to run: `docker-compose up`
@@ -66,6 +67,7 @@ or
     - "port"
 `
 
+#Docker Machine
 Machine installation:
 `$ curl -L https://github.com/docker/machine/releases/download/v0.2.0/docker-machine_darwin-amd64 > /usr/local/bin/docker-machine
 `$ chmod +x /usr/local/bin/docker-machine
@@ -96,7 +98,8 @@ select active host with `docker-machine active HOSTNAME`
 create host without driver (just URL) for aliases:
 `$ docker-machine create --url=tcp://50.134.234.20:2376 custombox
 
-Docker Swarm
+
+#Docker Swarm
 native clustering for docker hosts.
 `docker pull swarm` to install
 
@@ -133,7 +136,7 @@ create more nodes.
     swarm-node-00`
 
 
-ANSIBLE
+#ANSIBLE
 
 guides: http://docs.ansible.com/ansible/guides.html
 example playbooks: https://github.com/ansible/ansible-examples
