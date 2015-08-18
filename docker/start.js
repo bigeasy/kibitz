@@ -26,7 +26,7 @@ exec('docker pull ubuntu', function () {
     execOut(arguments)
     exec('docker build -t kibitz .', function () {
         execOut(arguments)
-        exec('docker run -v ./kibitz ' + os.hostname() + '/kibitz', execOut)
+        exec('docker run -v ./kibitz ' + os.hostname() + '/kibitz', execOut) // need absolute path.
     })
 })
 
