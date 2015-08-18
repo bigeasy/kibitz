@@ -14,9 +14,9 @@ if (os.platform == 'darwin') {
     })
 }
 
-exec('mkdir ./kibitz', function () {
+exec('mkdir -p ./kibitz/git', function () {
     execOut(arguments)
-    exec('git clone git@github.com:bigeasy/kibitz.git ./kibitz', function () {
+    exec('git clone git@github.com:bigeasy/kibitz.git ./kibitz/git', function () {
         execOut(arguments)
         fs.symlinkSync('../kibitzer.js', './kibitz/kibitzer.js', execOut)
     })
