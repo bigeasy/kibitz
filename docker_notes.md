@@ -20,6 +20,8 @@ You can run Boot2Docker from /Applications, but from the command line:
 
 `docker ps` is, er, `ps` for docker. `-a` includes stopped containers, `-l` specifies the last container started.
 
+`docker cp` is cp.
+
 `boot2docker ip` gives the VM address.
 
 To create an image, touch a `Dockerfile` and run
