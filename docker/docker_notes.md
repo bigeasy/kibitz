@@ -143,6 +143,7 @@ create more nodes.
 
 guides: http://docs.ansible.com/ansible/guides.html
 example playbooks: https://github.com/ansible/ansible-examples
+docker images core: http://docs.ansible.com/ansible/docker_image_module.html
 
 
 
