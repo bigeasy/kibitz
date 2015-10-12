@@ -147,6 +147,7 @@ docker images core: http://docs.ansible.com/ansible/docker_image_module.html
 blog post about ansible + docker:
 https://developer.rackspace.com/blog/ansible-and-docker/
 http://patg.net/ansible,docker/2014/06/18/ansible-docker/
+Core OS: https://coreos.com/
 
 
 
