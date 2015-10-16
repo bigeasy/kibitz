@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mkdir -p ./kibitz/git
+
+curl -O https://raw.githubusercontent.com/bigeasy/kibitz/master/kibitzer.js
+
+docker pull ubuntu
+
+docker build -t kibitz .
+
+docker run -v ./kibitz

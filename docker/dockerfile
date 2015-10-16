@@ -7,4 +7,3 @@ RUN apt-get install --yes nodejs
 RUN mkdir /var/www
 
 ADD ssl.conf /etc/nginx/conf.d/ssl.conf
-ADD kibitzer.js /var/www/kibitzer.js
