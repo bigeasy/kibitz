@@ -11,7 +11,7 @@ if [ "$TRAVIS" = "true" ]; then
   t/cover
 
   echo ""
-  awk '$2 == "out" {print substr($0, index($0,$4))}' .proof.out
+#  awk '$2 == "out" {print substr($0, index($0,$4))}' .proof.out
   echo ""
 
   echo "submitting to coveralls.io"
