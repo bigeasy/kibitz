@@ -14,7 +14,7 @@
     ],
     "dependencies":
     {
-                    "bintrees": "1.0.0",
+                    "bintrees": "1.0.1",
                     "cadence": "0.0.52",
                     "inlet": "0.0.15",
                     "happenstance": "0.0.11",
