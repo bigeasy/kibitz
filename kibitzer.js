@@ -262,7 +262,7 @@ Kibitzer.prototype._createTurnstiles = function (instance) {
 
 Kibitzer.prototype._schedule = function (type, delay) {
     this.happenstance.schedule({
-        id: this.legislator.id,
+        key: this.legislator.id,
         delay: delay,
         value: { type: type }
     })
