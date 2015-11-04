@@ -43,7 +43,7 @@ function Kibitzer (id, options) {
 
     this.preferred = !! options.preferred
 
-    this.happenstance = new Scheduler(options.clock || function () { return Date.now() })
+    this.happenstance = new Scheduler({ Date: options.Date })
 
     this.joining = []
 
