@@ -24,7 +24,7 @@
     },
     "devDependencies":
     {
-                    "proof": "0.0.50"
+                    "proof": "0.0.56"
     },
     "main":         "kibitzer",
     "scripts":
