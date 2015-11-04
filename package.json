@@ -19,7 +19,7 @@
                     "inlet": "0.0.15",
                     "happenstance": "0.0.11",
                     "turnstile": "0.0.9",
-                    "paxos": "0.0.12",
+                    "paxos": "0.0.14",
                     "monotonic": "0.0.2"
     },
     "devDependencies":
