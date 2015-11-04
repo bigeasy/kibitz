@@ -24,7 +24,6 @@
     },
     "devDependencies":
     {
-                    "bintrees": "1.0.0",
                     "proof": "0.0.50"
     },
     "main":         "kibitzer",
