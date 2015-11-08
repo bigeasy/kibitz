@@ -1,19 +1,111 @@
-var cadence = require('cadence/redux')
-var UserAgent = require('inlet/http/ua')
+var cadence = require('cadence')
+var UserAgent = require('vizsla')
+var prolific = require('prolific')
+var logger = prolific.createLogger('kibitz')
 
-require('proof')(19, cadence(prove))
+require('proof')(3, cadence(prove))
 
 function prove (async, assert) {
-    var Kibitzer = require('../..'),
-        Balancer = require('../balancer'),
-        Container = require('../container'),
-        Binder = require('inlet/net/binder'),
-        Bouquet = require('inlet/net/bouquet')
+    var Kibitzer = require('../..')
 
     var ua = new UserAgent
 
     var kibitzer = new Kibitzer('1', { timeout: 1001 })
     assert(kibitzer.timeout[0], 1001, 'numeric timeout')
+
+    var port = 8086
+
+    var identifier = 0
+    function createIdentifier () {
+        return String(++identifier)
+    }
+
+    function createURL () {
+        return 'http://127.0.0.1:' + (port++)
+    }
+
+    var kibitzers = [], balancerIndex = 0, httpOkay = true
+    var ua = {
+        discover: cadence(function (async) {
+            var kibitzer = kibitzers[balancerIndex]
+            async(function () {
+                kibitzer.discover(async())
+            }, function (body) {
+                return [ body, httpOkay ]
+            })
+        }),
+        sync: cadence(function (async, url, post) {
+            kibitzers.filter(function (kibitzer) {
+                return kibitzer.url == url
+            }).pop()._sync(post, async())
+        }),
+        enqueue: cadence(function (async, url, post) {
+            kibitzers.filter(function (kibitzer) {
+                return kibitzer.url == url
+            }).pop()._enqueue(post, async())
+        }),
+        receive: cadence(function (async, url, post) {
+            kibitzers.filter(function (kibitzer) {
+                return kibitzer.url == url
+            }).pop()._receive(post, async())
+        })
+    }
+    var time = 0
+    var options = {
+        preferred: true,
+        syncLength: 24,
+        ua: ua,
+        logger: function (level, message, context) {
+            console.log('here')
+            logger[level](message, context)
+        },
+        Date: { now: function () { return time } },
+        player: {
+            brief: function () {
+                return { next: null, entries: [] }
+            },
+            play: function (entry, callback) {
+                callback()
+            }
+        }
+    }
+
+    function extend (first, second) {
+        for (var key in second) {
+            first[key] = second[key]
+        }
+        return first
+    }
+
+    async(function () {
+        kibitzers.push(new Kibitzer(createIdentifier(), extend({ url: createURL() }, options)))
+        kibitzers[0].discover(async())
+    }, function (body) {
+        assert(body === null, 'no discovery')
+        kibitzers[0].bootstrap()
+        kibitzers[0].discover(async())
+    }, function (body) {
+        assert(body, {
+            id: 'a10',
+            islandId: 'a10',
+            urls: [ 'http://127.0.0.1:8086' ]
+        }, 'bootstrapped')
+        kibitzers.push(new Kibitzer(createIdentifier(), extend({ url: createURL() }, options)))
+        async([function () {
+        kibitzers[1].join(async())
+        }, function (error) {
+            console.log(error.stack)
+        }])
+        async([function () {
+            kibitzers[1]._checkSchedule2(async())
+        }, function (error) {
+            console.log(error.stack)
+        }])
+    }, function () {
+        console.log('there')
+    })
+
+    return
 
     var kibitzer = new Kibitzer('1', {
         logger: function (level, message, context) {
@@ -67,15 +159,14 @@ function prove (async, assert) {
     assert(kibitzer._response({ okay: false }, null, null, null, 1), 1, 'not okay')
     assert(kibitzer._response({ okay: true }, { posted: false }, 'posted', null, 1), 1, 'value missing')
 
-    var identifier = 0
-    function createIdentifier () {
-        return String(++identifier)
-    }
-
     var balancer = new Balancer(new Binder('http://127.0.0.1:8080'))
     var options = {
         preferred: true,
         syncLength: 24,
+        logger: function (level, message, context) {
+            console.log('here')
+            logger[level](message, context)
+        },
         discovery: [ balancer.binder, { url: '/discover' } ]
     }
 

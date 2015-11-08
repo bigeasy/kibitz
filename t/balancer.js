@@ -1,18 +1,17 @@
-var UserAgent = require('inlet/http/ua')
-var middleware = require('inlet/http/middleware')
-var cadence = require('cadence/redux')
+var UserAgent = require('vizsla')
+var Dispatcher = require('inlet/dispatcher')
+var cadence = require('cadence')
 
-function Balancer (binder) {
-    this.binder = binder
+function Balancer () {
     this._ua = new UserAgent
     this._index = 0
     this.servers = []
 }
 
-Balancer.prototype.dispatch = function () {
-    return middleware.dispatch(this.binder, {
-        'GET /discover': middleware.handle(this.discover.bind(this))
-    })
+Balancer.prototype.dispatcher = function (options) {
+    var dispatcher = new Dispatcher(this)
+    dispatcher.dispatch('GET /discover', 'discover')
+    return dispatcher.createDispatcher()
 }
 
 Balancer.prototype.discover = cadence(function (async, request) {
@@ -28,7 +27,7 @@ Balancer.prototype.discover = cadence(function (async, request) {
             url: '/discover'
         }, async())
     }, function (body, response, buffer) {
-        return middleware.send(response.statusCode, response.headers, buffer)
+        return Dispatcher.resend(response.statusCode, response.headers, buffer)
     })
 })
 

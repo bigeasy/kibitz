@@ -15,12 +15,17 @@
     "dependencies":
     {
                     "bintrees": "1.0.1",
-                    "cadence": "0.0.52",
-                    "inlet": "0.0.15",
+                    "cadence": "0.4.1",
+                    "inlet": "0.2.7",
                     "happenstance": "0.0.12",
-                    "turnstile": "0.0.9",
+                    "turnstile": "0.0.16",
                     "paxos": "0.0.14",
-                    "monotonic": "0.0.2"
+                    "monotonic": "0.0.2",
+                    "reactor": "0.0.9",
+                    "prolific": "0.0.14",
+                    "isochronous": "0.0.4",
+                    "interrupt": "0.0.8",
+                    "vizsla": "0.0.6"
     },
     "devDependencies":
     {

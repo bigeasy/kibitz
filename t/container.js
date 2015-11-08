@@ -3,9 +3,8 @@ var Kibitzer = require('..')
 var RBTree = require('bintrees').RBTree
 var cadence = require('cadence/redux')
 
-function Container (binder, id, options) {
+function Container (id, options) {
     this.lookup = new RBTree(function (a, b) { return a.key - b.key })
-    this.binder = binder
     options.player = this
     options.url = binder.location
     this.kibitzer = new Kibitzer(id, options)
