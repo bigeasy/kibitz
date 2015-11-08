@@ -20,13 +20,6 @@ var Scheduler = require('happenstance')
 var turnstile = require('turnstile')
 var interrupt = require('interrupt').createInterrupter()
 
-function Ignore () {
-}
-
-Ignore.prototype.play = function (callback) {
-    callback()
-}
-
 function Kibitzer (id, options) {
     assert(id != null, 'id is required')
     id = (options.preferred ? 'a' : '7') + id
@@ -73,17 +66,7 @@ function Kibitzer (id, options) {
     })*/
 
     this.cookies = {}
-    this.logger = options.logger || function (level, message, context) {
-        var error
-        if (error = context.error) {
-            delete context.error
-            context.message = error.message
-        }
-        console.log(level, message, JSON.stringify(context))
-        if (error && !error.unexceptional) {
-            console.log(error.stack)
-        }
-    }
+    this.logger = options.logger || function () {}
 
     this.discovery = options.discovery
 
@@ -588,33 +571,6 @@ Kibitzer.prototype.wait = function (promise, callback) {
         wait.callbacks.push(callback)
     }
 }
-
-Kibitzer.prototype.scram = cadence(function (async) {
-    this.logger('info', 'scram', {
-        kibitzerId: this.legislator.id,
-        islandId: this.islandId
-    })
-    async(function () {
-        this.consumer.workers = 0
-        this.publisher.workers = 0
-        this.subscriber.workers = 0
-        this.legislator = this._createLegislator()
-        this.client = new Client(this.legislator.id)
-        this._createTurnstiles(this.instance = {
-            islandId: null,
-            legislator: this.legislator,
-            client: this.client,
-            player: this.player
-        })
-        this.islandId = null
-        this.instance.player = new Ignore()
-        this.consumer.workers = 0
-        this.publisher.workers = 0
-        this.subscriber.workers = 0
-    }, function () {
-        this.player.scram(async())
-    })
-})
 
 Kibitzer.prototype.stop = cadence(function (async) {
     this.scheduler.workers = 0
