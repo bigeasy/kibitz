@@ -25,7 +25,7 @@
                     "prolific": "0.0.14",
                     "isochronous": "0.0.4",
                     "interrupt": "0.0.8",
-                    "vizsla": "0.0.6"
+                    "vizsla": "0.0.7"
     },
     "devDependencies":
     {
