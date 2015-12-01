@@ -32,7 +32,8 @@ function Kibitzer (id, options) {
 
     this._reactor = new Reactor({ object: this, method: '_tick' })
 
-    this.happenstance = new Scheduler({ Date: options.Date })
+    this.happenstance = new Scheduler
+    this._Date = options.Date || Date
 
     this.joining = []
 
@@ -148,18 +149,13 @@ Kibitzer.prototype._tick = cadence(function (async) {
 
 Kibitzer.prototype._checkSchedule2 = cadence(function (async) {
     async.forEach(function (event) {
-        var type = event.type
-        var method = 'when' + type[0].toUpperCase() + type.substring(1)
+        var method = 'when' + event[0].toUpperCase() + event.substring(1)
         this[method](event, async())
     })(this.happenstance.check())
 })
 
 Kibitzer.prototype._schedule = function (type, delay) {
-    this.happenstance.schedule({
-        key: this.legislator.id,
-        delay: [ delay, delay ],
-        value: { type: type }
-    })
+    this.happenstance.schedule(this.legislator.id, type, this._Date.now() + delay)
 }
 
 Kibitzer.prototype._checkSchedule = function () {
