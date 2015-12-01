@@ -19,7 +19,7 @@
                     "happenstance": "0.0.12",
                     "paxos": "0.0.15",
                     "monotonic": "0.0.3",
-                    "reactor": "0.0.9",
+                    "reactor": "0.0.10",
                     "prolific": "0.0.14",
                     "isochronous": "0.0.4",
                     "interrupt": "0.0.8",
