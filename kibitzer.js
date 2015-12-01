@@ -11,7 +11,6 @@ var Reactor = require('reactor')
 var Id = require('paxos/id')
 var Legislator = require('paxos/legislator')
 var Client = require('paxos/client')
-var serializer = require('paxos/serializer')
 
 var Monotonic = require('monotonic')
 
@@ -24,12 +23,11 @@ function Kibitzer (id, options) {
     assert(id != null, 'id is required')
     id = (options.preferred ? 'a' : '7') + id
 
-    options.ping || (options.ping = [ 250, 250 ])
-    options.timeout || (options.timeout = [ 1000, 1000 ])
-    this.poll = options.poll || [ 5000, 7000 ]
+    options.ping || (options.ping = 250)
+    options.timeout || (options.timeout = 1000)
+    this.poll = options.poll || 5000
     this.ping = options.ping
-    this.timeout = (typeof options.timeout == 'number')
-                 ? [ options.timeout, options.timeout ] : options.timeout
+    this.timeout = options.timeout
 
     this.syncLength = options.syncLength || 250
 
@@ -45,7 +43,6 @@ function Kibitzer (id, options) {
     this._ua = options.ua
 
     this.islandId = null
-    this.previousIslandId = id + '/1'
     this.baseId = id
     this.suffix = '0'
 
@@ -163,7 +160,7 @@ Kibitzer.prototype._checkSchedule2 = cadence(function (async) {
 Kibitzer.prototype._schedule = function (type, delay) {
     this.happenstance.schedule({
         key: this.legislator.id,
-        delay: delay,
+        delay: [ delay, delay ],
         value: { type: type }
     })
 }
@@ -213,7 +210,7 @@ Kibitzer.prototype.pull = cadence(function (async, url) {
         if (!body) {
             throw this._unexceptional(new Error('unable to sync'))
         } else {
-            this._schedule('joining', this.timeout[0])
+            this._schedule('joining', this.timeout)
             switch (dataset) {
             case 'log':
                 this.legislator.inject(body.entries)
@@ -249,7 +246,8 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
          break
     case 'meta':
         response = {
-            promise: this.legislator.greatestOf(this.legislator.id).uniform,
+            // todo: oh, so this is public
+            promise: this.legislator._greatestOf(this.legislator.id).uniform,
             location: this.legislator.location
         }
         break
@@ -291,7 +289,7 @@ Kibitzer.prototype._naturalize = cadence(function (async, body) {
         assert(this.client.length, 'no entries in client')
         this._reactor.turnstile.workers = 1
         this._reactor.check()
-        this._schedule('joining', this.timeout[0])
+        this._schedule('joining', this.timeout)
         this.available = true
         this.publish({
             type: 'naturalize',

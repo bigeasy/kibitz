@@ -11,7 +11,7 @@ function prove (async, assert) {
     var ua = new UserAgent
 
     var kibitzer = new Kibitzer('1', { timeout: 1001 })
-    assert(kibitzer.timeout[0], 1001, 'numeric timeout')
+    assert(kibitzer.timeout, 1001, 'numeric timeout')
 
     var port = 8086
 
