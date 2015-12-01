@@ -56,7 +56,6 @@ function prove (async, assert) {
         syncLength: 24,
         ua: ua,
         logger: function (level, message, context) {
-            console.log('here')
             logger[level](message, context)
         },
         Date: { now: function () { return time } },
@@ -87,7 +86,6 @@ function prove (async, assert) {
     }, function (body) {
         assert(body, {
             id: 'a10',
-            islandId: 'a10',
             urls: [ 'http://127.0.0.1:8086' ]
         }, 'bootstrapped')
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ url: createURL() }, options)))
@@ -102,7 +100,6 @@ function prove (async, assert) {
             console.log(error.stack)
         }])
     }, function () {
-        console.log('there')
     })
 
     return
@@ -164,7 +161,6 @@ function prove (async, assert) {
         preferred: true,
         syncLength: 24,
         logger: function (level, message, context) {
-            console.log('here')
             logger[level](message, context)
         },
         discovery: [ balancer.binder, { url: '/discover' } ]
