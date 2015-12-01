@@ -4,7 +4,6 @@ var RBTree = require('bintrees').RBTree
 
 var cadence = require('cadence')
 
-var Turnstile = require('turnstile')
 var Reactor = require('reactor')
 
 var Id = require('paxos/id')
@@ -15,7 +14,6 @@ var Monotonic = require('monotonic')
 
 var Scheduler = require('happenstance')
 
-var turnstile = require('turnstile')
 var interrupt = require('interrupt').createInterrupter()
 
 function Kibitzer (id, options) {

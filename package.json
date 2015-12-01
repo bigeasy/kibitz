@@ -18,7 +18,6 @@
                     "cadence": "0.4.1",
                     "inlet": "0.2.7",
                     "happenstance": "0.0.12",
-                    "turnstile": "0.0.16",
                     "paxos": "0.0.15",
                     "monotonic": "0.0.2",
                     "reactor": "0.0.9",
