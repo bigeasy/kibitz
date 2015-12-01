@@ -3,7 +3,7 @@ var UserAgent = require('vizsla')
 var prolific = require('prolific')
 var logger = prolific.createLogger('kibitz')
 
-require('proof')(3, cadence(prove))
+require('proof')(2, cadence(prove))
 
 function prove (async, assert) {
     var Kibitzer = require('../..')
@@ -27,12 +27,7 @@ function prove (async, assert) {
     var kibitzers = [], balancerIndex = 0, httpOkay = true
     var ua = {
         discover: cadence(function (async) {
-            var kibitzer = kibitzers[balancerIndex]
-            async(function () {
-                kibitzer.discover(async())
-            }, function (body) {
-                return [ body, httpOkay ]
-            })
+            return [ kibitzers[balancerIndex]._urls(), httpOkay ]
         }),
         sync: cadence(function (async, url, post) {
             kibitzers.filter(function (kibitzer) {
@@ -78,19 +73,12 @@ function prove (async, assert) {
 
     async(function () {
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ url: createURL() }, options)))
-        kibitzers[0].discover(async())
     }, function (body) {
-        assert(body === null, 'no discovery')
         kibitzers[0].bootstrap()
-        kibitzers[0].discover(async())
-    }, function (body) {
-        assert(body, {
-            id: '10',
-            urls: [ 'http://127.0.0.1:8086' ]
-        }, 'bootstrapped')
+        assert(kibitzers[0]._urls(), [ 'http://127.0.0.1:8086' ])
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ url: createURL() }, options)))
         async([function () {
-        kibitzers[1].join(async())
+//            kibitzers[1].join(async())
         }, function (error) {
             console.log(error.stack)
         }])

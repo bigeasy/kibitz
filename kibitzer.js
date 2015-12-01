@@ -171,15 +171,6 @@ Kibitzer.prototype._urls = function () {
     return urls
 }
 
-Kibitzer.prototype.discover = cadence(function (async) {
-    var urls = this._urls()
-    if (urls.length) {
-        return { id: this.legislator.id, urls: urls }
-    } else {
-        return null
-    }
-})
-
 Kibitzer.prototype.pull = cadence(function (async, url) {
     assert(url, 'url is missing')
     var dataset = 'log', post, next = null
