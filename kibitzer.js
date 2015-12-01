@@ -1,4 +1,3 @@
-var crypto = require('crypto')
 var assert = require('assert')
 
 var RBTree = require('bintrees').RBTree
