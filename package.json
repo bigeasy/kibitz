@@ -20,7 +20,7 @@
                     "paxos": "0.0.15",
                     "monotonic": "0.0.3",
                     "reactor": "0.0.10",
-                    "prolific": "0.0.14",
+                    "prolific": "0.0.15",
                     "isochronous": "0.0.4",
                     "interrupt": "0.0.8",
                     "vizsla": "0.0.7"
