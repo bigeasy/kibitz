@@ -18,7 +18,6 @@ var interrupt = require('interrupt').createInterrupter()
 
 function Kibitzer (id, options) {
     assert(id != null, 'id is required')
-    id = (options.preferred ? 'a' : '7') + id
 
     options.ping || (options.ping = 250)
     options.timeout || (options.timeout = 1000)
@@ -27,8 +26,6 @@ function Kibitzer (id, options) {
     this.timeout = options.timeout
 
     this.syncLength = options.syncLength || 250
-
-    this.preferred = !! options.preferred
 
     this._reactor = new Reactor({ object: this, method: '_tick' })
 
@@ -62,7 +59,6 @@ Kibitzer.prototype._createLegislator = function () {
     var words = Monotonic.parse(this.suffix)
     this.suffix = Monotonic.toString(Monotonic.increment(words))
     return new Legislator(this.baseId + suffix, {
-        prefer: function (id) { return id[0] === 'a' },
         ping: this.ping,
         timeout: this.timeout
     })
@@ -269,7 +265,6 @@ Kibitzer.prototype._joined = function () {
 Kibitzer.prototype._naturalize = cadence(function (async, body) {
     this.logger('info', 'naturalize', {
         kibitzerId: this.legislator.id,
-        preferred: this.preferred,
         received: body
     })
     async(function () {
@@ -315,8 +310,7 @@ Kibitzer.prototype.bootstrap = function (async) {
     this._reactor.turnstile.workers = 1
     this.legislator.bootstrap()
     this.logger('info', 'bootstrap', {
-        kibitzerId: this.legislator.id,
-        preferred: this.preferred
+        kibitzerId: this.legislator.id
     })
     this.client.prime(this.legislator.prime('1/0'))
     this.legislator.location[this.legislator.id] = this.url
@@ -330,8 +324,7 @@ Kibitzer.prototype.whenJoin = cadence(function (async) {
         this.logger('info', 'join', {
             okay: okay,
             kibitzerId: this.legislator.id,
-            received: JSON.stringify(body),
-            preferred: this.preferred
+            received: JSON.stringify(body)
         })
         if (okay) {
             this._naturalize(body, async())
