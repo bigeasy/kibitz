@@ -10,6 +10,10 @@ function prove (async, assert) {
 
     var ua = new UserAgent
 
+    function copy (object) {
+        return JSON.parse(JSON.stringify(object))
+    }
+
     var kibitzer = new Kibitzer('1', { timeout: 1001 })
     assert(kibitzer.timeout, 1001, 'numeric timeout')
 
@@ -20,29 +24,43 @@ function prove (async, assert) {
         return String(++identifier)
     }
 
-    function createURL () {
-        return 'http://127.0.0.1:' + (port++)
+    function createLocation () {
+        return '127.0.0.1:' + (port++)
     }
 
+    // todo: add setImmediate
     var kibitzers = [], balancerIndex = 0, httpOkay = true
     var ua = {
         discover: cadence(function (async) {
-            return [ kibitzers[balancerIndex]._urls(), httpOkay ]
+            return [ kibitzers[balancerIndex].locations(), httpOkay ]
         }),
-        sync: cadence(function (async, url, post) {
-            kibitzers.filter(function (kibitzer) {
-                return kibitzer.url == url
-            }).pop()._sync(post, async())
+        sync: cadence(function (async, location, post) {
+            async(function () {
+                kibitzers.filter(function (kibitzer) {
+                    return kibitzer.location == location
+                }).pop()._sync(copy(post), async())
+            }, function (result) {
+                return copy(result)
+            })
+
         }),
-        enqueue: cadence(function (async, url, post) {
-            kibitzers.filter(function (kibitzer) {
-                return kibitzer.url == url
-            }).pop()._enqueue(post, async())
+        enqueue: cadence(function (async, location, post) {
+            async(function () {
+                kibitzers.filter(function (kibitzer) {
+                    return kibitzer.location == location
+                }).pop()._enqueue(copy(post), async())
+            }, function (result) {
+                return copy(result)
+            })
         }),
-        receive: cadence(function (async, url, post) {
-            kibitzers.filter(function (kibitzer) {
-                return kibitzer.url == url
-            }).pop()._receive(post, async())
+        receive: cadence(function (async, location, post) {
+            async(function () {
+                kibitzers.filter(function (kibitzer) {
+                    return kibitzer.location == location
+                }).pop()._receive(post, async())
+            }, function (result) {
+                return copy(result)
+            })
         })
     }
     var time = 0
@@ -72,13 +90,13 @@ function prove (async, assert) {
     }
 
     async(function () {
-        kibitzers.push(new Kibitzer(createIdentifier(), extend({ url: createURL() }, options)))
+        kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
     }, function (body) {
         kibitzers[0].bootstrap()
-        assert(kibitzers[0]._urls(), [ 'http://127.0.0.1:8086' ])
-        kibitzers.push(new Kibitzer(createIdentifier(), extend({ url: createURL() }, options)))
+        assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'locations')
+        kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
         async([function () {
-//            kibitzers[1].join(async())
+            kibitzers[1].join(async())
         }, function (error) {
             console.log(error.stack)
         }])

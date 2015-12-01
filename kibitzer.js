@@ -1,4 +1,5 @@
 var assert = require('assert')
+var url = require('url')
 
 var RBTree = require('bintrees').RBTree
 
@@ -6,6 +7,7 @@ var cadence = require('cadence')
 
 var Reactor = require('reactor')
 
+var sequester = require('sequester')
 var Id = require('paxos/id')
 var Legislator = require('paxos/legislator')
 var Client = require('paxos/client')
@@ -34,10 +36,10 @@ function Kibitzer (id, options) {
 
     this.joining = []
 
-    this.url = options.url
+    this.location = options.location
     this._ua = options.ua
+    this._join = sequester.createLock()
 
-    this.islandId = null
     this.baseId = id
     this.suffix = '0'
 
@@ -71,8 +73,8 @@ Kibitzer.prototype._tick = cadence(function (async) {
         if (outgoing.length) {
             var post
             async(function () {
-                var url = this.legislator.location[this.legislator.government.majority[0]]
-                this._ua.enqueue(url, post = {
+                var location = this.legislator.locations[this.legislator.government.majority[0]]
+                this._ua.enqueue(location, post = {
                     entries: outgoing
                 }, async())
             }, function (body) {
@@ -88,15 +90,15 @@ Kibitzer.prototype._tick = cadence(function (async) {
         }
     }, function () {
         async.forEach(function (route) {
-            var forwards = this.legislator.forwards(route, 0), serialized
+            var forwards = this.legislator.forwards(this._Date.now(), route, 0), serialized
             async(function () {
                 serialized = {
                     route: route,
                     index: 1,
-                    messages: serializer.flatten(forwards)
+                    messages: forwards
                 }
-                var url = this.legislator.location[route.path[1]]
-                this._ua.receive(url, serialized, async())
+                var location = this.legislator.locations[route.path[1]]
+                this._ua.receive(location, serialized, async())
             }, function (body) {
                 var returns = body ? body.returns : []
                 this.logger('info', 'published', {
@@ -104,8 +106,8 @@ Kibitzer.prototype._tick = cadence(function (async) {
                     sent: serialized,
                     received: body
                 })
-                this.legislator.inbox(route, returns)
-                this.legislator.sent(route, forwards, returns)
+                this.legislator.inbox(this._Date.now(), route, returns)
+                this.legislator.sent(this._Date.now(), route, forwards, returns)
             })
             dirty = true
         })(this.legislator.outbox())
@@ -163,19 +165,19 @@ Kibitzer.prototype._checkSchedule = function () {
     }.bind(this), 50)
 }
 
-Kibitzer.prototype._urls = function () {
-    var urls = []
-    for (var key in this.legislator.location) {
-        urls.push(this.legislator.location[key])
+Kibitzer.prototype.locations = function () {
+    var locations = []
+    for (var key in this.legislator.locations) {
+        locations.push(this.legislator.locations[key])
     }
-    return urls
+    return locations
 }
 
-Kibitzer.prototype.pull = cadence(function (async, url) {
-    assert(url, 'url is missing')
+Kibitzer.prototype.pull = cadence(function (async, location) {
+    assert(location, 'url is missing')
     var dataset = 'log', post, next = null
     var sync = async(function () {
-        this._ua.sync(url, post = {
+        this._ua.sync(location, post = {
             kibitzerId: this.legislator.id,
             dataset: dataset,
             next: next
@@ -183,29 +185,20 @@ Kibitzer.prototype.pull = cadence(function (async, url) {
     }, function (body) {
         this.logger('info', 'pulled', {
             kibitzerId: this.legislator.id,
-            url: url,
-            sent: post,
-            received: body
+            location: location,
+            sent: JSON.stringify(post),
+            received: JSON.stringify(post)
         })
         if (!body) {
             throw this._unexceptional(new Error('unable to sync'))
         } else {
             this._schedule('joining', this.timeout)
-            switch (dataset) {
-            case 'log':
-                this.legislator.inject(body.entries)
-                if (body.next == null) {
-                    // todo: fast forward client!
-                    dataset = 'meta'
-                    next = null
-                }
-                next = body.next
-                break
-            case 'meta':
-                this.legislator.location = body.location
-                this.since = body.promise
+            this.legislator.inject(body.entries)
+            if (body.next == null) {
+                // todo: fast forward client!
                 return [ sync.break ]
             }
+            next = body.next
         }
     })()
 })
@@ -224,9 +217,9 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
     case 'log':
          response = this.legislator.extract('reverse', 24, post.next)
          break
-    case 'meta':
+    case 'footer':
         response = {
-            // todo: oh, so this is public
+            // todo: oh, so `_greatestOf` is public
             promise: this.legislator._greatestOf(this.legislator.id).uniform,
             location: this.legislator.location
         }
@@ -242,29 +235,31 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
 })
 
 Kibitzer.prototype.join = cadence(function (async, url) {
-    if (this._urls().length) {
-        return []
-    }
-    this.joining.push(async())
-    this._schedule('join', 0)
+    async(function () {
+        this._join.exclude(async())
+    }, function () {
+        this._schedule('join', 0)
+        this._join.exclude(async())
+    })
 })
 
 Kibitzer.prototype._joined = function () {
     this.joining.splice(0, this.joining.length).forEach(function (callback) { callback() })
 }
 
-Kibitzer.prototype._naturalize = cadence(function (async, body) {
+Kibitzer.prototype._naturalize = cadence(function (async, locations) {
     this.logger('info', 'naturalize', {
         kibitzerId: this.legislator.id,
-        received: body
+        locations: locations
     })
     async(function () {
-        this.pull(body.urls[0], async())
+        this.pull(locations[0], async())
     }, function () {
         this.bootstrapped = false
         this.legislator.immigrate(this.legislator.id)
-        this.legislator.initialize()
-        this.client.prime(this.legislator.prime(this.since))
+        this.legislator.initialize(this._Date.now())
+        var since = this.legislator._greatestOf(this.legislator.id).uniform
+        this.client.prime(this.legislator.prime(since))
         assert(this.client.length, 'no entries in client')
         this._reactor.turnstile.workers = 1
         this._reactor.check()
@@ -273,7 +268,7 @@ Kibitzer.prototype._naturalize = cadence(function (async, body) {
         this.publish({
             type: 'naturalize',
             id: this.legislator.id,
-            location: this.url
+            location: this.location
         }, true, async())
     }, function () {
         this._joined()
@@ -299,12 +294,11 @@ Kibitzer.prototype._rejoin = cadence(function (async, body) {
 Kibitzer.prototype.bootstrap = function (async) {
     this.bootstrapped = true
     this._reactor.turnstile.workers = 1
-    this.legislator.bootstrap()
+    this.legislator.bootstrap(this._Date.now(), this.location)
     this.logger('info', 'bootstrap', {
         kibitzerId: this.legislator.id
     })
     this.client.prime(this.legislator.prime('1/0'))
-    this.legislator.location[this.legislator.id] = this.url
     this.available = true
 }
 
@@ -336,22 +330,22 @@ Kibitzer.prototype.publish = cadence(function (async, entry, internal) {
     var cookie = this.client.publish(entry, internal)
     this.cookies[cookie] = async()
     this._reactor.check()
+    return cookie
 })
 
 Kibitzer.prototype._enqueue = cadence(function (async, post) {
     if (!this.available) {
         this.logger('info', 'enqueue', {
             kibitzerId: this.legislator.id,
-            islandId: this.islandId,
             available: this.available,
             received: request.body
         })
         request.raise(517)
     }
-    var response = { islandId: this.islandId, posted: false, entries: [] }
+    var response = { posted: false, entries: [] }
     post.entries.forEach(function (entry) {
-        var outcome = this.legislator.post(entry.cookie, entry.value, entry.internal)
-        // todo: I expect the cookie to be in the outcome.
+        var outcome = this.legislator.post(this._Date.now(), entry.cookie, entry.value, entry.internal)
+        // todo: I expect the cookie to be in the outcome, it's not there.
         // todo: test receiving entries, enqueuing, when we are not the leader.
         if (outcome.posted) {
             response.posted = true
@@ -361,10 +355,9 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
     this._reactor.check()
     this.logger('info', 'enqueue', {
         kibitzerId: this.legislator.id,
-        islandId: this.islandId,
         available: this.available,
-        received: post,
-        response: response
+        received: JSON.stringify(post),
+        sent: JSON.stringify(response)
     })
     return response
 })
@@ -373,17 +366,16 @@ Kibitzer.prototype._receive = cadence(function (async, post) {
     if (!this.available) {
         this.logger('info', 'receive', {
             kibitzerId: this.legislator.id,
-            islandId: this.islandId,
             available: this.available,
             received: request.body
         })
         return null
         // request.raise(517)
     }
-    var route = post.route, index = post.index, expanded = serializer.expand(post.messages)
+    var route = post.route, index = post.index, expanded = post.messages
     async(function () {
         route = this.legislator.routeOf(route.path, route.pulse)
-        this.legislator.inbox(route, expanded)
+        this.legislator.inbox(this._Date.now(), route, expanded)
         if (index + 1 < route.path.length) {
             async(function () {
                 var forwards = this.legislator.forwards(route, index)
@@ -405,7 +397,7 @@ Kibitzer.prototype._receive = cadence(function (async, post) {
             })
         }
     }, function () {
-        var returns = this.legislator.returns(route, index)
+        var returns = this.legislator.returns(this._Date.now(), route, index)
         this._reactor.check()
         this.logger('info', 'receive', {
             kibitzerId: this.legislator.id,
