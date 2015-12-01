@@ -85,7 +85,7 @@ function prove (async, assert) {
         kibitzers[0].discover(async())
     }, function (body) {
         assert(body, {
-            id: 'a10',
+            id: '10',
             urls: [ 'http://127.0.0.1:8086' ]
         }, 'bootstrapped')
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ url: createURL() }, options)))
@@ -242,7 +242,7 @@ function prove (async, assert) {
         assert(containers[4].kibitzer.legislator.government.majority.length, 3, 'registered fourth participant')
         containers[4].kibitzer._enqueue({
             body: {
-                islandId: 'a10',
+                islandId: '10',
                 entries: [{ cookie: 'x', value: 1, internal: false }]
             }
         }, async())
