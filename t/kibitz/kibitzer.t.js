@@ -93,6 +93,7 @@ function prove (async, assert) {
         return first
     }
 
+
     async(function () {
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
     }, [function () {
@@ -127,7 +128,6 @@ function prove (async, assert) {
         }, function (error) {
             console.log(error.stack)
         }])
-    }, function () {
     })
 
     return

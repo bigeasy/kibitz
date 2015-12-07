@@ -243,17 +243,9 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
 })
 
 Kibitzer.prototype.join = cadence(function (async, url) {
-    async(function () {
-        this._join.exclude(async())
-    }, function () {
-        this._schedule('join', 0)
-        this._join.exclude(async())
-    })
+    this._schedule('join', 0)
+    this._joined = async()
 })
-
-Kibitzer.prototype._joined = function () {
-    this.joining.splice(0, this.joining.length).forEach(function (callback) { callback() })
-}
 
 Kibitzer.prototype._naturalize = cadence(function (async, locations) {
     this._logger('info', 'naturalize', {
