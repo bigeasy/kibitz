@@ -195,7 +195,7 @@ Kibitzer.prototype.pull = cadence(function (async, location) {
             this._schedule('joining', this.timeout)
             this.legislator.inject(body.entries)
             if (body.next == null) {
-                // todo: fast forward client!
+                // TODO fast forward client!
                 return [ sync.break ]
             }
             next = body.next
@@ -219,7 +219,7 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
          break
     case 'footer':
         response = {
-            // todo: oh, so `_greatestOf` is public
+            // TODO oh, so `_greatestOf` is public
             promise: this.legislator._greatestOf(this.legislator.id).uniform,
             location: this.legislator.location
         }
@@ -329,8 +329,8 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
     var response = { posted: false, entries: [] }
     post.entries.forEach(function (entry) {
         var outcome = this.legislator.post(this._Date.now(), entry.cookie, entry.value, entry.internal)
-        // todo: I expect the cookie to be in the outcome, it's not there.
-        // todo: test receiving entries, enqueuing, when we are not the leader.
+        // TODO I expect the cookie to be in the outcome, it's not there.
+        // TODO Test receiving entries, enqueuing, when we are not the leader.
         if (outcome.posted) {
             response.posted = true
             response.entries.push({ cookie: entry.cookie, promise: outcome.promise })

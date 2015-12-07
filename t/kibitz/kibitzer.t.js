@@ -29,7 +29,7 @@ function prove (async, assert) {
         return '127.0.0.1:' + (port++)
     }
 
-    // todo: add setImmediate
+    // TODO Add `setImmediate` to assert asynchronicity.
     var kibitzers = [], balancerIndex = 0, httpOkay = true
     var ua = {
         discover: cadence(function (async) {
