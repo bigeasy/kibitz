@@ -6,6 +6,7 @@ function prove (async, assert) {
     var prolific = require('prolific')
     var logger = prolific.createLogger('kibitz')
     var interrupt = require('interrupt')
+    var signal = require('signal')
 
     var Kibitzer = require('../..')
 
@@ -28,6 +29,8 @@ function prove (async, assert) {
     function createLocation () {
         return '127.0.0.1:' + (port++)
     }
+
+    signal.subscribe('.bigeasy.kibitz.log'.split('.'), function () {})
 
     // TODO Add `setImmediate` to assert asynchronicity.
     var kibitzers = [], balancerIndex = 0, httpOkay = true

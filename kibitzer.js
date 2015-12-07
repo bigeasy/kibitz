@@ -1,6 +1,8 @@
 var assert = require('assert')
 var url = require('url')
 
+var signal = require('signal')
+
 var RBTree = require('bintrees').RBTree
 
 var cadence = require('cadence')
@@ -47,13 +49,19 @@ function Kibitzer (id, options) {
     this.client = new Client(this.legislator.id)
 
     this.cookies = {}
-    this.logger = options.logger || function () {}
 
     this.discovery = options.discovery
 
     this.available = false
 
     this.waits = new RBTree(function (a, b) { return Id.compare(a.promise, b.promise) })
+}
+
+Kibitzer.prototype._logger = function (level, message, context) {
+    var subscribers = signal.subscribers([ '', 'bigeasy', 'kibitz', 'log' ])
+    for (var i = 0, I = subscribers.length; i < I; i++) {
+        subscribers[i](this, level, message, context)
+    }
 }
 
 Kibitzer.prototype._createLegislator = function () {
@@ -79,7 +87,7 @@ Kibitzer.prototype._tick = cadence(function (async) {
                 }, async())
             }, function (body) {
                 var published = body ? body.entries : []
-                this.logger('info', 'enqueued', {
+                this._logger('info', 'enqueued', {
                     kibitzerId: this.legislator.id,
                     sent: post,
                     received: body
@@ -101,7 +109,7 @@ Kibitzer.prototype._tick = cadence(function (async) {
                 this._ua.receive(location, serialized, async())
             }, function (body) {
                 var returns = body ? body.returns : []
-                this.logger('info', 'published', {
+                this._logger('info', 'published', {
                     kibitzerId: this.legislator.id,
                     sent: serialized,
                     received: body
@@ -114,13 +122,13 @@ Kibitzer.prototype._tick = cadence(function (async) {
     }, function () {
         var entries = this.legislator.since(this.client.uniform)
         if (entries.length) {
-            this.logger('info', 'consuming', {
+            this._logger('info', 'consuming', {
                 kibitzerId: this.legislator.id,
                 entries: entries
             })
             var promise = this.client.receive(entries)
             async.forEach(function (entry) {
-                this.logger('info', 'consume', {
+                this._logger('info', 'consume', {
                     kibitzerId: this.legislator.id,
                     entry: entry
                 })
@@ -183,7 +191,7 @@ Kibitzer.prototype.pull = cadence(function (async, location) {
             next: next
         }, async())
     }, function (body) {
-        this.logger('info', 'pulled', {
+        this._logger('info', 'pulled', {
             kibitzerId: this.legislator.id,
             location: location,
             sent: JSON.stringify(post),
@@ -205,7 +213,7 @@ Kibitzer.prototype.pull = cadence(function (async, location) {
 
 Kibitzer.prototype._sync = cadence(function (async, post) {
     if (!this.available) {
-        this.logger('info', 'sync', {
+        this._logger('info', 'sync', {
             kibitzerId: this.legislator.id,
             available: this.available,
             received: post
@@ -225,7 +233,7 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
         }
         break
     }
-    this.logger('info', 'sync', {
+    this._logger('info', 'sync', {
         kibitzerId: this.legislator.id,
         available: this.available,
         post: post,
@@ -248,7 +256,7 @@ Kibitzer.prototype._joined = function () {
 }
 
 Kibitzer.prototype._naturalize = cadence(function (async, locations) {
-    this.logger('info', 'naturalize', {
+    this._logger('info', 'naturalize', {
         kibitzerId: this.legislator.id,
         locations: locations
     })
@@ -279,7 +287,7 @@ Kibitzer.prototype.bootstrap = function (async) {
     this.bootstrapped = true
     this._reactor.turnstile.workers = 1
     this.legislator.bootstrap(this._Date.now(), this.location)
-    this.logger('info', 'bootstrap', {
+    this._logger('info', 'bootstrap', {
         kibitzerId: this.legislator.id
     })
     this.client.prime(this.legislator.prime('1/0'))
@@ -290,7 +298,7 @@ Kibitzer.prototype.whenJoin = cadence(function (async) {
     async(function () {
         this._ua.discover(async())
     }, function (body, okay) {
-        this.logger('info', 'join', {
+        this._logger('info', 'join', {
             okay: okay,
             kibitzerId: this.legislator.id,
             received: JSON.stringify(body)
@@ -304,7 +312,7 @@ Kibitzer.prototype.whenJoin = cadence(function (async) {
 })
 
 Kibitzer.prototype.whenJoining = cadence(function (async) {
-    this.logger('info', 'joining', {
+    this._logger('info', 'joining', {
         kibitzerId: this.legislator.id,
     })
     // TODO Do something becausing joining failed.
@@ -319,7 +327,7 @@ Kibitzer.prototype.publish = cadence(function (async, entry, internal) {
 
 Kibitzer.prototype._enqueue = cadence(function (async, post) {
     if (!this.available) {
-        this.logger('info', 'enqueue', {
+        this._logger('info', 'enqueue', {
             kibitzerId: this.legislator.id,
             available: this.available,
             received: post
@@ -337,7 +345,7 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
         }
     }, this)
     this._reactor.check()
-    this.logger('info', 'enqueue', {
+    this._logger('info', 'enqueue', {
         kibitzerId: this.legislator.id,
         available: this.available,
         received: JSON.stringify(post),
@@ -348,7 +356,7 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
 
 Kibitzer.prototype._receive = cadence(function (async, post) {
     if (!this.available) {
-        this.logger('info', 'receive', {
+        this._logger('info', 'receive', {
             kibitzerId: this.legislator.id,
             available: this.available,
             received: post
@@ -382,7 +390,7 @@ Kibitzer.prototype._receive = cadence(function (async, post) {
     }, function () {
         var returns = this.legislator.returns(this._Date.now(), route, index)
         this._reactor.check()
-        this.logger('info', 'receive', {
+        this._logger('info', 'receive', {
             kibitzerId: this.legislator.id,
             islandId: this.islandId,
             available: this.available,
