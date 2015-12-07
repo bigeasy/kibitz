@@ -1,11 +1,12 @@
-var cadence = require('cadence')
-var UserAgent = require('vizsla')
-var prolific = require('prolific')
-var logger = prolific.createLogger('kibitz')
-
-require('proof')(2, cadence(prove))
+require('proof')(5, require('cadence')(prove))
 
 function prove (async, assert) {
+    var cadence = require('cadence')
+    var UserAgent = require('vizsla')
+    var prolific = require('prolific')
+    var logger = prolific.createLogger('kibitz')
+    var interrupt = require('interrupt')
+
     var Kibitzer = require('../..')
 
     var ua = new UserAgent
@@ -91,7 +92,25 @@ function prove (async, assert) {
 
     async(function () {
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
-    }, function (body) {
+    }, [function () {
+        kibitzers[0]._sync(null, async())
+    }, function (error) {
+        interrupt.rescue('bigeasy.kibitz.unavailable', function () {
+            assert(true, 'sync unavailable')
+        })(error)
+    }], [function () {
+        kibitzers[0]._enqueue(null, async())
+    }, function (error) {
+        interrupt.rescue('bigeasy.kibitz.unavailable', function () {
+            assert(true, 'enqueue unavailable')
+        })(error)
+    }], [function () {
+        kibitzers[0]._receive(null, async())
+    }, function (error) {
+        interrupt.rescue('bigeasy.kibitz.unavailable', function () {
+            assert(true, 'enqueue unavailable')
+        })(error)
+    }], function () {
         kibitzers[0].bootstrap()
         assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'locations')
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))

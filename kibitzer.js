@@ -16,7 +16,7 @@ var Monotonic = require('monotonic')
 
 var Scheduler = require('happenstance')
 
-var interrupt = require('interrupt').createInterrupter()
+var interrupt = require('interrupt').createInterrupter('bigeasy.kibitz')
 
 function Kibitzer (id, options) {
     assert(id != null, 'id is required')
@@ -208,9 +208,9 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
         this.logger('info', 'sync', {
             kibitzerId: this.legislator.id,
             available: this.available,
-            received: request.body
+            received: post
         })
-        interrupt.panic(new Error, 'unsyncable')
+        throw interrupt(new Error('unavailable'))
     }
     var response
     switch (post.dataset) {
@@ -338,9 +338,9 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
         this.logger('info', 'enqueue', {
             kibitzerId: this.legislator.id,
             available: this.available,
-            received: request.body
+            received: post
         })
-        request.raise(517)
+        throw interrupt(new Error('unavailable'))
     }
     var response = { posted: false, entries: [] }
     post.entries.forEach(function (entry) {
@@ -367,10 +367,9 @@ Kibitzer.prototype._receive = cadence(function (async, post) {
         this.logger('info', 'receive', {
             kibitzerId: this.legislator.id,
             available: this.available,
-            received: request.body
+            received: post
         })
-        return null
-        // request.raise(517)
+        throw interrupt(new Error('unavailable'))
     }
     var route = post.route, index = post.index, expanded = post.messages
     async(function () {
