@@ -275,22 +275,6 @@ Kibitzer.prototype._naturalize = cadence(function (async, locations) {
     })
 })
 
-Kibitzer.prototype._rejoin = cadence(function (async, body) {
-    async(function () {
-        this.available = false
-        this.client.clear().forEach(function (request) {
-            var callback = this.cookies[request.cookie]
-            assert(callback, 'request missing callback')
-            delete this.cookies[request.cookie]
-            callback(this._unexceptional(new Error('rejoining')))
-        }, this)
-        this.scram(async())
-    }, function () {
-        if (body) this._naturalize(body, async())
-        else this._schedule('join', 0)
-    })
-})
-
 Kibitzer.prototype.bootstrap = function (async) {
     this.bootstrapped = true
     this._reactor.turnstile.workers = 1
@@ -323,7 +307,7 @@ Kibitzer.prototype.whenJoining = cadence(function (async) {
     this.logger('info', 'joining', {
         kibitzerId: this.legislator.id,
     })
-    this._rejoin(async())
+    // TODO Do something becausing joining failed.
 })
 
 Kibitzer.prototype.publish = cadence(function (async, entry, internal) {
