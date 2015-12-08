@@ -165,15 +165,6 @@ Kibitzer.prototype._schedule = function (type, delay) {
     this.happenstance.schedule(this.legislator.id, type, this._Date.now() + delay)
 }
 
-Kibitzer.prototype._checkSchedule = function () {
-    this._interval = setInterval(function () {
-        if (this.legislator.checkSchedule()) {
-            this.publisher.nudge()
-        }
-        this.scheduler.nudge()
-    }.bind(this), 50)
-}
-
 Kibitzer.prototype.locations = function () {
     var locations = []
     for (var key in this.legislator.locations) {
