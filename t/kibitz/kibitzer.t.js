@@ -1,4 +1,4 @@
-require('proof')(5, require('cadence')(prove))
+require('proof')(6, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
@@ -86,14 +86,6 @@ function prove (async, assert) {
         }
     }
 
-    function extend (first, second) {
-        for (var key in second) {
-            first[key] = second[key]
-        }
-        return first
-    }
-
-
     async(function () {
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
     }, [function () {
@@ -128,7 +120,30 @@ function prove (async, assert) {
         }, function (error) {
             console.log(error.stack)
         }])
+    }, function () {
+        async([function () {
+            var kibitzer = new Kibitzer(createIdentifier(), extend({
+                location: createLocation()
+            }, options, {
+                ua: extend(ua, { sync: cadence(function () { return null }) })
+            }))
+            kibitzer._pull('http://127.0.0.1:9090', async())
+        }, function (error) {
+            interrupt.rescue('bigeasy.kibitz.pull', function () {
+                assert(true, 'pull failed')
+            })(error)
+        }])
     })
+
+    function extend (to) {
+        var vargs = [].slice.call(arguments, 1)
+        for (var i = 0, I = vargs.length; i < I; i++) {
+            for (var key in vargs[i]) {
+                to[key] = vargs[i][key]
+            }
+        }
+        return to
+    }
 
     return
 

@@ -182,7 +182,7 @@ Kibitzer.prototype.locations = function () {
     return locations
 }
 
-Kibitzer.prototype.pull = cadence(function (async, location) {
+Kibitzer.prototype._pull = cadence(function (async, location) {
     assert(location, 'url is missing')
     var dataset = 'log', post, next = null
     var sync = async(function () {
@@ -199,7 +199,7 @@ Kibitzer.prototype.pull = cadence(function (async, location) {
             received: JSON.stringify(post)
         })
         if (!body) {
-            throw this._unexceptional(new Error('unable to sync'))
+            throw interrupt(new Error('pull'))
         } else {
             this._schedule('joining', this.timeout)
             this.legislator.inject(body.entries)
@@ -242,7 +242,7 @@ Kibitzer.prototype._naturalize = cadence(function (async, locations) {
         locations: locations
     })
     async(function () {
-        this.pull(locations[0], async())
+        this._pull(locations[0], async())
     }, function () {
         this.bootstrapped = false
         this.legislator.immigrate(this.legislator.id)
