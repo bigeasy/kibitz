@@ -194,7 +194,6 @@ Kibitzer.prototype._pull = cadence(function (async, location) {
             this._schedule('joining', this.timeout)
             this.legislator.inject(body.entries)
             if (body.next == null) {
-                // TODO Fast forward client!
                 return [ sync.break ]
             }
             next = body.next
@@ -221,37 +220,7 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
     return response
 })
 
-Kibitzer.prototype.join = cadence(function (async, url) {
-    this._schedule('join', 0)
-    this._joined = async()
-})
-
 Kibitzer.prototype._naturalize = cadence(function (async, locations) {
-    this._logger('info', 'naturalize', {
-        kibitzerId: this.legislator.id,
-        locations: locations
-    })
-    async(function () {
-        this._pull(locations[0], async())
-    }, function () {
-        this.bootstrapped = false
-        this.legislator.immigrate(this.legislator.id)
-        this.legislator.initialize(this._Date.now())
-        var since = this.legislator._greatestOf(this.legislator.id).uniform
-        this.client.prime(this.legislator.prime(since))
-        assert(this.client.length, 'no entries in client')
-        this._reactor.turnstile.workers = 1
-        this._reactor.check()
-        this._schedule('joining', this.timeout)
-        this.available = true
-        this.publish({
-            type: 'naturalize',
-            id: this.legislator.id,
-            location: this.location
-        }, true, async())
-    }, function () {
-        this._joined()
-    })
 })
 
 Kibitzer.prototype.bootstrap = function (async) {
@@ -265,20 +234,48 @@ Kibitzer.prototype.bootstrap = function (async) {
     this.available = true
 }
 
-Kibitzer.prototype.whenJoin = cadence(function (async) {
+Kibitzer.prototype.join = cadence(function (async) {
     async(function () {
         this._ua.discover(async())
-    }, function (body, okay) {
+    }, function (locations, okay) {
         this._logger('info', 'join', {
             okay: okay,
             kibitzerId: this.legislator.id,
-            received: JSON.stringify(body)
+            received: JSON.stringify(locations)
         })
-        if (okay) {
-            this._naturalize(body, async())
-        } else {
-            this._schedule('join', this.timeout)
+        if (!okay) {
+            throw interrupt(new Error('discover'))
         }
+        this._logger('info', 'naturalize', {
+            kibitzerId: this.legislator.id,
+            locations: locations
+        })
+        this._pull(locations[0], async())
+    }, function () {
+        this.legislator.immigrate(this.legislator.id)
+        this.legislator.initialize(this._Date.now())
+        var since = this.legislator.min()
+        this.client.prime(this.legislator.since(since, 1))
+        for (;;) {
+            var entries = this.legislator.since(since, 24)
+            if (entries.length == 0) {
+                break
+            }
+            since = this.client.receive(entries)
+        }
+        this.bootstrapped = false
+        var since = this.legislator._greatestOf(this.legislator.id).uniform
+        this.client.prime(this.legislator.prime(since))
+        assert(this.client.length, 'no entries in client')
+        this._reactor.turnstile.workers = 1
+        this._reactor.check()
+        this._schedule('joining', this.timeout)
+        this.available = true
+        this.publish({
+            type: 'naturalize',
+            id: this.legislator.id,
+            location: this.location
+        }, true, async())
     })
 })
 

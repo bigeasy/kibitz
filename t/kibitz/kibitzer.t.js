@@ -109,7 +109,7 @@ function prove (async, assert) {
     }], function () {
         kibitzers[0].bootstrap()
         assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'locations')
-        kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
+        kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: '127.0.0.1:8088' }, options)))
         async([function () {
             kibitzers[1].join(async())
         }, function (error) {
@@ -122,10 +122,10 @@ function prove (async, assert) {
         }])
     }, function () {
         async([function () {
-            var kibitzer = new Kibitzer(createIdentifier(), extend({
+            var kibitzer = new Kibitzer('3', extend({
                 location: createLocation()
             }, options, {
-                ua: extend(ua, { sync: cadence(function () { return null }) })
+                ua: extend({}, ua, { sync: cadence(function () { return null }) })
             }))
             kibitzer._pull('http://127.0.0.1:9090', async())
         }, function (error) {
@@ -133,6 +133,12 @@ function prove (async, assert) {
                 assert(true, 'pull failed')
             })(error)
         }])
+    }, function () {
+        kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
+        kibitzers[2].join(async())
+    }, function () {
+        kibitzers[2].wait('2/0', async())
+        kibitzers[2].wait('2/0', async())
     })
 
     function extend (to) {
