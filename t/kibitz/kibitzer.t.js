@@ -116,7 +116,7 @@ function prove (async, assert) {
             console.log(error.stack)
         }])
         async([function () {
-            kibitzers[1]._checkSchedule2(async())
+            kibitzers[1]._checkSchedule(async())
         }, function (error) {
             console.log(error.stack)
         }])
