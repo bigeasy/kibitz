@@ -221,19 +221,7 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
         })
         throw interrupt(new Error('unavailable'))
     }
-    var response
-    switch (post.dataset) {
-    case 'log':
-         response = this.legislator.extract('reverse', 24, post.next)
-         break
-    case 'footer':
-        response = {
-            // TODO oh, so `_greatestOf` is public
-            promise: this.legislator._greatestOf(this.legislator.id).uniform,
-            location: this.legislator.location
-        }
-        break
-    }
+    var response = this.legislator.extract('reverse', 24, post.next)
     this._logger('info', 'sync', {
         kibitzerId: this.legislator.id,
         available: this.available,
