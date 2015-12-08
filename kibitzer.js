@@ -195,7 +195,7 @@ Kibitzer.prototype._pull = cadence(function (async, location) {
             this._schedule('joining', this.timeout)
             this.legislator.inject(body.entries)
             if (body.next == null) {
-                // TODO fast forward client!
+                // TODO Fast forward client!
                 return [ sync.break ]
             }
             next = body.next
