@@ -153,12 +153,11 @@ Kibitzer.prototype._tick = cadence(function (async) {
     })
 })
 
-
 Kibitzer.prototype._checkSchedule = cadence(function (async) {
     async.forEach(function (event) {
         var method = 'when' + event[0].toUpperCase() + event.substring(1)
         this[method](event, async())
-    })(this.happenstance.check())
+    })(this.happenstance.check(this._Date.now()))
 })
 
 Kibitzer.prototype._schedule = function (type, delay) {
