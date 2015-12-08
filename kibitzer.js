@@ -86,13 +86,13 @@ Kibitzer.prototype._tick = cadence(function (async) {
                     entries: outgoing
                 }, async())
             }, function (body) {
-                var published = body ? body.entries : []
+                assert.ok(body.entries)
                 this._logger('info', 'enqueued', {
                     kibitzerId: this.legislator.id,
                     sent: post,
                     received: body
                 })
-                this.client.published(published)
+                this.client.published(body.entries)
             })
             dirty = true
         }
@@ -108,7 +108,8 @@ Kibitzer.prototype._tick = cadence(function (async) {
                 var location = this.legislator.locations[route.path[1]]
                 this._ua.receive(location, serialized, async())
             }, function (body) {
-                var returns = body ? body.returns : []
+                assert.ok(body.returns)
+                var returns = body.returns
                 this._logger('info', 'published', {
                     kibitzerId: this.legislator.id,
                     sent: serialized,
