@@ -144,17 +144,6 @@ Kibitzer.prototype._tick = cadence(function (async) {
     })
 })
 
-Kibitzer.prototype._checkSchedule = cadence(function (async) {
-    async.forEach(function (event) {
-        var method = 'when' + event[0].toUpperCase() + event.substring(1)
-        this[method](event, async())
-    })(this.happenstance.check(this._Date.now()))
-})
-
-Kibitzer.prototype._schedule = function (type, delay) {
-    this.happenstance.schedule(this.legislator.id, type, this._Date.now() + delay)
-}
-
 Kibitzer.prototype.locations = function () {
     var locations = []
     for (var key in this.legislator.locations) {
@@ -182,7 +171,6 @@ Kibitzer.prototype._pull = cadence(function (async, location) {
         if (!body) {
             throw interrupt(new Error('pull'))
         } else {
-            this._schedule('joining', this.timeout)
             this.legislator.inject(body.entries)
             if (body.next == null) {
                 return [ sync.break ]
@@ -260,7 +248,6 @@ Kibitzer.prototype.join = cadence(function (async) {
         assert(this.client.length, 'no entries in client')
         this._reactor.turnstile.workers = 1
         this._reactor.check()
-        this._schedule('joining', this.timeout)
         this.available = true
         this.publish({
             type: 'naturalize',
@@ -268,13 +255,6 @@ Kibitzer.prototype.join = cadence(function (async) {
             location: this.location
         }, true, async())
     })
-})
-
-Kibitzer.prototype.whenJoining = cadence(function (async) {
-    this._logger('info', 'joining', {
-        kibitzerId: this.legislator.id,
-    })
-    // TODO Do something becausing joining failed.
 })
 
 Kibitzer.prototype.publish = cadence(function (async, entry, internal) {
@@ -358,15 +338,6 @@ Kibitzer.prototype._receive = cadence(function (async, post) {
         })
         return { returns: returns }
     })
-})
-
-Kibitzer.prototype.stop = cadence(function (async) {
-    this.scheduler.workers = 0
-    if (this._interval != null) {
-        clearInterval(this._interval)
-        this._interval = null
-    }
-    this.scram(async())
 })
 
 module.exports = Kibitzer

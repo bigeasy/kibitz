@@ -110,16 +110,7 @@ function prove (async, assert) {
         kibitzers[0].bootstrap()
         assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'locations')
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: '127.0.0.1:8088' }, options)))
-        async([function () {
-            kibitzers[1].join(async())
-        }, function (error) {
-            console.log(error.stack)
-        }])
-        async([function () {
-            kibitzers[1]._checkSchedule(async())
-        }, function (error) {
-            console.log(error.stack)
-        }])
+        kibitzers[1].join(async())
     }, function () {
         async([function () {
             var kibitzer = new Kibitzer('3', extend({
