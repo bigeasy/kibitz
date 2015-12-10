@@ -3,8 +3,6 @@ var url = require('url')
 
 var signal = require('signal')
 
-var RBTree = require('bintrees').RBTree
-
 var cadence = require('cadence')
 
 var Reactor = require('reactor')
@@ -53,8 +51,6 @@ function Kibitzer (id, options) {
     this.discovery = options.discovery
 
     this.available = false
-
-    this.waits = new RBTree(function (a, b) { return Id.compare(a.promise, b.promise) })
 }
 
 Kibitzer.prototype._logger = function (level, message, context) {
@@ -137,11 +133,6 @@ Kibitzer.prototype._tick = cadence(function (async) {
                 if (callback) {
                     callback(null, entry)
                     delete this.cookies[entry.cookie]
-                }
-                var wait
-                while ((wait = this.waits.min()) && Id.compare(wait.promise, entry.promise) <= 0) {
-                    wait.callbacks.forEach(function (callback) { callback() })
-                    this.waits.remove(wait)
                 }
             })(this.client.since(promise))
             dirty = true
@@ -368,19 +359,6 @@ Kibitzer.prototype._receive = cadence(function (async, post) {
         return { returns: returns }
     })
 })
-
-Kibitzer.prototype.wait = function (promise, callback) {
-    if (Id.compare(promise, this.client.uniform) <= 0) {
-        callback()
-    } else {
-        var wait = this.waits.find({ promise: promise })
-        if (!wait) {
-            wait = { promise: promise, callbacks: [] }
-            this.waits.insert(wait)
-        }
-        wait.callbacks.push(callback)
-    }
-}
 
 Kibitzer.prototype.stop = cadence(function (async) {
     this.scheduler.workers = 0

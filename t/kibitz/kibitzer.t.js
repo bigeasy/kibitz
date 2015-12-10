@@ -136,9 +136,6 @@ function prove (async, assert) {
     }, function () {
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
         kibitzers[2].join(async())
-    }, function () {
-        kibitzers[2].wait('2/0', async())
-        kibitzers[2].wait('2/0', async())
     })
 
     function extend (to) {
