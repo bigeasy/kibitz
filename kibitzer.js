@@ -199,9 +199,6 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
     return response
 })
 
-Kibitzer.prototype._naturalize = cadence(function (async, locations) {
-})
-
 Kibitzer.prototype.bootstrap = function (async) {
     this.bootstrapped = true
     this._reactor.turnstile.workers = 1
