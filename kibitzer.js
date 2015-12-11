@@ -213,13 +213,12 @@ Kibitzer.prototype.bootstrap = function (async) {
 Kibitzer.prototype.join = cadence(function (async) {
     async(function () {
         this._ua.discover(async())
-    }, function (locations, okay) {
+    }, function (locations) {
         this._logger('info', 'join', {
-            okay: okay,
             kibitzerId: this.legislator.id,
             received: JSON.stringify(locations)
         })
-        if (!okay) {
+        if (!locations) {
             throw interrupt(new Error('discover'))
         }
         this._logger('info', 'naturalize', {

@@ -1,4 +1,4 @@
-require('proof')(6, require('cadence')(prove))
+require('proof')(7, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
@@ -33,10 +33,10 @@ function prove (async, assert) {
     signal.subscribe('.bigeasy.kibitz.log'.split('.'), function () {})
 
     // TODO Add `setImmediate` to assert asynchronicity.
-    var kibitzers = [], balancerIndex = 0, httpOkay = true
+    var kibitzers = [], balancerIndex = 0
     var ua = {
         discover: cadence(function (async) {
-            return [ kibitzers[balancerIndex].locations(), httpOkay ]
+            return [ kibitzers[balancerIndex].locations() ]
         }),
         sync: cadence(function (async, location, post) {
             async(function () {
@@ -122,6 +122,19 @@ function prove (async, assert) {
         }, function (error) {
             interrupt.rescue('bigeasy.kibitz.pull', function () {
                 assert(true, 'pull failed')
+            })(error)
+        }])
+    }, function () {
+        async([function () {
+            var kibitzer = new Kibitzer('3', extend({
+                location: createLocation()
+            }, options, {
+                ua: extend({}, ua, { discover: cadence(function () { return [ null, false ] }) })
+            }))
+            kibitzer.join(async())
+        }, function (error) {
+            interrupt.rescue('bigeasy.kibitz.discover', function () {
+                assert(true, 'discover failed')
             })(error)
         }])
     }, function () {
