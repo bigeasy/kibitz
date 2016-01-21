@@ -24,7 +24,7 @@
                     "isochronous": "0.0.4",
                     "interrupt": "0.0.10",
                     "sequester": "0.0.11",
-                    "signal": "0.0.5",
+                    "signal": "1.0.x",
                     "vizsla": "0.0.7"
     },
     "devDependencies":
