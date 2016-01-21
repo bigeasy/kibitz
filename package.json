@@ -18,7 +18,7 @@
                     "cadence": "0.4.1",
                     "happenstance": "0.0.14",
                     "paxos": "1.0.x",
-                    "monotonic": "0.0.3",
+                    "monotonic": "1.0.x",
                     "reactor": "1.0.x",
                     "prolific": "0.0.15",
                     "isochronous": "1.0.x",
