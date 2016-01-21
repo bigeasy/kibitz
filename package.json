@@ -21,7 +21,7 @@
                     "monotonic": "0.0.3",
                     "reactor": "0.0.10",
                     "prolific": "0.0.15",
-                    "isochronous": "0.0.4",
+                    "isochronous": "1.0.x",
                     "interrupt": "1.0.x",
                     "sequester": "1.0.x",
                     "signal": "1.0.x",
