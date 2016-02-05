@@ -16,7 +16,7 @@
     {
                     "bintrees":         "1.0.1",
                     "cadence":          "1.x",
-                    "happenstance":     "1.0.x",
+                    "happenstance":     "1.x",
                     "paxos":            "1.x",
                     "monotonic":        "1.0.x",
                     "reactor":          "1.0.x",
