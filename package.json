@@ -25,7 +25,7 @@
                     "interrupt":        "1.x",
                     "sequester":        "1.x",
                     "signal":           "1.x",
-                    "vizsla":           "1.0.x"
+                    "vizsla":           "1.x"
     },
     "devDependencies":
     {
