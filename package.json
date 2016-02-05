@@ -23,7 +23,7 @@
                     "prolific":         "0.0.15",
                     "isochronous":      "1.x",
                     "interrupt":        "1.x",
-                    "sequester":        "1.0.x",
+                    "sequester":        "1.x",
                     "signal":           "1.0.x",
                     "vizsla":           "1.0.x"
     },
