@@ -14,22 +14,22 @@
     ],
     "dependencies":
     {
-                    "bintrees": "1.0.1",
-                    "cadence": "1.0.x",
-                    "happenstance": "1.0.x",
-                    "paxos": "1.x",
-                    "monotonic": "1.0.x",
-                    "reactor": "1.0.x",
-                    "prolific": "0.0.15",
-                    "isochronous": "1.0.x",
-                    "interrupt": "1.0.x",
-                    "sequester": "1.0.x",
-                    "signal": "1.0.x",
-                    "vizsla": "1.0.x"
+                    "bintrees":         "1.0.1",
+                    "cadence":          "1.0.x",
+                    "happenstance":     "1.0.x",
+                    "paxos":            "1.x",
+                    "monotonic":        "1.0.x",
+                    "reactor":          "1.0.x",
+                    "prolific":         "0.0.15",
+                    "isochronous":      "1.0.x",
+                    "interrupt":        "1.0.x",
+                    "sequester":        "1.0.x",
+                    "signal":           "1.0.x",
+                    "vizsla":           "1.0.x"
     },
     "devDependencies":
     {
-                    "proof": "1.0.x"
+                    "proof":            "1.0.x"
     },
     "main":         "kibitzer",
     "scripts":
