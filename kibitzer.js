@@ -201,7 +201,7 @@ Kibitzer.prototype._sync = cadence(function (async, post) {
 
 Kibitzer.prototype.bootstrap = function (async) {
     this.bootstrapped = true
-    this._reactor.turnstile.workers = 1
+    this._reactor.turnstiles.turnstiles = 1
     this.legislator.bootstrap(this._Date.now(), this.location)
     this._logger('info', 'bootstrap', {
         kibitzerId: this.legislator.id
@@ -242,7 +242,7 @@ Kibitzer.prototype.join = cadence(function (async) {
         var since = this.legislator._greatestOf(this.legislator.id).uniform
         this.client.prime(this.legislator.prime(since))
         assert(this.client.length, 'no entries in client')
-        this._reactor.turnstile.workers = 1
+        this._reactor.turnstiles.turnstiles = 1
         this._reactor.check()
         this.available = true
         this.publish({
