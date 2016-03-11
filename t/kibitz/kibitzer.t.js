@@ -2,15 +2,12 @@ require('proof')(7, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
-    var UserAgent = require('vizsla')
     var prolific = require('prolific')
     var logger = prolific.createLogger('kibitz')
     var interrupt = require('interrupt')
     var signal = require('signal')
 
     var Kibitzer = require('../..')
-
-    var ua = new UserAgent
 
     function copy (object) {
         return JSON.parse(JSON.stringify(object))
