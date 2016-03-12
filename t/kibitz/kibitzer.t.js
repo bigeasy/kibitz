@@ -35,30 +35,11 @@ function prove (async, assert) {
         discover: cadence(function (async) {
             return [ kibitzers[balancerIndex].locations() ]
         }),
-        sync: cadence(function (async, location, post) {
+        send: cadence(function (async, location, post) {
             async(function () {
                 kibitzers.filter(function (kibitzer) {
                     return kibitzer.location == location
-                }).pop()._sync(copy(post), async())
-            }, function (result) {
-                return copy(result)
-            })
-
-        }),
-        enqueue: cadence(function (async, location, post) {
-            async(function () {
-                kibitzers.filter(function (kibitzer) {
-                    return kibitzer.location == location
-                }).pop()._enqueue(copy(post), async())
-            }, function (result) {
-                return copy(result)
-            })
-        }),
-        receive: cadence(function (async, location, post) {
-            async(function () {
-                kibitzers.filter(function (kibitzer) {
-                    return kibitzer.location == location
-                }).pop()._receive(post, async())
+                }).pop().dispatch(copy(post), async())
             }, function (result) {
                 return copy(result)
             })
@@ -113,7 +94,7 @@ function prove (async, assert) {
             var kibitzer = new Kibitzer('3', extend({
                 location: createLocation()
             }, options, {
-                ua: extend({}, ua, { sync: cadence(function () { return null }) })
+                ua: extend({}, ua, { send: cadence(function () { return null }) })
             }))
             kibitzer._pull('http://127.0.0.1:9090', async())
         }, function (error) {

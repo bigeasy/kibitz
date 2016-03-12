@@ -78,7 +78,8 @@ Kibitzer.prototype._tick = cadence(function (async) {
             var post
             async(function () {
                 var location = this.legislator.locations[this.legislator.government.majority[0]]
-                this._ua.enqueue(location, post = {
+                this._ua.send(location, post = {
+                    type: 'enqueue',
                     entries: outgoing
                 }, async())
             }, function (body) {
@@ -97,12 +98,13 @@ Kibitzer.prototype._tick = cadence(function (async) {
             var forwards = this.legislator.forwards(this._Date.now(), route, 0), serialized
             async(function () {
                 serialized = {
+                    type: 'receive',
                     route: route,
                     index: 1,
                     messages: forwards
                 }
                 var location = this.legislator.locations[route.path[1]]
-                this._ua.receive(location, serialized, async())
+                this._ua.send(location, serialized, async())
             }, function (body) {
                 assert.ok(body.returns)
                 var returns = body.returns
@@ -156,7 +158,8 @@ Kibitzer.prototype._pull = cadence(function (async, location) {
     assert(location, 'url is missing')
     var dataset = 'log', post, next = null
     var sync = async(function () {
-        this._ua.sync(location, post = {
+        this._ua.send(location, post = {
+            type: 'sync',
             kibitzerId: this.legislator.id,
             dataset: dataset,
             next: next
@@ -251,6 +254,20 @@ Kibitzer.prototype.join = cadence(function (async) {
             location: this.location
         }, true, async())
     })
+})
+
+Kibitzer.prototype.dispatch = cadence(function (async, body) {
+    switch (body.type) {
+    case 'sync':
+        this._sync(body, async())
+        break
+    case 'receive':
+        this._receive(body, async())
+        break
+    case 'enqueue':
+        this._enqueue(body, async())
+        break
+    }
 })
 
 Kibitzer.prototype.publish = cadence(function (async, entry, internal) {
