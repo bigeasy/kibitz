@@ -17,7 +17,7 @@
                     "bintrees":         "1.0.1",
                     "cadence":          "1.x",
                     "happenstance":     "1.x",
-                    "paxos":            "1.x",
+                    "paxos":            "1.0.1",
                     "monotonic":        "1.x",
                     "reactor":          "2.x",
                     "prolific":         "0.0.15",
