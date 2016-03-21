@@ -1,4 +1,4 @@
-require('proof')(7, require('cadence')(prove))
+require('proof')(8, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
@@ -118,6 +118,14 @@ function prove (async, assert) {
     }, function () {
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
         kibitzers[2].join(async())
+    }, function () {
+        kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
+        kibitzers[3].join(async())
+    }, function () {
+        kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
+        kibitzers[4].join(async())
+    }, function () {
+        assert(kibitzers[0].locations().length, 5, 'full consensus')
     })
 
     function extend (to) {

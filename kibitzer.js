@@ -320,23 +320,26 @@ Kibitzer.prototype._receive = cadence(function (async, post) {
         route = this.legislator.routeOf(route.path, route.pulse)
         this.legislator.inbox(this._Date.now(), route, expanded)
         if (index + 1 < route.path.length) {
+            var serialized
             async(function () {
-                var forwards = this.legislator.forwards(route, index)
-                var serialized = {
-                    islandId: this.islandId,
+                var forwards = this.legislator.forwards(this._Date.now(), route, index)
+                serialized = {
+                    type: 'receive',
                     route: route,
                     index: index + 1,
-                    messages: serializer.flatten(forwards)
+                    messages: forwards
                 }
-                this.ua.fetch(
-                    this.createBinder(this.legislator.location[route.path[index + 1]])
-                , {
-                    url: '/receive',
-                    payload: serialized
-                }, async())
+                var location = this.legislator.locations[route.path[index + 1]]
+                this._ua.send(location, serialized, async())
             }, function (body, response) {
-                var returns = this._response(response, body, 'returns', 'returns', [])
-                this.legislator.inbox(route, returns)
+                assert.ok(body.returns)
+                var returns = body.returns
+                this._logger('info', 'published', {
+                    kibitzerId: this.legislator.id,
+                    sent: serialized,
+                    received: body
+                })
+                this.legislator.inbox(this._Date.now(), route, returns)
             })
         }
     }, function () {
