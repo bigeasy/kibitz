@@ -126,6 +126,14 @@ function prove (async, assert) {
         kibitzers[4].join(async())
     }, function () {
         assert(kibitzers[0].locations().length, 5, 'full consensus')
+    }, function () {
+        kibitzers[4]._enqueue({
+            entries: [{
+                cookie: '20/1',
+                value: { type: 'naturalize', id: '20', location: '127.0.0.1:8088' },
+                internal: true
+            }]
+        }, async())
     })
 
     function extend (to) {
