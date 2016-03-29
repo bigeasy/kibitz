@@ -33,10 +33,13 @@ function prove (async, assert) {
     var kibitzers = [], balancerIndex = 0
     var ua = {
         discover: cadence(function (async) {
-            return [ kibitzers[balancerIndex].locations() ]
+            return [ [ 'bogus' ].concat(kibitzers[balancerIndex].locations()) ]
         }),
         send: cadence(function (async, location, post) {
             async(function () {
+                if (location == 'bogus') {
+                    throw new Error
+                }
                 kibitzers.filter(function (kibitzer) {
                     return kibitzer.location == location
                 }).pop().dispatch(copy(post), async())
@@ -107,7 +110,7 @@ function prove (async, assert) {
             var kibitzer = new Kibitzer('3', extend({
                 location: createLocation()
             }, options, {
-                ua: extend({}, ua, { discover: cadence(function () { return [ null, false ] }) })
+                ua: extend({}, ua, { discover: cadence(function () { return [[]] }) })
             }))
             kibitzer.join(async())
         }, function (error) {

@@ -171,7 +171,7 @@ Kibitzer.prototype._pull = cadence(function (async, location) {
             sent: JSON.stringify(post),
             received: JSON.stringify(post)
         })
-        if (!body) {
+        if (!body) { // TODO When does this happen? Why not just raise?
             throw interrupt(new Error('pull'))
         } else {
             this.legislator.inject(body.entries)
@@ -217,18 +217,31 @@ Kibitzer.prototype.join = cadence(function (async) {
     async(function () {
         this._ua.discover(async())
     }, function (locations) {
-        this._logger('info', 'join', {
+        this._logger('info', 'locations', {
             kibitzerId: this.legislator.id,
             received: JSON.stringify(locations)
         })
-        if (!locations) {
-            throw interrupt(new Error('discover'))
-        }
-        this._logger('info', 'naturalize', {
+        var location, loop = async(function () {
+            location = locations.shift()
+            if (!location) {
+                throw interrupt(new Error('discover'))
+            }
+            async([function () {
+                this._ua.send(location, { type: 'health' }, async())
+            }, function (error) {
+                this._logger('info', 'health', { location: location, healthy: false })
+                return [ loop.continue ]
+            }], function () {
+                this._logger('info', 'health', { location: location, healthy: true })
+                return [ loop.break, location ]
+            })
+        })()
+    }, function (location) {
+        this._logger('info', 'join', {
             kibitzerId: this.legislator.id,
-            locations: locations
+            location: location
         })
-        this._pull(locations[0], async())
+        this._pull(location, async())
     }, function () {
         this.legislator.immigrate(this.legislator.id)
         this.legislator.initialize(this._Date.now())
@@ -258,6 +271,8 @@ Kibitzer.prototype.join = cadence(function (async) {
 
 Kibitzer.prototype.dispatch = cadence(function (async, body) {
     switch (body.type) {
+    case 'health':
+        return {}
     case 'sync':
         this._sync(body, async())
         break
