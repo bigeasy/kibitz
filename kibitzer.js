@@ -10,7 +10,7 @@ var Reactor = require('reactor')
 var sequester = require('sequester')
 var Id = require('paxos/id')
 var Legislator = require('paxos/legislator')
-var Client = require('paxos/client')
+var Client = require('islander')
 
 var Monotonic = require('monotonic')
 
@@ -125,18 +125,22 @@ Kibitzer.prototype._tick = cadence(function (async) {
                 kibitzerId: this.legislator.id,
                 entries: entries
             })
-            var promise = this.client.receive(entries)
-            async.forEach(function (entry) {
+            this.client.receive(entries)
+            if (this.iterator.next) {
+                console.log('emit', this.legislator.id)
+            }
+            while (this.iterator.next) {
+                this.iterator = this.iterator.next
                 this._logger('info', 'consume', {
                     kibitzerId: this.legislator.id,
-                    entry: entry
+                    entry: this.iterator
                 })
-                var callback = this.cookies[entry.cookie]
+                var callback = this.cookies[this.iterator.cookie]
                 if (callback) {
-                    callback(null, entry)
-                    delete this.cookies[entry.cookie]
+                    callback(null, this.iterator)
+                    delete this.cookies[this.iterator.cookie]
                 }
-            })(this.client.since(promise))
+            }
             dirty = true
         }
     }, function () {
@@ -209,7 +213,7 @@ Kibitzer.prototype.bootstrap = function (async) {
     this._logger('info', 'bootstrap', {
         kibitzerId: this.legislator.id
     })
-    this.client.prime(this.legislator.prime('1/0'))
+    this.iterator = this.client.prime(this.legislator.prime('1/0')[0])
     this.available = true
 }
 
@@ -245,18 +249,9 @@ Kibitzer.prototype.join = cadence(function (async) {
     }, function () {
         this.legislator.immigrate(this.legislator.id)
         this.legislator.initialize(this._Date.now())
-        var since = this.legislator.min()
-        this.client.prime(this.legislator.since(since, 1))
-        for (;;) {
-            var entries = this.legislator.since(since, 24)
-            if (entries.length == 0) {
-                break
-            }
-            since = this.client.receive(entries)
-        }
         this.bootstrapped = false
         var since = this.legislator._greatestOf(this.legislator.id).uniform
-        this.client.prime(this.legislator.prime(since))
+        this.iterator = this.client.prime(this.legislator.prime(since)[0])
         assert(this.client.length, 'no entries in client')
         this._reactor.turnstile.turnstiles = 1
         this._reactor.check()
