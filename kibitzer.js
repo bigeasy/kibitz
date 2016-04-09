@@ -10,7 +10,7 @@ var Reactor = require('reactor')
 var sequester = require('sequester')
 var Id = require('paxos/id')
 var Legislator = require('paxos/legislator')
-var Client = require('islander')
+var Islander = require('islander')
 
 var Monotonic = require('monotonic')
 
@@ -44,7 +44,7 @@ function Kibitzer (id, options) {
     this.suffix = '0'
 
     this.legislator = this._createLegislator()
-    this.client = new Client(this.legislator.id)
+    this.islander = new Islander(this.legislator.id)
 
     this.cookies = {}
 
@@ -73,7 +73,7 @@ Kibitzer.prototype._createLegislator = function () {
 Kibitzer.prototype._tick = cadence(function (async) {
     var dirty = false
     async(function () {
-        var outgoing = this.client.outbox()
+        var outgoing = this.islander.outbox()
         if (outgoing.length) {
             var post
             async(function () {
@@ -89,7 +89,7 @@ Kibitzer.prototype._tick = cadence(function (async) {
                     sent: post,
                     received: body
                 })
-                this.client.published(body.entries)
+                this.islander.published(body.entries)
             })
             dirty = true
         }
@@ -119,13 +119,13 @@ Kibitzer.prototype._tick = cadence(function (async) {
             dirty = true
         })(this.legislator.outbox())
     }, function () {
-        var entries = this.legislator.since(this.client.uniform)
+        var entries = this.legislator.since(this.islander.uniform)
         if (entries.length) {
             this._logger('info', 'consuming', {
                 kibitzerId: this.legislator.id,
                 entries: entries
             })
-            this.client.receive(entries)
+            this.islander.receive(entries)
             if (this.iterator.next) {
                 console.log('emit', this.legislator.id)
             }
@@ -213,7 +213,7 @@ Kibitzer.prototype.bootstrap = function (async) {
     this._logger('info', 'bootstrap', {
         kibitzerId: this.legislator.id
     })
-    this.iterator = this.client.prime(this.legislator.prime('1/0')[0])
+    this.iterator = this.islander.prime(this.legislator.prime('1/0')[0])
     this.available = true
 }
 
@@ -251,8 +251,8 @@ Kibitzer.prototype.join = cadence(function (async) {
         this.legislator.initialize(this._Date.now())
         this.bootstrapped = false
         var since = this.legislator._greatestOf(this.legislator.id).uniform
-        this.iterator = this.client.prime(this.legislator.prime(since)[0])
-        assert(this.client.length, 'no entries in client')
+        this.iterator = this.islander.prime(this.legislator.prime(since)[0])
+        assert(this.islander.length, 'no entries in islander')
         this._reactor.turnstile.turnstiles = 1
         this._reactor.check()
         this.available = true
@@ -281,7 +281,7 @@ Kibitzer.prototype.dispatch = cadence(function (async, body) {
 })
 
 Kibitzer.prototype.publish = cadence(function (async, entry, internal) {
-    var cookie = this.client.publish(entry, internal)
+    var cookie = this.islander.publish(entry, internal)
     this.cookies[cookie] = async()
     this._reactor.check()
     return cookie
