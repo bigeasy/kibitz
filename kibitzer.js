@@ -1,28 +1,28 @@
 var assert = require('assert')
-var url = require('url')
+var events = require('events')
+var util = require('util')
 
+var slice = [].slice
+
+var Vestibule = require('vestibule')
 var signal = require('signal')
-
 var cadence = require('cadence')
 
 var Reactor = require('reactor')
-
-var sequester = require('sequester')
-var Id = require('paxos/id')
 var Legislator = require('paxos/legislator')
 var Islander = require('islander')
 
 var Monotonic = require('monotonic')
-
-var Scheduler = require('happenstance')
-
 var interrupt = require('interrupt').createInterrupter('bigeasy.kibitz')
 
 function Kibitzer (id, options) {
     assert(id != null, 'id is required')
 
+    options || (options = {})
+
     options.ping || (options.ping = 250)
     options.timeout || (options.timeout = 1000)
+
     this.poll = options.poll || 5000
     this.ping = options.ping
     this.timeout = options.timeout
@@ -31,27 +31,35 @@ function Kibitzer (id, options) {
 
     this._reactor = new Reactor({ object: this, method: '_tick' })
 
-    this.happenstance = new Scheduler
     this._Date = options.Date || Date
 
     this.joining = []
 
     this.location = options.location
     this._ua = options.ua
-    this._join = sequester.createLock()
 
-    this.baseId = id
-    this.suffix = '0'
+// TODO Maybe have an auto-incrementing id as before.
+    this.id = id
 
-    this.legislator = this._createLegislator()
+    this.legislator = this._createLegislator(this._Date.now())
     this.islander = new Islander(this.legislator.id)
-
+    this.iterators = {
+        legislator: this.legislator.log.min(),
+        islander: { dummy: true }
+    }
     this.cookies = {}
 
     this.discovery = options.discovery
 
     this.available = false
+
+    this.events = new events.EventEmitter
+
+    this._advanced = new Vestibule
+
+    events.EventEmitter.call(this)
 }
+util.inherits(Kibitzer, events.EventEmitter)
 
 Kibitzer.prototype._logger = function (level, message, context) {
     var subscribers = signal.subscribers([ '', 'bigeasy', 'kibitz', 'log' ])
@@ -60,11 +68,8 @@ Kibitzer.prototype._logger = function (level, message, context) {
     }
 }
 
-Kibitzer.prototype._createLegislator = function () {
-    var suffix = this.suffix
-    var words = Monotonic.parse(this.suffix)
-    this.suffix = Monotonic.toString(Monotonic.increment(words))
-    return new Legislator(this.baseId + suffix, {
+Kibitzer.prototype._createLegislator = function (now) {
+    return new Legislator(now, this.id, {
         ping: this.ping,
         timeout: this.timeout
     })
@@ -83,7 +88,7 @@ Kibitzer.prototype._tick = cadence(function (async) {
                     entries: outgoing
                 }, async())
             }, function (body) {
-                assert.ok(body.entries)
+                assert.ok('---->', body.entries)
                 this._logger('info', 'enqueued', {
                     kibitzerId: this.legislator.id,
                     sent: post,
@@ -94,54 +99,46 @@ Kibitzer.prototype._tick = cadence(function (async) {
             dirty = true
         }
     }, function () {
-        async.forEach(function (route) {
-            var forwards = this.legislator.forwards(this._Date.now(), route, 0), serialized
+        var now = this._Date.now()
+        var outbox = this.legislator.synchronize(now)
+        if (outbox.length == 0) {
+            var consensus = this.legislator.consensus(now)
+            if (consensus != null) {
+                outbox.push(consensus)
+            }
+        }
+// TODO Put this in another outgoing queue.
+        async.forEach(function (pulse) {
+            dirty = true
+            var responses = {}
             async(function () {
-                serialized = {
-                    type: 'receive',
-                    route: route,
-                    index: 1,
-                    messages: forwards
-                }
-                var location = this.legislator.locations[route.path[1]]
-                this._ua.send(location, serialized, async())
-            }, function (body) {
-                assert.ok(body.returns)
-                var returns = body.returns
-                this._logger('info', 'published', {
-                    kibitzerId: this.legislator.id,
-                    sent: serialized,
-                    received: body
-                })
-                this.legislator.inbox(this._Date.now(), route, returns)
-                this.legislator.sent(this._Date.now(), route, forwards, returns)
+                async.forEach(function (id) {
+                    async(function () {
+                        if (id == this.legislator.id) {
+                            this._receive(pulse, async())
+                        } else {
+                            var location = this.legislator.locations[id]
+                            this._ua.send(location, { type: 'receive', pulse: pulse }, async())
+                        }
+                    }, function (response) {
+                        this._logger('info', 'published', {
+                            kibitzerId: this.legislator.id,
+                            sent: pulse,
+                            received: response
+                        })
+                        responses[id] = response
+                    })
+                })(pulse.route)
+            }, function () {
+                this.legislator.sent(this._Date.now(), pulse, responses)
             })
-            dirty = true
-        })(this.legislator.outbox())
+        })(outbox)
     }, function () {
-        var entries = this.legislator.since(this.islander.uniform)
-        if (entries.length) {
-            this._logger('info', 'consuming', {
-                kibitzerId: this.legislator.id,
-                entries: entries
-            })
-            this.islander.receive(entries)
-            if (this.iterator.next) {
-                console.log('emit', this.legislator.id)
-            }
-            while (this.iterator.next) {
-                this.iterator = this.iterator.next
-                this._logger('info', 'consume', {
-                    kibitzerId: this.legislator.id,
-                    entry: this.iterator
-                })
-                var callback = this.cookies[this.iterator.cookie]
-                if (callback) {
-                    callback(null, this.iterator)
-                    delete this.cookies[this.iterator.cookie]
-                }
-            }
-            dirty = true
+        if (this.iterators.legislator.next != null) {
+        /*
+            this.iterators.legislator = this.iterators.legislator.next
+            */
+            this._advanced.notify()
         }
     }, function () {
         if (dirty) {
@@ -158,64 +155,25 @@ Kibitzer.prototype.locations = function () {
     return locations
 }
 
-Kibitzer.prototype._pull = cadence(function (async, location) {
-    assert(location, 'url is missing')
-    var dataset = 'log', post, next = null
-    var sync = async(function () {
-        this._ua.send(location, post = {
-            type: 'sync',
-            kibitzerId: this.legislator.id,
-            dataset: dataset,
-            next: next
-        }, async())
-    }, function (body) {
-        this._logger('info', 'pulled', {
-            kibitzerId: this.legislator.id,
-            location: location,
-            sent: JSON.stringify(post),
-            received: JSON.stringify(post)
-        })
-        if (!body) { // TODO When does this happen? Why not just raise?
-            throw interrupt(new Error('pull'))
-        } else {
-            this.legislator.inject(body.entries)
-            if (body.next == null) {
-                return [ sync.break ]
-            }
-            next = body.next
-        }
-    })()
-})
-
-Kibitzer.prototype._sync = cadence(function (async, post) {
-    if (!this.available) {
-        this._logger('info', 'sync', {
-            kibitzerId: this.legislator.id,
-            available: this.available,
-            received: post
-        })
-        throw interrupt(new Error('unavailable'))
+Kibitzer.prototype._prime = function (entry) {
+    this.iterators.islander = {
+        next: this.islander.prime(this.iterators.legislator = this.iterators.legislator.next)
     }
-    var response = this.legislator.extract('reverse', 24, post.next)
-    this._logger('info', 'sync', {
-        kibitzerId: this.legislator.id,
-        available: this.available,
-        post: post,
-        response: response
-    })
-    return response
-})
-
-Kibitzer.prototype.bootstrap = function (async) {
-    this.bootstrapped = true
-    this._reactor.turnstile.turnstiles = 1
-    this.legislator.bootstrap(this._Date.now(), this.location)
-    this._logger('info', 'bootstrap', {
-        kibitzerId: this.legislator.id
-    })
-    this.iterator = this.islander.prime(this.legislator.prime('1/0')[0])
-    this.available = true
 }
+
+Kibitzer.prototype.bootstrap = cadence(function (async) {
+    async(function () {
+        this._logger('info', 'bootstrap', { kibitzerId: this.legislator.id })
+        this.bootstrapped = true
+        this._reactor.turnstile.turnstiles = 1
+        this.legislator.bootstrap(this._Date.now(), this.location)
+        this.available = true
+        this._advanced.enter(async())
+        this._reactor.check()
+    }, function () {
+        this._prime()
+    })
+})
 
 Kibitzer.prototype.join = cadence(function (async) {
     async(function () {
@@ -241,26 +199,27 @@ Kibitzer.prototype.join = cadence(function (async) {
             })
         })()
     }, function (location) {
-        this._logger('info', 'join', {
-            kibitzerId: this.legislator.id,
-            location: location
+        var sent
+        async(function () {
+            this._ua.send(location, sent = {
+                type: 'naturalize',
+                id: this.legislator.id,
+                cookie: this.legislator.cookie,
+                location: this.location
+            }, async())
+        }, function (outcome) {
+            this._logger('info', 'join', {
+                kibitzerId: this.legislator.id,
+                sent: JSON.stringify(sent),
+                received: JSON.stringify(outcome)
+            })
         })
-        this._pull(location, async())
+        this._advanced.enter(async())
     }, function () {
-        this.legislator.immigrate(this.legislator.id)
-        this.legislator.initialize(this._Date.now())
         this.bootstrapped = false
-        var since = this.legislator._greatestOf(this.legislator.id).uniform
-        this.iterator = this.islander.prime(this.legislator.prime(since)[0])
-        assert(this.islander.length, 'no entries in islander')
-        this._reactor.turnstile.turnstiles = 1
-        this._reactor.check()
+// TODO Let Paxos handle concept availability, which is also changed islands.
         this.available = true
-        this.publish({
-            type: 'naturalize',
-            id: this.legislator.id,
-            location: this.location
-        }, true, async())
+        this._prime()
     })
 })
 
@@ -268,11 +227,11 @@ Kibitzer.prototype.dispatch = cadence(function (async, body) {
     switch (body.type) {
     case 'health':
         return {}
-    case 'sync':
-        this._sync(body, async())
+    case 'naturalize':
+        this._naturalize(body, async())
         break
     case 'receive':
-        this._receive(body, async())
+        this._receive(body.pulse, async())
         break
     case 'enqueue':
         this._enqueue(body, async())
@@ -280,11 +239,29 @@ Kibitzer.prototype.dispatch = cadence(function (async, body) {
     }
 })
 
-Kibitzer.prototype.publish = cadence(function (async, entry, internal) {
-    var cookie = this.islander.publish(entry, internal)
-    this.cookies[cookie] = async()
+Kibitzer.prototype.publish = function (entry) {
+    var cookie = this.islander.publish(entry, false)
     this._reactor.check()
     return cookie
+}
+
+Kibitzer.prototype._naturalize = cadence(function (async, post) {
+    if (!this.available) {
+        this._logger('info', 'enqueue', {
+            kibitzerId: this.legislator.id,
+            available: this.available,
+            received: JSON.stringify(post)
+        })
+        throw interrupt(new Error('unavailable'))
+    }
+    var outcome = this.legislator.naturalize(this._Date.now(), post.id, post.cookie, post.location)
+    this._logger('info', 'enqueue', {
+        kibitzerId: this.legislator.id,
+        available: this.available,
+        received: JSON.stringify(post),
+        sent: JSON.stringify(outcome)
+    })
+    return outcome
 })
 
 Kibitzer.prototype._enqueue = cadence(function (async, post) {
@@ -298,10 +275,8 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
     }
     var response = { posted: false, entries: [] }
     post.entries.forEach(function (entry) {
-        var outcome = this.legislator.post(this._Date.now(), entry.cookie, entry.value, entry.internal)
-        // TODO I expect the cookie to be in the outcome, it's not there.
-        // TODO Test receiving entries, enqueuing, when we are not the leader.
-        if (outcome.posted) {
+        var outcome = this.legislator.enqueue(this._Date.now(), entry)
+        if (outcome.enqueued) {
             response.posted = true
             response.entries.push({ cookie: entry.cookie, promise: outcome.promise })
         }
@@ -316,54 +291,35 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
     return response
 })
 
-Kibitzer.prototype._receive = cadence(function (async, post) {
-    if (!this.available) {
-        this._logger('info', 'receive', {
-            kibitzerId: this.legislator.id,
-            available: this.available,
-            received: post
-        })
-        throw interrupt(new Error('unavailable'))
-    }
-    var route = post.route, index = post.index, expanded = post.messages
-    async(function () {
-        route = this.legislator.routeOf(route.path, route.pulse)
-        this.legislator.inbox(this._Date.now(), route, expanded)
-        if (index + 1 < route.path.length) {
-            var serialized
-            async(function () {
-                var forwards = this.legislator.forwards(this._Date.now(), route, index)
-                serialized = {
-                    type: 'receive',
-                    route: route,
-                    index: index + 1,
-                    messages: forwards
-                }
-                var location = this.legislator.locations[route.path[index + 1]]
-                this._ua.send(location, serialized, async())
-            }, function (body, response) {
-                assert.ok(body.returns)
-                var returns = body.returns
-                this._logger('info', 'published', {
-                    kibitzerId: this.legislator.id,
-                    sent: serialized,
-                    received: body
-                })
-                this.legislator.inbox(this._Date.now(), route, returns)
+Kibitzer.prototype._receive = cadence(function (async, pulse) {
+    this._logger('info', 'receive', {
+        kibitzerId: this.legislator.id,
+        available: this.available,
+        received: pulse
+    })
+    var ret = [ this.legislator.receive(this._Date.now(), pulse, pulse.messages) ]
+    this._reactor.check()
+    return ret
+})
+
+Kibitzer.prototype.advance = cadence(function (async) {
+    var loop = async(function () {
+        while (this.iterators.legislator.next != null) {
+            this.iterators.legislator = this.iterators.legislator.next
+            this._logger('info', 'consuming', {
+                kibitzerId: this.legislator.id,
+                route: this.iterators.legislator.route,
+                promise: this.iterators.legislator.promise,
+                value: this.iterators.legislator.value
             })
         }
-    }, function () {
-        var returns = this.legislator.returns(this._Date.now(), route, index)
-        this._reactor.check()
-        this._logger('info', 'receive', {
-            kibitzerId: this.legislator.id,
-            islandId: this.islandId,
-            available: this.available,
-            received: post,
-            returns: returns
-        })
-        return { returns: returns }
-    })
+        if (this.iterators.islander.next == null) {
+            this._advanced.enter(async())
+        } else {
+            this.iterators.islander = this.iterators.islander.next
+            return [ loop.break, this.iterators.islander ]
+        }
+    })()
 })
 
 module.exports = Kibitzer

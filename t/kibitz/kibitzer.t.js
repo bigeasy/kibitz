@@ -1,9 +1,7 @@
-require('proof')(8, require('cadence')(prove))
+require('proof')(9, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
-    var prolific = require('prolific')
-    var logger = prolific.createLogger('kibitz')
     var interrupt = require('interrupt')
     var signal = require('signal')
 
@@ -13,23 +11,19 @@ function prove (async, assert) {
         return JSON.parse(JSON.stringify(object))
     }
 
+    new Kibitzer('1')
+
     var kibitzer = new Kibitzer('1', { timeout: 1001 })
     assert(kibitzer.timeout, 1001, 'numeric timeout')
 
-    var port = 8086
+    var port = 8086, identifier = 0
+    function createIdentifier () { return String(++identifier) }
+    function createLocation () { return '127.0.0.1:' + (port++) }
 
-    var identifier = 0
-    function createIdentifier () {
-        return String(++identifier)
-    }
+    signal.subscribe('.bigeasy.kibitz.log'.split('.'), function () {
+        // console.log([].slice.call(arguments, 2))
+    })
 
-    function createLocation () {
-        return '127.0.0.1:' + (port++)
-    }
-
-    signal.subscribe('.bigeasy.kibitz.log'.split('.'), function () {})
-
-    // TODO Add `setImmediate` to assert asynchronicity.
     var kibitzers = [], balancerIndex = 0
     var ua = {
         discover: cadence(function (async) {
@@ -44,36 +38,23 @@ function prove (async, assert) {
                     return kibitzer.location == location
                 }).pop().dispatch(copy(post), async())
             }, function (result) {
-                return copy(result)
+                return [ copy(result) ]
             })
         })
     }
-    var time = 0
-    var options = {
-        preferred: true,
+
+    var time = 0, options = {
         syncLength: 24,
         ua: ua,
-        logger: function (level, message, context) {
-            logger[level](message, context)
-        },
-        Date: { now: function () { return time } },
-        player: {
-            brief: function () {
-                return { next: null, entries: [] }
-            },
-            play: function (entry, callback) {
-                callback()
-            }
-        }
+        Date: { now: function () { return time } }
     }
-
     async(function () {
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: createLocation() }, options)))
     }, [function () {
-        kibitzers[0]._sync(null, async())
+        kibitzers[0]._naturalize(null, async())
     }, function (error) {
         interrupt.rescue('bigeasy.kibitz.unavailable', function () {
-            assert(true, 'sync unavailable')
+            assert(true, 'naturalize unavailable')
         })(error)
     }], [function () {
         kibitzers[0]._enqueue(null, async())
@@ -81,18 +62,39 @@ function prove (async, assert) {
         interrupt.rescue('bigeasy.kibitz.unavailable', function () {
             assert(true, 'enqueue unavailable')
         })(error)
-    }], [function () {
-        kibitzers[0]._receive(null, async())
-    }, function (error) {
-        interrupt.rescue('bigeasy.kibitz.unavailable', function () {
-            assert(true, 'enqueue unavailable')
-        })(error)
     }], function () {
-        kibitzers[0].bootstrap()
-        assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'locations')
+        kibitzers[0].bootstrap(async())
+    }, function () {
+        assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'bootstraped')
         kibitzers.push(new Kibitzer(createIdentifier(), extend({ location: '127.0.0.1:8088' }, options)))
         kibitzers[1].join(async())
     }, function () {
+        assert(kibitzers[1].locations(), [ '127.0.0.1:8086', '127.0.0.1:8088' ], 'joined')
+        kibitzers[1].advance(async())
+    }, function (message) {
+        assert(message.promise, '2/0', 'naturalized')
+        var cookie = kibitzers[1].publish({ count: 1 })
+        kibitzers[1].advance(async())
+    }, function (entry) {
+        assert(entry.value.value, { count: 1 }, 'publish')
+    }, function () {
+        async([function () {
+            var kibitzer = new Kibitzer('2', extend({
+                location: createLocation()
+            }, options, {
+                ua: extend({}, ua, { discover: cadence(function () { return [[]] }) })
+            }))
+            kibitzer.join(async())
+        }, function (error) {
+            interrupt.rescue('bigeasy.kibitz.discover', function () {
+                assert(true, 'discover failed')
+            })(error)
+        }])
+    }, function () {
+        kibitzers[1]._enqueue({ entries: [{}] }, async())
+    }, function (response) {
+        assert(response, { posted: false, entries: [] }, 'failed enqueue')
+        return [ async.break ]
         async([function () {
             var kibitzer = new Kibitzer('3', extend({
                 location: createLocation()
@@ -103,19 +105,6 @@ function prove (async, assert) {
         }, function (error) {
             interrupt.rescue('bigeasy.kibitz.pull', function () {
                 assert(true, 'pull failed')
-            })(error)
-        }])
-    }, function () {
-        async([function () {
-            var kibitzer = new Kibitzer('3', extend({
-                location: createLocation()
-            }, options, {
-                ua: extend({}, ua, { discover: cadence(function () { return [[]] }) })
-            }))
-            kibitzer.join(async())
-        }, function (error) {
-            interrupt.rescue('bigeasy.kibitz.discover', function () {
-                assert(true, 'discover failed')
             })(error)
         }])
     }, function () {
