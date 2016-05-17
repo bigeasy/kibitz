@@ -14,7 +14,7 @@ var Islander = require('islander')
 var Monotonic = require('monotonic')
 var interrupt = require('interrupt').createInterrupter('bigeasy.kibitz')
 
-function Kibitzer (id, options) {
+function Kibitzer (islandId, id, options) {
     assert(id != null, 'id is required')
 
     options || (options = {})
@@ -40,7 +40,10 @@ function Kibitzer (id, options) {
 // TODO Maybe have an auto-incrementing id as before.
     this.id = id
 
-    this.legislator = this._createLegislator(this._Date.now())
+    this.legislator = new Legislator(islandId, id, this._Date.now(), {
+        ping: this.ping,
+        timeout: this.timeout
+    })
     this.islander = new Islander(this.legislator.id)
     this.iterators = {
         legislator: this.legislator.log.min(),
@@ -63,10 +66,6 @@ Kibitzer.prototype._logger = function (level, message, context) {
 }
 
 Kibitzer.prototype._createLegislator = function (now) {
-    return new Legislator(now, this.id, {
-        ping: this.ping,
-        timeout: this.timeout
-    })
 }
 
 Kibitzer.prototype._tick = cadence(function (async) {
@@ -197,6 +196,7 @@ Kibitzer.prototype.join = cadence(function (async) {
         async(function () {
             this._ua.send(location, sent = {
                 type: 'naturalize',
+                islandId: this.legislator.islandId,
                 id: this.legislator.id,
                 cookie: this.legislator.cookie,
                 location: this.location
@@ -240,6 +240,7 @@ Kibitzer.prototype.publish = function (entry) {
 }
 
 Kibitzer.prototype._naturalize = cadence(function (async, post) {
+// TODO Available ever so dubious.
     if (!this.available) {
         this._logger('info', 'enqueue', {
             kibitzerId: this.legislator.id,
@@ -247,6 +248,9 @@ Kibitzer.prototype._naturalize = cadence(function (async, post) {
             received: JSON.stringify(post)
         })
         throw interrupt(new Error('unavailable'))
+    }
+    if (post.islandId != this.legislator.islandId) {
+        throw interrupt(new Error('wrongIsland'))
     }
     var outcome = this.legislator.naturalize(this._Date.now(), post.id, post.cookie, post.location)
     this._logger('info', 'enqueue', {
@@ -268,6 +272,8 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
         throw interrupt(new Error('unavailable'))
     }
     var response = { posted: false, entries: [] }
+// TODO Redirect enqueue or wait for stability and retry.
+// TODO Singular.
     post.entries.forEach(function (entry) {
         var outcome = this.legislator.enqueue(this._Date.now(), entry)
         if (outcome.enqueued) {
