@@ -1,5 +1,4 @@
 var assert = require('assert')
-var events = require('events')
 var util = require('util')
 
 var slice = [].slice
@@ -53,13 +52,8 @@ function Kibitzer (id, options) {
 
     this.available = false
 
-    this.events = new events.EventEmitter
-
     this._advanced = new Vestibule
-
-    events.EventEmitter.call(this)
 }
-util.inherits(Kibitzer, events.EventEmitter)
 
 Kibitzer.prototype._logger = function (level, message, context) {
     var subscribers = signal.subscribers([ '', 'bigeasy', 'kibitz', 'log' ])
