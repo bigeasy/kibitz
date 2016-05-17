@@ -81,7 +81,6 @@ Kibitzer.prototype._tick = cadence(function (async) {
                     entries: outgoing
                 }, async())
             }, function (body) {
-                assert.ok('---->', body.entries)
                 this._logger('info', 'enqueued', {
                     kibitzerId: this.legislator.id,
                     sent: post,
@@ -273,14 +272,15 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
     }
     var response = { posted: false, entries: [] }
 // TODO Redirect enqueue or wait for stability and retry.
-// TODO Singular.
-    post.entries.forEach(function (entry) {
+    for (var i = 0, I = post.entries.length; i < I; i++) {
+        var entry = post.entries[i]
         var outcome = this.legislator.enqueue(this._Date.now(), entry)
-        if (outcome.enqueued) {
-            response.posted = true
-            response.entries.push({ cookie: entry.cookie, promise: outcome.promise })
+        if (!outcome.enqueued) {
+            response.entries.length = 0
+            break
         }
-    }, this)
+        response.entries.push({ cookie: entry.cookie, promise: outcome.promise })
+    }
     this._reactor.check()
     this._logger('info', 'enqueue', {
         kibitzerId: this.legislator.id,
