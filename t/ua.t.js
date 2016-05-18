@@ -1,7 +1,7 @@
 require('proof')(4, require('cadence')(prove))
 
 function prove (async, assert) {
-    var UserAgent  = require('../../ua')
+    var UserAgent  = require('../ua')
     var http = require('http')
     var Semblance = require('semblance')
     var semblance = new Semblance

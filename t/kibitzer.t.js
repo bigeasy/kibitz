@@ -5,7 +5,7 @@ function prove (async, assert) {
     var interrupt = require('interrupt')
     var signal = require('signal')
 
-    var Kibitzer = require('../..')
+    var Kibitzer = require('..')
 
     function copy (object) {
         return JSON.parse(JSON.stringify(object))
