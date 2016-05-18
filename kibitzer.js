@@ -86,8 +86,8 @@ function Kibitzer (islandId, id, options) {
 Kibitzer.prototype.terminate = function () {
     if (!this._terminated) {
         this._terminated = true
-        this.scheduler.clear()
-        this.legislator.scheduler.clear()
+        this.scheduler.shutdown()
+        this.legislator.scheduler.shutdown()
         this._advanced.notify()
     }
 }
@@ -149,12 +149,7 @@ Kibitzer.prototype._checkPublisher = function () {
 // tell it to no longer schedule.
 Kibitzer.prototype._pulse = cadence(function (async, timeout, pulse) {
     var responses = {}
-    function terminated () {
-        if (this._terminated) {
-            return [ async.break ]
-        }
-    }
-    async(terminated, function () {
+    async(function () {
         async.forEach(function (id) {
             async(function () {
                 if (id == this.legislator.id) {
@@ -172,13 +167,13 @@ Kibitzer.prototype._pulse = cadence(function (async, timeout, pulse) {
                 responses[id] = response
             })
         })(pulse.route)
-    }, terminated, function () {
+    }, function () {
         this.legislator.sent(this._Date.now(), pulse, responses)
-    }, terminated, function () {
+    }, function () {
         if (this.iterators.legislator.next != null) {
             this._advanced.notify()
         }
-    }, terminated, function () {
+    }, function () {
         this._send()
     })
 })
