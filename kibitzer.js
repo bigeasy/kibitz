@@ -37,7 +37,6 @@ var Islander = require('islander')
 
 var Scheduler = require('happenstance')
 
-var Monotonic = require('monotonic')
 var interrupt = require('interrupt').createInterrupter('bigeasy.kibitz')
 var abend = require('abend')
 
