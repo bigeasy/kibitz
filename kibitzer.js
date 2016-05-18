@@ -29,7 +29,6 @@ var events = require('events')
 var slice = [].slice
 
 var Vestibule = require('vestibule')
-var signal = require('signal')
 var cadence = require('cadence')
 
 var Reactor = require('reactor')
@@ -41,6 +40,8 @@ var Scheduler = require('happenstance')
 var Monotonic = require('monotonic')
 var interrupt = require('interrupt').createInterrupter('bigeasy.kibitz')
 var abend = require('abend')
+
+var logger = require('prolific').createLogger('bigasy.kibitz.kibitzer')
 
 function Kibitzer (islandId, id, options) {
     assert(id != null, 'id is required')
@@ -97,10 +98,7 @@ Kibitzer.prototype._newLogListener = function () {
 }
 
 Kibitzer.prototype._logger = function (level, message, context) {
-    var subscribers = signal.subscribers([ '', 'bigeasy', 'kibitz', 'log' ])
-    for (var i = 0, I = subscribers.length; i < I; i++) {
-        subscribers[i](this, level, message, context)
-    }
+    logger[level](message, context)
 }
 
 Kibitzer.prototype._publish = cadence(function (async) {

@@ -30,7 +30,6 @@
                     "reactor":          "2.x",
                     "prolific":         "1.x",
                     "interrupt":        "1.x",
-                    "signal":           "1.x",
                     "happenstance":     "2.x",
                     "vestibule":        "1.x",
                     "vizsla":           "1.x"

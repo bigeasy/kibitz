@@ -3,7 +3,6 @@ require('proof')(7, require('cadence')(prove))
 function prove (async, assert) {
     var cadence = require('cadence')
     var interrupt = require('interrupt')
-    var signal = require('signal')
     var Delta = require('delta')
 
     var Kibitzer = require('..')
@@ -21,10 +20,6 @@ function prove (async, assert) {
     var port = 8086, identifier = 0
     function createIdentifier () { return String(++identifier) }
     function createLocation () { return '127.0.0.1:' + (port++) }
-
-    signal.subscribe('.bigeasy.kibitz.log'.split('.'), function () {
-        // console.log([].slice.call(arguments, 2))
-    })
 
     var kibitzers = [], balancerIndex = 0
     var ua = {
