@@ -1,4 +1,4 @@
-require('proof')(9, require('cadence')(prove))
+require('proof')(7, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
@@ -14,7 +14,7 @@ function prove (async, assert) {
     new Kibitzer(1, '1')
 
     var kibitzer = new Kibitzer(1, '1', { timeout: 1001 })
-    assert(kibitzer.timeout, 1001, 'numeric timeout')
+    assert(kibitzer.legislator.timeout, 1001, 'numeric timeout')
 
     var port = 8086, identifier = 0
     function createIdentifier () { return String(++identifier) }
@@ -46,23 +46,11 @@ function prove (async, assert) {
     var time = 0, options = {
         syncLength: 24,
         ua: ua,
-        Date: { now: function () { return time } }
+        __Date: { now: function () { return time } }
     }
     async(function () {
         kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ location: createLocation() }, options)))
-    }, [function () {
-        kibitzers[0]._naturalize(null, async())
-    }, function (error) {
-        interrupt.rescue('bigeasy.kibitz.unavailable', function () {
-            assert(true, 'naturalize unavailable')
-        })(error)
-    }], [function () {
-        kibitzers[0]._enqueue(null, async())
-    }, function (error) {
-        interrupt.rescue('bigeasy.kibitz.unavailable', function () {
-            assert(true, 'enqueue unavailable')
-        })(error)
-    }], function () {
+    }, function () {
         kibitzers[0].bootstrap(async())
     }, function () {
         assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'bootstraped')
