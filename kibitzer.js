@@ -80,7 +80,6 @@ function Kibitzer (islandId, id, options) {
     this.log.on('newListener', this._newLogListener.bind(this))
 
     this._advanced = new Vestibule
-    this._timeout = null
     this._terminated = false
 }
 
@@ -141,10 +140,21 @@ Kibitzer.prototype._checkPublisher = function () {
     this._publisher.check()
 }
 
-
+// TODO Annoying how difficult it is to stop this crazy thing. There are going
+// to be race conditions where we have a termination, come in, we shut things
+// down, but then we continue with processing a pulse which triggers a timer.
+// Sending messages to legislator can restart it's scheduler.
+//
+// TODO We could kill the timer in the scheduler, set the boolean we added to
+// tell it to no longer schedule.
 Kibitzer.prototype._pulse = cadence(function (async, timeout, pulse) {
     var responses = {}
-    async(function () {
+    function terminated () {
+        if (this._terminated) {
+            return [ async.break ]
+        }
+    }
+    async(terminated, function () {
         async.forEach(function (id) {
             async(function () {
                 if (id == this.legislator.id) {
@@ -162,13 +172,13 @@ Kibitzer.prototype._pulse = cadence(function (async, timeout, pulse) {
                 responses[id] = response
             })
         })(pulse.route)
-    }, function () {
+    }, terminated, function () {
         this.legislator.sent(this._Date.now(), pulse, responses)
-    }, function () {
+    }, terminated, function () {
         if (this.iterators.legislator.next != null) {
             this._advanced.notify()
         }
-    }, function () {
+    }, terminated, function () {
         this._send()
     })
 })
@@ -221,52 +231,50 @@ Kibitzer.prototype.bootstrap = cadence(function (async) {
 // TODO Use Isochronous to repeatedly send join message.
 Kibitzer.prototype.join = cadence(function (async) {
     async(function () {
+        this._advanced.enter(async())
+        this.scheduler.schedule(this._Date.now() + 0, 'join', { object: this, method: '_checkJoin' })
+    }, function () {
+        this._prime()
+    })
+})
+
+var count = 0
+Kibitzer.prototype._checkJoin = function () {
+    console.log('called')
+    this._join(abend)
+}
+
+Kibitzer.prototype._join = cadence(function (async) {
+    async(function () {
         this._ua.discover(async())
     }, function (locations) {
         this._logger('info', 'locations', {
             kibitzerId: this.legislator.id,
             received: JSON.stringify(locations)
         })
-// TODO Skip this and send naturalize directly until it is accepted.
-// TODO Paxos should reject naturalize based on island id.
-// TODO Paxos must reject duplicate naturalization messages, skip naturalization
-// if the item is already naturalized.
-        var location, loop = async(function () {
-            location = locations.shift()
-            if (!location) {
-                throw interrupt(new Error('discover'))
-            }
-            async([function () {
-                this._ua.send(location, { type: 'health' }, async())
-            }, function (error) {
-                this._logger('info', 'health', { location: location, healthy: false })
-                return [ loop.continue ]
-            }], function () {
-                this._logger('info', 'health', { location: location, healthy: true })
-                return [ loop.break, location ]
-            })
-        })()
-    }, function (location) {
-        var sent
-        async(function () {
-            this._ua.send(location, sent = {
+        var naturalization = {
                 type: 'naturalize',
                 islandId: this.legislator.islandId,
                 id: this.legislator.id,
                 cookie: this.legislator.cookie,
                 location: this.location
-            }, async())
-        }, function (outcome) {
-            this._logger('info', 'join', {
-                kibitzerId: this.legislator.id,
-                sent: JSON.stringify(sent),
-                received: JSON.stringify(outcome)
+        }
+        var location, loop = async(function () {
+            location = locations.shift()
+            if (!location) {
+                this.scheduler.schedule(this._Date.now() + 1000, 'join', { object: this, method: '_checkJoin' })
+                return [ loop.break ]
+            }
+            async([function () {
+                this._ua.send(location, naturalization, async())
+            }, function (error) {
+                this._logger('error', 'naturalize', { location: location, stack: error.stack })
+                return [ loop.continue ]
+            }], function (outcome) {
+                this._logger('info', 'naturalize', { location: location, outcome: outcome })
+                if (outcome.enqueued) return [ loop.break ]
             })
-        })
-        this._advanced.enter(async())
-    }, function () {
-// TODO Let Paxos handle concept availability, which is also changed islands.
-        this._prime()
+        })()
     })
 })
 

@@ -1,4 +1,4 @@
-require('proof')(8, require('cadence')(prove))
+require('proof')(7, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
@@ -12,10 +12,11 @@ function prove (async, assert) {
         return JSON.parse(JSON.stringify(object))
     }
 
-    new Kibitzer(1, '1')
+    new Kibitzer(1, '1').terminate()
 
     var kibitzer = new Kibitzer(1, '1', { timeout: 1001 })
     assert(kibitzer.legislator.timeout, 1001, 'numeric timeout')
+    kibitzer.terminate()
 
     var port = 8086, identifier = 0
     function createIdentifier () { return String(++identifier) }
@@ -67,6 +68,10 @@ function prove (async, assert) {
     }, function (entry) {
         assert(entry.value.value, { count: 1 }, 'publish')
     }, function () {
+        /*
+
+        Discovery is a temporary error.
+
         async([function () {
             var kibitzer = new Kibitzer(1, '2', extend({
                 location: createLocation()
@@ -79,6 +84,7 @@ function prove (async, assert) {
                 assert(true, 'discover failed')
             })(error)
         }])
+        */
     }, function () {
         kibitzers[1]._enqueue({ entries: [{}] }, async())
     }, function (response) {
@@ -88,6 +94,7 @@ function prove (async, assert) {
         kibitzers[1].terminate()
     }, function () {
         assert(true, 'terminated')
+        kibitzers[0].terminate()
         return [ async.break ]
 // --------- OLDER DEAD TESTS ------
         async([function () {
