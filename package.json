@@ -23,7 +23,7 @@
                     "cadence":          "1.x",
                     "delta":            "1.x",
                     "paxos":            "3.3.x",
-                    "happenstance":     "2.5.x",
+                    "happenstance":     "2.6.x",
                     "operation":        "1.0.x",
                     "islander":         "0.x",
                     "monotonic":        "2.x",
