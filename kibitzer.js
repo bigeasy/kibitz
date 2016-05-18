@@ -240,7 +240,6 @@ Kibitzer.prototype.join = cadence(function (async) {
 
 var count = 0
 Kibitzer.prototype._checkJoin = function () {
-    console.log('called')
     this._join(abend)
 }
 
