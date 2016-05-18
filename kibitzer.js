@@ -271,8 +271,6 @@ Kibitzer.prototype._join = cadence(function (async) {
 
 Kibitzer.prototype.dispatch = cadence(function (async, body) {
     switch (body.type) {
-    case 'health':
-        return {}
     case 'naturalize':
         this._naturalize(body, async())
         break
