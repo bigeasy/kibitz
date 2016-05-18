@@ -18,8 +18,10 @@
     },
     "dependencies":
     {
+                    "abend":            "1.x",
                     "bintrees":         "1.0.1",
                     "cadence":          "1.x",
+                    "delta":            "1.x",
                     "paxos":            "3.3.x",
                     "happenstance":     "1.x",
                     "operation":        "1.0.x",

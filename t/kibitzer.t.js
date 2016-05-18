@@ -1,9 +1,10 @@
-require('proof')(7, require('cadence')(prove))
+require('proof')(8, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
     var interrupt = require('interrupt')
     var signal = require('signal')
+    var Delta = require('delta')
 
     var Kibitzer = require('..')
 
@@ -58,11 +59,11 @@ function prove (async, assert) {
         kibitzers[1].join(async())
     }, function () {
         assert(kibitzers[1].locations(), [ '127.0.0.1:8086', '127.0.0.1:8088' ], 'joined')
-        kibitzers[1].advance(async())
+        new Delta(async()).ee(kibitzers[1].log).on('entry')
     }, function (message) {
         assert(message.promise, '2/0', 'naturalized')
         var cookie = kibitzers[1].publish({ count: 1 })
-        kibitzers[1].advance(async())
+        new Delta(async()).ee(kibitzers[1].log).on('entry')
     }, function (entry) {
         assert(entry.value.value, { count: 1 }, 'publish')
     }, function () {
@@ -82,7 +83,13 @@ function prove (async, assert) {
         kibitzers[1]._enqueue({ entries: [{}] }, async())
     }, function (response) {
         assert(response, { posted: false, entries: [] }, 'failed enqueue')
+        new Delta(async()).ee(kibitzers[1].log).on('terminated')
+        kibitzers[1].terminate()
+        kibitzers[1].terminate()
+    }, function () {
+        assert(true, 'terminated')
         return [ async.break ]
+// --------- OLDER DEAD TESTS ------
         async([function () {
             var kibitzer = new Kibitzer(1, '3', extend({
                 location: createLocation()

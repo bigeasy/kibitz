@@ -1,4 +1,30 @@
+// TODO I suppose my attitude is to use an event emitter very sparingly, because
+// I want to use one to emit Kibitzer events, the paxos log, but I don't want to
+// create an interface that looks like one of the EventEmitter heavy interfaces.
+//
+// One of the challenges here is that events are going to flow immediately,
+// unless I do something compliacated like only emit events when there is a
+// listener. Having looked at that, it is not actually that complicated.
+//
+// Now we can fuss about some terminate logic.
+//
+// Put it out again, I prefer to program with error-first callbacks, but events
+// happen. They are generally a way in which information enters the system. They
+// are synchronous. Here is more information. Generally, they shouldn't block.
+//
+// That's how I use EventEmitters, but I'm not in for a penny, in for a pound.
+// If there is a source of events, I treat that as a stream of events. Not in
+// the Node.js streams sense, but I create an event emitter that emits a
+// homogenous series of events terminated by a specific termination event.
+//
+// Then I stop. I don't go on to implement multi-interfaces that could take an
+// error-first callback, or maybe register an event handler, or maybe use some
+// other form of asynchronous notification.
+//
+// TODO Which is why I've made the event emitter in this class a separate
+// object. Which is such a good idea, I belive I'll go and do it Happenstance.
 var assert = require('assert')
+var events = require('events')
 
 var slice = [].slice
 
@@ -14,6 +40,7 @@ var Scheduler = require('happenstance')
 
 var Monotonic = require('monotonic')
 var interrupt = require('interrupt').createInterrupter('bigeasy.kibitz')
+var abend = require('abend')
 
 function Kibitzer (islandId, id, options) {
     assert(id != null, 'id is required')
@@ -48,8 +75,26 @@ function Kibitzer (islandId, id, options) {
         islander: { dummy: true }
     }
 
+    // TODO Very much crufty.
+    this.log = new events.EventEmitter
+    this.log.on('newListener', this._newLogListener.bind(this))
+
     this._advanced = new Vestibule
     this._timeout = null
+    this._terminated = false
+}
+
+Kibitzer.prototype.terminate = function () {
+    if (!this._terminated) {
+        this._terminated = true
+        this.scheduler.clear()
+        this.legislator.scheduler.clear()
+        this._advanced.notify()
+    }
+}
+
+Kibitzer.prototype._newLogListener = function () {
+    setImmediate(this._advanced.notify.bind(this._advanced))
 }
 
 Kibitzer.prototype._logger = function (level, message, context) {
@@ -159,6 +204,7 @@ Kibitzer.prototype._prime = function (entry) {
     this.iterators.islander = {
         next: this.islander.prime(this.iterators.legislator = this.iterators.legislator.next)
     }
+    this._advance(abend)
 }
 
 Kibitzer.prototype.bootstrap = cadence(function (async) {
@@ -293,8 +339,12 @@ Kibitzer.prototype._receive = cadence(function (async, pulse) {
     return ret
 })
 
-Kibitzer.prototype.advance = cadence(function (async) {
+Kibitzer.prototype._advance = cadence(function (async) {
     var loop = async(function () {
+        if (this._terminated) {
+            this.log.emit('terminated')
+            return [ loop.break ]
+        }
         while (this.iterators.legislator.next != null) {
             this.iterators.legislator = this.iterators.legislator.next
             this._logger('info', 'consuming', {
@@ -304,11 +354,10 @@ Kibitzer.prototype.advance = cadence(function (async) {
                 value: this.iterators.legislator.value
             })
         }
-        if (this.iterators.islander.next == null) {
+        if (this.log.listenerCount('entry') == 0 || this.iterators.islander.next == null) {
             this._advanced.enter(async())
         } else {
-            this.iterators.islander = this.iterators.islander.next
-            return [ loop.break, this.iterators.islander ]
+            this.log.emit('entry', this.iterators.islander = this.iterators.islander.next)
         }
     })()
 })
