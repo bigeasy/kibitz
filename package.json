@@ -24,7 +24,7 @@
                         "interrupt":        "1.x",
                         "islander":         "0.x",
                         "paxos":            "3.3.x",
-                        "prolific":         "1.x",
+                        "prolific":         "2.x",
                         "reactor":          "2.x",
                         "vestibule":        "1.x"
     },
