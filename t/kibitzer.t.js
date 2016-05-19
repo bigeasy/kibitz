@@ -23,9 +23,6 @@ function prove (async, assert) {
 
     var kibitzers = [], balancerIndex = 0
     var ua = {
-        discover: cadence(function (async) {
-            return [ [ 'bogus' ].concat(kibitzers[balancerIndex].locations()) ]
-        }),
         send: cadence(function (async, location, post) {
             async(function () {
                 if (location == 'bogus') {
@@ -52,7 +49,7 @@ function prove (async, assert) {
     }, function () {
         assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'bootstraped')
         kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ location: '127.0.0.1:8088' }, options)))
-        kibitzers[1].join(async())
+        kibitzers[1].join('127.0.0.1:8086', async())
     }, function () {
         assert(kibitzers[1].locations(), [ '127.0.0.1:8086', '127.0.0.1:8088' ], 'joined')
         new Delta(async()).ee(kibitzers[1].log).on('entry')
@@ -62,24 +59,6 @@ function prove (async, assert) {
         new Delta(async()).ee(kibitzers[1].log).on('entry')
     }, function (entry) {
         assert(entry.value.value, { count: 1 }, 'publish')
-    }, function () {
-        /*
-
-        Discovery is a temporary error.
-
-        async([function () {
-            var kibitzer = new Kibitzer(1, '2', extend({
-                location: createLocation()
-            }, options, {
-                ua: extend({}, ua, { discover: cadence(function () { return [[]] }) })
-            }))
-            kibitzer.join(async())
-        }, function (error) {
-            interrupt.rescue('bigeasy.kibitz.discover', function () {
-                assert(true, 'discover failed')
-            })(error)
-        }])
-        */
     }, function () {
         kibitzers[1]._enqueue({ entries: [{}] }, async())
     }, function (response) {

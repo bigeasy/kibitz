@@ -230,50 +230,34 @@ Kibitzer.prototype.bootstrap = cadence(function (async) {
 })
 
 // TODO Use Isochronous to repeatedly send join message.
-Kibitzer.prototype.join = cadence(function (async) {
+Kibitzer.prototype.join = cadence(function (async, location) {
     this._prime(async())
-    this.scheduler.schedule(this._Date.now() + 0, 'join', { object: this, method: '_checkJoin' })
+    this.scheduler.schedule(this._Date.now() + 0, 'join', { object: this, method: '_checkJoin' }, location)
 })
 
-var count = 0
-Kibitzer.prototype._checkJoin = function () {
-    this._join(abend)
+Kibitzer.prototype._checkJoin = function (when, location) {
+    this._join(location, abend)
 }
 
-Kibitzer.prototype._join = cadence(function (async) {
+Kibitzer.prototype._join = cadence(function (async, location) {
     async(function () {
-        this._ua.discover(async())
-    }, function (locations) {
-        this._logger('info', 'locations', {
+        this._logger('info', 'join', {
             kibitzerId: this.legislator.id,
-            received: JSON.stringify(locations)
+            received: JSON.stringify(location)
         })
-        var naturalization = {
+        this._ua.send(location, {
             type: 'naturalize',
             islandId: this.legislator.islandId,
             id: this.legislator.id,
             cookie: this.legislator.cookie,
-            location: this.location
+            location: this.location,
+            hops: 0
+        }, async())
+    }, function (response) {
+        if (response == null || !response.enqueued) {
+            var delay = this._Date.now() + 1000
+            this.scheduler.schedule(delay, 'join', { object: this, method: '_checkJoin' }, location)
         }
-        if (locations == null) {
-            locations = []
-        }
-        var location, loop = async(function () {
-            location = locations.shift()
-            if (!location) {
-                this.scheduler.schedule(this._Date.now() + 1000, 'join', { object: this, method: '_checkJoin' })
-                return [ loop.break ]
-            }
-            async([function () {
-                this._ua.send(location, naturalization, async())
-            }, function (error) {
-                this._logger('error', 'naturalize', { location: location, stack: error.stack })
-                return [ loop.continue ]
-            }], function (outcome) {
-                this._logger('info', 'naturalize', { location: location, outcome: outcome })
-                if (outcome.enqueued) return [ loop.break ]
-            })
-        })()
     })
 })
 
@@ -300,14 +284,21 @@ Kibitzer.prototype.publish = function (entry) {
 }
 
 Kibitzer.prototype._naturalize = cadence(function (async, post) {
+    assert(post.hops != null)
     var outcome = this.legislator.naturalize(this._Date.now(), post.islandId, post.id, post.cookie, post.location)
     this._logger('info', 'enqueue', {
         kibitzerId: this.legislator.id,
         received: JSON.stringify(post),
-        sent: JSON.stringify(outcome)
+        outcome: JSON.stringify(outcome)
     })
-    this._send()
-    return outcome
+    if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
+        var location = this.legislator.locations[this.legislator.government.majority[0]]
+        post.hops++
+        this._ua.send(location, post, async())
+    } else {
+        this._send()
+        return [ outcome ]
+    }
 })
 
 Kibitzer.prototype._enqueue = cadence(function (async, post) {
