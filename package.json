@@ -1,42 +1,42 @@
 {
-    "name":         "kibitz",
-    "version":      "0.0.18",
-    "description":  "Consensus for web applications.",
+    "name":             "kibitz",
+    "version":          "0.0.18",
+    "description":      "Consensus for web applications.",
     "keywords":
     [
-                    "consensus", "paxos"
+                        "consensus", "paxos"
     ],
-    "author":       "Alan Gutierrez <alan@prettyrobots.com>",
-    "contributors": [],
+    "author":           "Alan Gutierrez <alan@prettyrobots.com>",
+    "contributors":     [],
     "homepage":         "https://github.com/bigeasy/mingle",
-    "bugs":         "https://github.com/bigeasy/kibitz/issues",
-    "license":      "MIT",
+    "bugs":             "https://github.com/bigeasy/kibitz/issues",
+    "license":          "MIT",
     "repository":
     {
-                    "type": "git",
-                    "url": "http://github.com/bigeasy/kibitz.git"
+                        "type": "git",
+                        "url": "http://github.com/bigeasy/kibitz.git"
     },
     "dependencies":
     {
-                    "abend":            "1.x",
-                    "cadence":          "1.x",
-                    "paxos":            "3.3.x",
-                    "happenstance":     "2.6.x",
-                    "islander":         "0.x",
-                    "reactor":          "2.x",
-                    "prolific":         "1.x",
-                    "interrupt":        "1.x",
-                    "happenstance":     "2.x",
-                    "vestibule":        "1.x"
+                        "abend":            "1.x",
+                        "cadence":          "1.x",
+                        "paxos":            "3.3.x",
+                        "happenstance":     "2.6.x",
+                        "islander":         "0.x",
+                        "reactor":          "2.x",
+                        "prolific":         "1.x",
+                        "interrupt":        "1.x",
+                        "happenstance":     "2.x",
+                        "vestibule":        "1.x"
     },
     "devDependencies":
     {
-                    "delta":            "1.x",
-                    "proof":            "1.x"
+                        "delta":            "1.x",
+                        "proof":            "1.x"
     },
-    "main":         "kibitzer",
+    "main":             "kibitzer",
     "scripts":
     {
-                    "test": "proof platform win32 && proof test */*/*.t.js || t/test"
+                        "test": "proof platform win32 && proof test */*/*.t.js || t/test"
     }
 }
