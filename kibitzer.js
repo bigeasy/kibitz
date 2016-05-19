@@ -249,11 +249,11 @@ Kibitzer.prototype._join = cadence(function (async) {
             received: JSON.stringify(locations)
         })
         var naturalization = {
-                type: 'naturalize',
-                islandId: this.legislator.islandId,
-                id: this.legislator.id,
-                cookie: this.legislator.cookie,
-                location: this.location
+            type: 'naturalize',
+            islandId: this.legislator.islandId,
+            id: this.legislator.id,
+            cookie: this.legislator.cookie,
+            location: this.location
         }
         var location, loop = async(function () {
             location = locations.shift()
