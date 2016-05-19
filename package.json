@@ -1,6 +1,6 @@
 {
     "name":             "kibitz",
-    "version":          "0.0.19",
+    "version":          "0.0.20",
     "description":      "Consensus for web applications.",
     "keywords":
     [
