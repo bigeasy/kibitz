@@ -202,32 +202,37 @@ Kibitzer.prototype.locations = function () {
     return locations
 }
 
-Kibitzer.prototype._prime = function (entry) {
-    this.iterators.islander = {
-        next: this.islander.prime(this.iterators.legislator = this.iterators.legislator.next)
-    }
-    this._advance(abend)
-}
+Kibitzer.prototype._prime = cadence(function (async) {
+    async(function () {
+        var loop = async(function () {
+            async(function () {
+                this._advanced.enter(async())
+            }, function () {
+                if (this.iterators.legislator.next != null) {
+                    this.iterators.legislator = this.iterators.legislator.next
+                    this.iterators.islander = {
+                        next: this.islander.prime(this.iterators.legislator)
+                    }
+                    return [ loop.break ]
+                }
+            })
+        })()
+    }, function () {
+        this._advance(abend)
+    })
+})
 
 Kibitzer.prototype.bootstrap = cadence(function (async) {
-    async(function () {
-        this._logger('info', 'bootstrap', { kibitzerId: this.legislator.id })
-        this.legislator.bootstrap(this._Date.now(), this.location)
-        this._advanced.enter(async())
-        this._send()
-    }, function () {
-        this._prime()
-    })
+    this._logger('info', 'bootstrap', { kibitzerId: this.legislator.id })
+    this._prime(async())
+    this.legislator.bootstrap(this._Date.now(), this.location)
+    this._send()
 })
 
 // TODO Use Isochronous to repeatedly send join message.
 Kibitzer.prototype.join = cadence(function (async) {
-    async(function () {
-        this._advanced.enter(async())
-        this.scheduler.schedule(this._Date.now() + 0, 'join', { object: this, method: '_checkJoin' })
-    }, function () {
-        this._prime()
-    })
+    this._prime(async())
+    this.scheduler.schedule(this._Date.now() + 0, 'join', { object: this, method: '_checkJoin' })
 })
 
 var count = 0
