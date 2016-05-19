@@ -255,6 +255,9 @@ Kibitzer.prototype._join = cadence(function (async) {
             cookie: this.legislator.cookie,
             location: this.location
         }
+        if (locations == null) {
+            locations = []
+        }
         var location, loop = async(function () {
             location = locations.shift()
             if (!location) {
