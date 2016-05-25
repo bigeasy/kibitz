@@ -58,7 +58,7 @@ function prove (async, assert) {
         var cookie = kibitzers[1].publish({ count: 1 })
         new Delta(async()).ee(kibitzers[1].log).on('entry')
     }, function (entry) {
-        assert(entry.value.value, { count: 1 }, 'publish')
+        assert(entry.value, { count: 1 }, 'publish')
     }, function () {
         kibitzers[1]._enqueue({ entries: [{}] }, async())
     }, function (response) {

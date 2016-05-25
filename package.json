@@ -26,6 +26,7 @@
                         "paxos":            "3.3.x",
                         "prolific":         "2.x",
                         "reactor":          "2.x",
+                        "monotonic":        "2.x",
                         "vestibule":        "1.x"
     },
     "devDependencies":
