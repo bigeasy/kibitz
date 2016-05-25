@@ -34,7 +34,7 @@ var cadence = require('cadence')
 var Reactor = require('reactor')
 var Legislator = require('paxos/legislator')
 var Islander = require('islander')
-var Monotonic = require('monotonic')
+var Monotonic = require('monotonic').asString
 
 var Scheduler = require('happenstance')
 
@@ -357,8 +357,7 @@ Kibitzer.prototype._advance = cadence(function (async) {
 // TODO Think hard about how messy this has become.
 // TODO Maybe header and body and the header is used internallyish? Islander would use it.
             var entry = this.iterators.islander = this.iterators.islander.next
-            var value = Monotonic.isBoundary(entry.promise, 1) ? entry.value : entry.value.value
-            console.log(Monotonic.isBoundary(entry.promise, 1), value)
+            var value = Monotonic.isBoundary(entry.promise, 0) ? entry.value : entry.value.value
             this.log.emit('entry', { promise: entry.promise, value: value })
         }
     })()
