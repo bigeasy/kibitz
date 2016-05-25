@@ -353,7 +353,8 @@ Kibitzer.prototype._advance = cadence(function (async) {
         if (this.log.listenerCount('entry') == 0 || this.iterators.islander.next == null) {
             this._advanced.enter(async())
         } else {
-            this.log.emit('entry', this.iterators.islander = this.iterators.islander.next)
+            var entry = this.iterators.islander = this.iterators.islander.next
+            this.log.emit('entry', { promise: entry.promise, value: entry.value })
         }
     })()
 })
