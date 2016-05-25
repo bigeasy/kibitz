@@ -357,8 +357,13 @@ Kibitzer.prototype._advance = cadence(function (async) {
 // TODO Think hard about how messy this has become.
 // TODO Maybe header and body and the header is used internallyish? Islander would use it.
             var entry = this.iterators.islander = this.iterators.islander.next
-            var value = Monotonic.isBoundary(entry.promise, 0) ? entry.value : entry.value.value
-            this.log.emit('entry', { promise: entry.promise, value: value })
+            var government = Monotonic.isBoundary(entry.promise, 0)
+            var value = government ? entry.value : entry.value.value
+            this.log.emit('entry', {
+                government: government,
+                promise: entry.promise,
+                value: value
+            })
         }
     })()
 })
