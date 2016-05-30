@@ -247,7 +247,7 @@ Kibitzer.prototype._join = cadence(function (async, location) {
             received: JSON.stringify(location)
         })
         this._ua.send(location, {
-            type: 'naturalize',
+            type: 'immigrate',
             islandId: this.legislator.islandId,
             id: this.legislator.id,
             cookie: this.legislator.cookie,
@@ -264,7 +264,7 @@ Kibitzer.prototype._join = cadence(function (async, location) {
 
 Kibitzer.prototype.dispatch = cadence(function (async, body) {
     switch (body.type) {
-    case 'naturalize':
+    case 'immigrate':
         this._naturalize(body, async())
         break
     case 'receive':
@@ -286,7 +286,7 @@ Kibitzer.prototype.publish = function (entry) {
 
 Kibitzer.prototype._naturalize = cadence(function (async, post) {
     assert(post.hops != null)
-    var outcome = this.legislator.naturalize(this._Date.now(), post.islandId, post.id, post.cookie, post.location)
+    var outcome = this.legislator.immigrate(this._Date.now(), post.islandId, post.id, post.cookie, post.location)
     this._logger('info', 'enqueue', {
         kibitzerId: this.legislator.id,
         received: JSON.stringify(post),
