@@ -41,7 +41,7 @@ var Scheduler = require('happenstance')
 var interrupt = require('interrupt').createInterrupter('bigeasy.kibitz')
 var abend = require('abend')
 
-var logger = require('prolific').createLogger('bigasy.kibitz.kibitzer')
+var logger = require('prolific.logger').createLogger('bigasy.kibitz.kibitzer')
 
 function Kibitzer (islandId, id, options) {
     assert(id != null, 'id is required')
@@ -108,7 +108,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
     }
     var post
     async(function () {
-        var location = this.legislator.locations[this.legislator.government.majority[0]]
+        var location = this.legislator.citizens[this.legislator.government.majority[0]]
         this._ua.send(location, post = {
             islandId: this.legislator.islandId,
             type: 'enqueue',
@@ -153,7 +153,7 @@ Kibitzer.prototype._pulse = cadence(function (async, timeout, pulse) {
                 if (id == this.legislator.id) {
                     this._receive(pulse, async())
                 } else {
-                    var location = this.legislator.locations[id]
+                    var location = this.legislator.citizens[id]
                     this._ua.send(location, { type: 'receive', pulse: pulse }, async())
                 }
             }, function (response) {
@@ -197,8 +197,8 @@ Kibitzer.prototype._send = function () {
 
 Kibitzer.prototype.locations = function () {
     var locations = []
-    for (var key in this.legislator.locations) {
-        locations.push(this.legislator.locations[key])
+    for (var key in this.legislator.citizens) {
+        locations.push(this.legislator.citizens[key])
     }
     return locations
 }
@@ -293,7 +293,7 @@ Kibitzer.prototype._naturalize = cadence(function (async, post) {
         outcome: JSON.stringify(outcome)
     })
     if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
-        var location = this.legislator.locations[this.legislator.government.majority[0]]
+        var location = this.legislator.citizens[this.legislator.government.majority[0]]
         post.hops++
         this._ua.send(location, post, async())
     } else {
