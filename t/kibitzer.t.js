@@ -71,48 +71,5 @@ function prove (async, assert) {
     }, function () {
         assert(true, 'terminated')
         kibitzers[0].terminate()
-        return [ async.break ]
-// --------- OLDER DEAD TESTS ------
-        async([function () {
-            var kibitzer = new Kibitzer(1, '3', extend({
-                properties: { location: createLocation() },
-            }, options, {
-                ua: extend({}, ua, { send: cadence(function () { return null }) })
-            }))
-            kibitzer._pull('http://127.0.0.1:9090', async())
-        }, function (error) {
-            interrupt.rescue('bigeasy.kibitz.pull', function () {
-                assert(true, 'pull failed')
-            })(error)
-        }])
-    }, function () {
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: createLocation() } }, options)))
-        kibitzers[2].join(async())
-    }, function () {
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: createLocation() } }, options)))
-        kibitzers[3].join(async())
-    }, function () {
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: createLocation() } }, options)))
-        kibitzers[4].join(async())
-    }, function () {
-        assert(kibitzers[0].properties().length, 5, 'full consensus')
-    }, function () {
-        kibitzers[4]._enqueue({
-            entries: [{
-                cookie: '20/1',
-                value: { type: 'naturalize', id: '20', location: '127.0.0.1:8088' },
-                internal: true
-            }]
-        }, async())
-    })
-
-    function extend (to) {
-        var vargs = [].slice.call(arguments, 1)
-        for (var i = 0, I = vargs.length; i < I; i++) {
-            for (var key in vargs[i]) {
-                to[key] = vargs[i][key]
-            }
-        }
-        return to
     }
 }
