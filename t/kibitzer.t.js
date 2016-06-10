@@ -71,5 +71,15 @@ function prove (async, assert) {
     }, function () {
         assert(true, 'terminated')
         kibitzers[0].terminate()
+    })
+
+    function extend (to) {
+        var vargs = [].slice.call(arguments, 1)
+        for (var i = 0, I = vargs.length; i < I; i++) {
+            for (var key in vargs[i]) {
+                to[key] = vargs[i][key]
+            }
+        }
+        return to
     }
 }
