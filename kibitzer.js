@@ -57,7 +57,7 @@ function Kibitzer (islandId, id, options) {
     this._Date = options.Date || Date
     this.scheduler = new Scheduler({ Date: options.Date || Date })
 
-    this.location = options.location
+    this.properties = options.properties
     this._ua = options.ua
     this.id = id
 
@@ -108,8 +108,8 @@ Kibitzer.prototype._publish = cadence(function (async) {
     }
     var post
     async(function () {
-        var location = this.legislator.citizens[this.legislator.government.majority[0]]
-        this._ua.send(location, post = {
+        var properties = this.legislator.properties[this.legislator.government.majority[0]]
+        this._ua.send(properties, post = {
             islandId: this.legislator.islandId,
             type: 'enqueue',
             entries: outgoing
@@ -153,8 +153,8 @@ Kibitzer.prototype._pulse = cadence(function (async, timeout, pulse) {
                 if (id == this.legislator.id) {
                     this._receive(pulse, async())
                 } else {
-                    var location = this.legislator.citizens[id]
-                    this._ua.send(location, { type: 'receive', pulse: pulse }, async())
+                    var properties = this.legislator.properties[id]
+                    this._ua.send(properties, { type: 'receive', pulse: pulse }, async())
                 }
             }, function (response) {
                 this._logger('info', 'published', {
@@ -195,12 +195,12 @@ Kibitzer.prototype._send = function () {
     }
 }
 
-Kibitzer.prototype.locations = function () {
-    var locations = []
-    for (var key in this.legislator.citizens) {
-        locations.push(this.legislator.citizens[key])
+Kibitzer.prototype.getProperties = function () {
+    var properties = []
+    for (var key in this.legislator.properties) {
+        properties.push(this.legislator.properties[key])
     }
-    return locations
+    return properties
 }
 
 Kibitzer.prototype._prime = cadence(function (async) {
@@ -226,38 +226,39 @@ Kibitzer.prototype._prime = cadence(function (async) {
 Kibitzer.prototype.bootstrap = cadence(function (async) {
     this._logger('info', 'bootstrap', { kibitzerId: this.legislator.id })
     this._prime(async())
-    this.legislator.bootstrap(this._Date.now(), this.location)
+    this.legislator.bootstrap(this._Date.now(), this.properties)
     this._send()
 })
 
 // TODO Use Isochronous to repeatedly send join message.
-Kibitzer.prototype.join = cadence(function (async, location) {
+Kibitzer.prototype.join = cadence(function (async, properties) {
+    assert(typeof properties == 'object')
     this._prime(async())
-    this.scheduler.schedule(this._Date.now() + 0, 'join', { object: this, method: '_checkJoin' }, location)
+    this.scheduler.schedule(this._Date.now() + 0, 'join', { object: this, method: '_checkJoin' }, properties)
 })
 
-Kibitzer.prototype._checkJoin = function (when, location) {
-    this._join(location, abend)
+Kibitzer.prototype._checkJoin = function (when, properties) {
+    this._join(properties, abend)
 }
 
-Kibitzer.prototype._join = cadence(function (async, location) {
+Kibitzer.prototype._join = cadence(function (async, properties) {
     async(function () {
         this._logger('info', 'join', {
             kibitzerId: this.legislator.id,
-            received: JSON.stringify(location)
+            received: JSON.stringify(properties)
         })
-        this._ua.send(location, {
+        this._ua.send(properties, {
             type: 'immigrate',
             islandId: this.legislator.islandId,
             id: this.legislator.id,
             cookie: this.legislator.cookie,
-            location: this.location,
+            properties: this.properties,
             hops: 0
         }, async())
     }, function (response) {
         if (response == null || !response.enqueued) {
             var delay = this._Date.now() + 1000
-            this.scheduler.schedule(delay, 'join', { object: this, method: '_checkJoin' }, location)
+            this.scheduler.schedule(delay, 'join', { object: this, method: '_checkJoin' }, properties)
         }
     })
 })
@@ -286,16 +287,16 @@ Kibitzer.prototype.publish = function (entry) {
 
 Kibitzer.prototype._naturalize = cadence(function (async, post) {
     assert(post.hops != null)
-    var outcome = this.legislator.immigrate(this._Date.now(), post.islandId, post.id, post.cookie, post.location)
+    var outcome = this.legislator.immigrate(this._Date.now(), post.islandId, post.id, post.cookie, post.properties)
     this._logger('info', 'enqueue', {
         kibitzerId: this.legislator.id,
         received: JSON.stringify(post),
         outcome: JSON.stringify(outcome)
     })
     if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
-        var location = this.legislator.citizens[this.legislator.government.majority[0]]
+        var properties = this.legislator.citizens[this.legislator.government.majority[0]]
         post.hops++
-        this._ua.send(location, post, async())
+        this._ua.send(properties, post, async())
     } else {
         this._send()
         return [ outcome ]

@@ -23,13 +23,13 @@ function prove (async, assert) {
 
     var kibitzers = [], balancerIndex = 0
     var ua = {
-        send: cadence(function (async, location, post) {
+        send: cadence(function (async, properties, post) {
             async(function () {
-                if (location == 'bogus') {
+                if (properties == 'bogus') {
                     throw new Error
                 }
                 kibitzers.filter(function (kibitzer) {
-                    return kibitzer.location == location
+                    return kibitzer.properties.location == properties.location
                 }).pop().dispatch(copy(post), async())
             }, function (result) {
                 return [ copy(result) ]
@@ -43,15 +43,17 @@ function prove (async, assert) {
         __Date: { now: function () { return time } }
     }
     async(function () {
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ location: createLocation() }, options)))
+        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: createLocation() } }, options)))
     }, function () {
         kibitzers[0].bootstrap(async())
     }, function () {
-        assert(kibitzers[0].locations(), [ '127.0.0.1:8086' ], 'bootstraped')
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ location: '127.0.0.1:8088' }, options)))
-        kibitzers[1].join('127.0.0.1:8086', async())
+        assert(kibitzers[0].legislator.properties[1].location, '127.0.0.1:8086', 'bootstraped')
+        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: '127.0.0.1:8088' } }, options)))
+        kibitzers[1].join({ location: '127.0.0.1:8086' }, async())
     }, function () {
-        assert(kibitzers[1].locations(), [ '127.0.0.1:8086', '127.0.0.1:8088' ], 'joined')
+        assert(kibitzers[1].getProperties().map(function (properties) {
+            return properties.location
+        }), [ '127.0.0.1:8086', '127.0.0.1:8088' ], 'joined')
         new Delta(async()).ee(kibitzers[1].log).on('entry')
     }, function (message) {
         assert(message.promise, '2/0', 'naturalized')
@@ -73,7 +75,7 @@ function prove (async, assert) {
 // --------- OLDER DEAD TESTS ------
         async([function () {
             var kibitzer = new Kibitzer(1, '3', extend({
-                location: createLocation()
+                properties: { location: createLocation() },
             }, options, {
                 ua: extend({}, ua, { send: cadence(function () { return null }) })
             }))
@@ -84,16 +86,16 @@ function prove (async, assert) {
             })(error)
         }])
     }, function () {
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ location: createLocation() }, options)))
+        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: createLocation() } }, options)))
         kibitzers[2].join(async())
     }, function () {
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ location: createLocation() }, options)))
+        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: createLocation() } }, options)))
         kibitzers[3].join(async())
     }, function () {
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ location: createLocation() }, options)))
+        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: createLocation() } }, options)))
         kibitzers[4].join(async())
     }, function () {
-        assert(kibitzers[0].locations().length, 5, 'full consensus')
+        assert(kibitzers[0].properties().length, 5, 'full consensus')
     }, function () {
         kibitzers[4]._enqueue({
             entries: [{
