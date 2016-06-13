@@ -96,7 +96,10 @@ function Replay (kibitzer, parent) {
 Replay.prototype.replay = function (entry) {
     if (entry.context == 'bigeasy.paxos') {
         if (this.recorded.length) {
-            assert.deepEqual(this.recorded.shift(), entry)
+            assert.deepEqual(this.recorded.shift(), {
+                method: entry.name,
+                vargs: entry.specific.vargs
+            })
         } else {
             var legislator = this.kibitzer.legislator
             legislator[entry.name].apply(legislator, entry.specific.vargs)
