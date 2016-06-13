@@ -61,7 +61,6 @@ function Kibitzer (islandId, id, options) {
     this._ua = options.ua
     this.id = id
 
-// TODO Organize this, it is timerless in Kibitz, scheduler in Paxos.
     this.legislator = new Legislator(islandId, id, this._Date.now(), {
         ping: options.ping,
         timeout: options.timeout,
@@ -107,6 +106,7 @@ Replay.prototype.replay = function (entry) {
         } else {
             var legislator = this.kibitzer.legislator
             legislator[entry.name].apply(legislator, entry.specific.vargs)
+            this.kibitzer._advanced.notify()
             this.replay(entry)
         }
     }
@@ -115,7 +115,9 @@ Replay.prototype.replay = function (entry) {
 }
 
 Kibitzer.prototype.createReplay = function (parent) {
-    return new Replay(this, parent)
+    var replay = new Replay(this, parent)
+    this._prime(abend)
+    return replay
 }
 
 Kibitzer.prototype.terminate = function () {
