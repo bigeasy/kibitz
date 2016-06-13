@@ -64,7 +64,10 @@ function Kibitzer (islandId, id, options) {
     this.legislator = new Legislator(islandId, id, this._Date.now(), {
         ping: options.ping,
         timeout: options.timeout,
-        scheduler: { Date: options.Date || Date }
+        scheduler: {
+            Date: options.Date || Date,
+            setTimeout: ('setTimeout' in options) ? options.setTimeout : true
+        }
     })
 // TODO Scheduler is not shutting down, so maybe `unref` for now.
     this.legislator.scheduler.on('timeout', this._send.bind(this))
