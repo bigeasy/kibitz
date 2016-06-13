@@ -23,7 +23,7 @@
                         "happenstance":     "2.6.x",
                         "interrupt":        "1.x",
                         "islander":         "0.x",
-                        "paxos":            "3.5.2",
+                        "paxos":            "3.5.3",
                         "prolific.logger":  "0.0.1",
                         "reactor":          "2.x",
                         "monotonic":        "2.x",
