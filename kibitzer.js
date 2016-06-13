@@ -66,7 +66,7 @@ function Kibitzer (islandId, id, options) {
         timeout: options.timeout,
         scheduler: {
             Date: options.Date || Date,
-            setTimeout: ('setTimeout' in options) ? options.setTimeout : true
+            timerless: options.timerless || false
         }
     })
 // TODO Scheduler is not shutting down, so maybe `unref` for now.
