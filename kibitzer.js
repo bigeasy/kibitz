@@ -61,6 +61,7 @@ function Kibitzer (islandId, id, options) {
     this._ua = options.ua
     this.id = id
 
+// TODO Organize this, it is timerless in Kibitz, scheduler in Paxos.
     this.legislator = new Legislator(islandId, id, this._Date.now(), {
         ping: options.ping,
         timeout: options.timeout,
