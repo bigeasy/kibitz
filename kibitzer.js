@@ -84,6 +84,31 @@ function Kibitzer (islandId, id, options) {
     this._terminated = false
 }
 
+function Replay (kibitzer, parent) {
+    this.kibitzer = kibitzer
+    this.parent = parent
+    this.recorded = []
+    this.kibitzer.legislator._trace = function (method, vargs) {
+        this.recorded.push({ method: method, vargs: JSON.parse(JSON.stringify(vargs)) })
+    }.bind(this)
+}
+
+Replay.prototype.replay = function (entry) {
+    if (entry.context == 'bigeasy.paxos') {
+        if (this.recorded.length) {
+            assert.deepEqual(this.recorded.shift(), entry)
+        } else {
+            var legislator = this.kibitzer.legislator
+            legislator[entry.name].apply(legislator, entry.specific.vargs)
+        }
+    }
+// TODO Return parent at some point.
+}
+
+Kibitzer.prototype.createReplay = function (parent) {
+    return new Replay(this, parent)
+}
+
 Kibitzer.prototype.terminate = function () {
     if (!this._terminated) {
         this._terminated = true
