@@ -100,9 +100,11 @@ Replay.prototype.replay = function (entry) {
         } else {
             var legislator = this.kibitzer.legislator
             legislator[entry.name].apply(legislator, entry.specific.vargs)
+            this.replay(entry)
         }
     }
 // TODO Return parent at some point.
+    return this
 }
 
 Kibitzer.prototype.createReplay = function (parent) {
