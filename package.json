@@ -20,7 +20,7 @@
     {
                         "abend":            "1.x",
                         "cadence":          "1.x",
-                        "happenstance":     "2.6.x",
+                        "happenstance":     "2.7.x",
                         "interrupt":        "1.x",
                         "islander":         "0.x",
                         "paxos":            "3.5.x",
