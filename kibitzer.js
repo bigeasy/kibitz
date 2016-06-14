@@ -130,6 +130,7 @@ Kibitzer.prototype._logger = function (level, message, context) {
 
 Kibitzer.prototype._publish = cadence(function (async) {
     var outgoing = this.islander.outbox()
+    logger.info('_publish', { outgoing: outgoing })
     if (outgoing.length == 0) {
         return
     }
@@ -306,6 +307,7 @@ Kibitzer.prototype.dispatch = cadence(function (async, body) {
 
 Kibitzer.prototype.publish = function (entry) {
     var cookie = this.islander.publish(entry, false)
+    logger.info('publish', { entry: entry, cookie: cookie })
     if (this.scheduler.scheduled('publish') == null) {
         this.scheduler.schedule(0, 'publish', { object: this, method: '_checkPublisher' })
     }
@@ -361,6 +363,7 @@ Kibitzer.prototype._receive = cadence(function (async, pulse) {
         this._advanced.notify()
     }
     this._send()
+    this._checkPublisher()
     return ret
 })
 
@@ -378,6 +381,7 @@ Kibitzer.prototype._advance = cadence(function (async) {
                 promise: this.iterators.legislator.promise,
                 value: this.iterators.legislator.value
             })
+            this.islander.receive([ this.iterators.legislator ])
         }
         if (this.log.listenerCount('entry') == 0 || this.iterators.islander.next == null) {
             this._advanced.enter(async())
