@@ -61,7 +61,7 @@ function Kibitzer (islandId, id, options) {
     this._ua = options.ua
     this.id = id
 
-    this.legislator = new Legislator(islandId, id, this._Date.now(), {
+    this.legislator = new Legislator(islandId, id, options.cookie || this._Date.now(), {
         ping: options.ping,
         timeout: options.timeout,
         scheduler: {
