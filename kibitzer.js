@@ -85,39 +85,30 @@ function Kibitzer (islandId, id, options) {
 
     this._advanced = new Vestibule
     this._terminated = false
+    this._recorded = null
 }
 
-function Replay (kibitzer, parent) {
-    this.kibitzer = kibitzer
-    this.parent = parent
-    this.recorded = []
-    this.kibitzer.legislator._trace = function (method, vargs) {
-        this.recorded.push({ method: method, vargs: JSON.parse(JSON.stringify(vargs)) })
-    }.bind(this)
-}
-
-Replay.prototype.replay = function (entry) {
+Kibitzer.prototype.play = function (entry) {
     if (entry.context == 'bigeasy.paxos') {
-        if (this.recorded.length) {
-            assert.deepEqual(this.recorded.shift(), {
+        if (this._recorded.length) {
+            assert.deepEqual(this._recorded.shift(), {
                 method: entry.name,
                 vargs: entry.specific.vargs
             })
         } else {
-            var legislator = this.kibitzer.legislator
-            legislator[entry.name].apply(legislator, entry.specific.vargs)
-            this.kibitzer._advanced.notify()
-            this.replay(entry)
+            this.legislator[entry.name].apply(this.legislator, entry.specific.vargs)
+            this._advanced.notify()
+            this.play(entry)
         }
     }
-// TODO Return parent at some point.
-    return this
 }
 
-Kibitzer.prototype.createReplay = function (parent) {
-    var replay = new Replay(this, parent)
+Kibitzer.prototype.replay = function () {
+    this._recorded = []
+    this.legislator._trace = function (method, vargs) {
+        this._recorded.push({ method: method, vargs: JSON.parse(JSON.stringify(vargs)) })
+    }.bind(this)
     this._prime(abend)
-    return replay
 }
 
 Kibitzer.prototype.terminate = function () {
