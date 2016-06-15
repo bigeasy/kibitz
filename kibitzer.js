@@ -151,9 +151,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
         if (body == null) {
             body = { entries: [] }
         }
-        if (body) {
-            this.islander.published(body.entries)
-        }
+        this.islander.published(body.entries)
         var delay = this._Date.now() + (body.entries == 0 ? 1000 : 0)
         this.scheduler.schedule(delay, 'publish', { object: this, method: '_checkPublisher' })
     })
