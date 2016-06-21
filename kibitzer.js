@@ -38,7 +38,6 @@ var Monotonic = require('monotonic').asString
 
 var Scheduler = require('happenstance')
 
-var interrupt = require('interrupt').createInterrupter('bigeasy.kibitz')
 var abend = require('abend')
 
 var logger = require('prolific.logger').createLogger('bigasy.kibitz.kibitzer')
