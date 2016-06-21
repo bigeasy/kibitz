@@ -2,7 +2,6 @@ require('proof')(7, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
-    var interrupt = require('interrupt')
     var Delta = require('delta')
 
     var Kibitzer = require('..')
