@@ -18,20 +18,20 @@
     },
     "dependencies":
     {
-                        "abend":            "1.x",
-                        "cadence":          "1.x",
+                        "abend":            "1.0.x",
+                        "cadence":          "1.0.x",
                         "happenstance":     "2.7.x",
-                        "islander":         "0.x",
+                        "islander":         "0.0.x",
                         "paxos":            "3.5.x",
-                        "prolific.logger":  "0.0.1",
-                        "reactor":          "2.x",
-                        "monotonic":        "2.x",
-                        "vestibule":        "1.x"
+                        "prolific.logger":  "0.0.x",
+                        "reactor":          "2.2.x",
+                        "monotonic":        "2.0.x",
+                        "vestibule":        "1.1.x"
     },
     "devDependencies":
     {
-                        "delta":            "1.x",
-                        "proof":            "1.x"
+                        "delta":            "1.0.x",
+                        "proof":            "1.0.x"
     },
     "main":             "kibitzer",
     "scripts":
