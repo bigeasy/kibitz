@@ -88,14 +88,14 @@ function Kibitzer (islandId, id, options) {
 }
 
 Kibitzer.prototype.play = function (entry) {
-    if (entry.context == 'bigeasy.paxos') {
+    if (entry.qualifier == 'bigeasy.paxos') {
         if (this._recorded.length) {
             assert.deepEqual(this._recorded.shift(), {
                 method: entry.name,
-                vargs: entry.specific.vargs
+                vargs: entry.vargs
             })
         } else {
-            this.legislator[entry.name].apply(this.legislator, entry.specific.vargs)
+            this.legislator[entry.name].apply(this.legislator, entry.vargs)
             this._advanced.notify()
             this.play(entry)
         }
