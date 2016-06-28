@@ -40,7 +40,7 @@ var Scheduler = require('happenstance')
 
 var abend = require('abend')
 
-var logger = require('prolific.logger').createLogger('bigasy.kibitz.kibitzer')
+var logger = require('prolific.logger').createLogger('bigeasy.kibitz.kibitzer')
 
 function Kibitzer (islandId, id, options) {
     assert(id != null, 'id is required')
