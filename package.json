@@ -1,7 +1,10 @@
 {
     "name":                 "kibitz",
     "version":              "0.0.42",
-    "description":          "Consensus for web applications.",
+    "description":
+
+      "Consensus for web applications.",
+
     "keywords":
     [
                             "consensus", "paxos"
