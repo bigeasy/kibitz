@@ -128,38 +128,42 @@ Kibitzer.prototype._logger = function (level, message, context) {
 }
 
 Kibitzer.prototype._publish = cadence(function (async) {
-    var outgoing = this.islander.outbox()
-    logger.info('_publish', { outgoing: outgoing })
-    if (outgoing.length == 0) {
-        return
-    }
-    var post
-    async(function () {
-        var properties = this.legislator.properties[this.legislator.government.majority[0]]
-        this._ua.send(properties, post = {
-            islandId: this.legislator.islandId,
-            type: 'enqueue',
-            entries: outgoing
-        }, async())
-    }, function (body) {
-        this._logger('info', 'enqueued', {
-            kibitzerId: this.legislator.id,
-            sent: post,
-            received: body
-        })
-        if (body == null) {
-            body = { entries: [] }
+    var loop = async(function () {
+        var outgoing = this.islander.outbox()
+        logger.info('_publish', { outgoing: outgoing, sent: this.islander.sent.ordered })
+        if (outgoing.length == 0) {
+            return [ loop.break ]
         }
-        this.islander.published(body.entries)
-        var delay = this._Date.now() + (body.entries == 0 ? 1000 : 0)
-        this.scheduler.schedule(delay, 'publish', { object: this, method: '_checkPublisher' })
-    })
+        var post
+        async(function () {
+            var properties = this.legislator.properties[this.legislator.government.majority[0]]
+            this._ua.send(properties, post = {
+                islandId: this.legislator.islandId,
+                type: 'enqueue',
+                entries: outgoing
+            }, async())
+        }, function (body) {
+            this._logger('info', 'enqueued', {
+                kibitzerId: this.legislator.id,
+                sent: post,
+                received: body
+            })
+            if (body == null) {
+                body = { entries: [] }
+            }
+            this.islander.published(body.entries)
+            if (this.iterators.islander.next) {
+                this._advanced.notify()
+            }
+        })
+    })()
 })
 
 // TODO Wierd but scheduler calls us with a timing, so that is interpreted as
 // the callback to `check`. Could spend all day trying to decide if that's a
 // correct use of `Operation`.
 Kibitzer.prototype._checkPublisher = function () {
+    logger.info('_checkPublisher', { publisher: this._publisher.turnstile.health })
     this._publisher.check()
 }
 
