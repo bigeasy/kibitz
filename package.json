@@ -1,41 +1,40 @@
 {
-    "name":             "kibitz",
-    "version":          "0.0.42",
-    "description":      "Consensus for web applications.",
+    "name":                 "kibitz",
+    "version":              "0.0.42",
+    "description":          "Consensus for web applications.",
     "keywords":
     [
-                        "consensus", "paxos"
+                            "consensus", "paxos"
     ],
-    "author":           "Alan Gutierrez <alan@prettyrobots.com>",
-    "contributors":     [],
-    "homepage":         "https://github.com/bigeasy/mingle",
-    "bugs":             "https://github.com/bigeasy/kibitz/issues",
-    "license":          "MIT",
+    "author":               "Alan Gutierrez <alan@prettyrobots.com>",
+    "homepage":             "https://github.com/bigeasy/mingle",
+    "bugs":                 "https://github.com/bigeasy/kibitz/issues",
+    "license":              "MIT",
     "repository":
     {
-                        "type": "git",
-                        "url": "http://github.com/bigeasy/kibitz.git"
+                            "type": "git",
+                            "url": "http://github.com/bigeasy/kibitz.git"
     },
     "dependencies":
     {
-                        "abend":            "1.0.x",
-                        "cadence":          "1.0.x",
-                        "happenstance":     "2.7.x",
-                        "islander":         "0.0.x",
-                        "paxos":            "3.5.x",
-                        "prolific.logger":  "0.0.x",
-                        "reactor":          "2.2.x",
-                        "monotonic":        "2.0.x",
-                        "vestibule":        "1.1.x"
+                            "abend":                        "1.0.x",
+                            "cadence":                      "1.0.x",
+                            "happenstance":                 "2.7.x",
+                            "islander":                     "0.0.x",
+                            "paxos":                        "3.5.x",
+                            "prolific.logger":              "0.0.x",
+                            "reactor":                      "2.2.x",
+                            "monotonic":                    "2.0.x",
+                            "vestibule":                    "1.1.x"
     },
     "devDependencies":
     {
-                        "delta":            "1.1.x",
-                        "proof":            "1.0.x"
+                            "delta":                        "1.1.x",
+                            "proof":                        "1.0.x"
     },
-    "main":             "kibitzer",
+    "main":                 "kibitzer",
     "scripts":
     {
-                        "test": "proof platform win32 && proof test */*/*.t.js || t/test"
+                            "test": "proof platform win32 && proof test */*/*.t.js || t/test"
     }
 }
