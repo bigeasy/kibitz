@@ -84,13 +84,13 @@ function Kibitzer (islandId, id, options) {
 
     this._advanced = new Vestibule
     this._terminated = false
-    this._recorded = null
+    this._recording = null
 }
 
 Kibitzer.prototype.play = function (entry) {
     if (entry.qualifier == 'bigeasy.paxos') {
-        if (this._recorded.length) {
-            assert.deepEqual(this._recorded.shift(), {
+        if (this._recording.paxos.length) {
+            assert.deepEqual(this._recording.paxos.shift(), {
                 method: entry.name,
                 vargs: entry.vargs
             })
@@ -99,13 +99,27 @@ Kibitzer.prototype.play = function (entry) {
             this._advanced.notify()
             this.play(entry)
         }
+    } else if (entry.qualifier == 'bigeasy.islander') {
+        if (this._recording.islander.length) {
+            assert.deepEqual(this._recording.islander.shift(), {
+                method: entry.name,
+                vargs: entry.vargs
+            })
+        } else {
+            this.islander[entry.name].apply(this.islander, entry.vargs)
+            this.play(entry)
+        }
     }
 }
 
 Kibitzer.prototype.replay = function () {
-    this._recorded = []
+    this._recording = { paxos: [], islander: [] }
+// TODO Can Prolific Logger support this pattern?
     this.legislator._trace = function (method, vargs) {
-        this._recorded.push({ method: method, vargs: JSON.parse(JSON.stringify(vargs)) })
+        this._recording.paxos.push({ method: method, vargs: JSON.parse(JSON.stringify(vargs)) })
+    }.bind(this)
+    this.islander._trace = function (method, vargs) {
+        this._recording.islander.push({ method: method, vargs: JSON.parse(JSON.stringify(vargs)) })
     }.bind(this)
     this._prime(abend)
 }
