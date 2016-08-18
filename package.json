@@ -28,7 +28,7 @@
                             "prolific.logger":              "1.0.x",
                             "reactor":                      "2.2.x",
                             "monotonic":                    "2.0.x",
-                            "vestibule":                    "1.1.x"
+                            "vestibule":                    "1.3.x"
     },
     "devDependencies":
     {
