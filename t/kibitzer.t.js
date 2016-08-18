@@ -2,7 +2,7 @@ require('proof/redux')(7, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
-    var Delta = require('delta')
+    var delta = require('delta')
 
     var Kibitzer = require('..')
 
@@ -53,18 +53,18 @@ function prove (async, assert) {
         assert(kibitzers[1].getProperties().map(function (properties) {
             return properties.location
         }), [ '127.0.0.1:8086', '127.0.0.1:8088' ], 'joined')
-        new Delta(async()).ee(kibitzers[1].log).on('entry')
+        delta(async()).ee(kibitzers[1].log).on('entry')
     }, function (message) {
         assert(message.promise, '2/0', 'naturalized')
         var cookie = kibitzers[1].publish({ count: 1 })
-        new Delta(async()).ee(kibitzers[1].log).on('entry')
+        delta(async()).ee(kibitzers[1].log).on('entry')
     }, function (entry) {
         assert(entry.value, { count: 1 }, 'publish')
     }, function () {
         kibitzers[1]._enqueue({ entries: [{}] }, async())
     }, function (response) {
         assert(response, { posted: false, entries: [] }, 'failed enqueue')
-        new Delta(async()).ee(kibitzers[1].log).on('terminated')
+        delta(async()).ee(kibitzers[1].log).on('terminated')
         kibitzers[1].terminate()
         kibitzers[1].terminate()
     }, function () {
