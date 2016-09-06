@@ -285,6 +285,14 @@ Kibitzer.prototype._checkJoin = function (when, properties) {
 }
 
 Kibitzer.prototype._join = cadence(function (async, properties) {
+// TODO Should this be or should this not be? It should be. You're sending your
+// enqueue messages until you immigrate. You don't know when that will be.
+// You're only going to know if you've succeeded if your legislator has
+// immigrated. That's the only way.
+    if (this.legislator.government.promise != '0/0') {
+        console.log('Hey! I got a government.')
+        return
+    }
     async(function () {
         this._logger('info', 'join', {
             kibitzerId: this.legislator.id,
@@ -338,7 +346,7 @@ Kibitzer.prototype._naturalize = cadence(function (async, post) {
         outcome: JSON.stringify(outcome)
     })
     if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
-        var properties = this.legislator.citizens[this.legislator.government.majority[0]]
+        var properties = this.legislator.properties[this.legislator.government.majority[0]]
         post.hops++
         this._ua.send(properties, post, async())
     } else {
