@@ -24,7 +24,7 @@
                             "cadence":                      "1.0.x",
                             "happenstance":                 "2.7.x",
                             "islander":                     "0.0.x",
-                            "paxos":                        "3.5.x",
+                            "paxos":                        "3.6.x",
                             "prolific.logger":              "2.0.x",
                             "reactor":                      "2.2.x",
                             "monotonic":                    "2.0.x",
