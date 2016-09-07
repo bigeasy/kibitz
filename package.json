@@ -25,7 +25,7 @@
                             "happenstance":                 "2.7.x",
                             "islander":                     "0.0.x",
                             "paxos":                        "3.5.x",
-                            "prolific.logger":              "1.0.x",
+                            "prolific.logger":              "2.0.x",
                             "reactor":                      "2.2.x",
                             "monotonic":                    "2.0.x",
                             "vestibule":                    "1.3.x"
