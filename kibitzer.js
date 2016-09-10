@@ -92,10 +92,10 @@ Kibitzer.prototype.play = function (entry) {
         if (this._recording.paxos.length) {
             assert.deepEqual(this._recording.paxos.shift(), {
                 method: entry.name,
-                vargs: entry.vargs
+                vargs: entry.$vargs
             })
         } else {
-            this.legislator[entry.name].apply(this.legislator, entry.vargs)
+            this.legislator[entry.name].apply(this.legislator, entry.$vargs)
             this._advanced.notify()
             this.play(entry)
         }
@@ -103,10 +103,10 @@ Kibitzer.prototype.play = function (entry) {
         if (this._recording.islander.length) {
             assert.deepEqual(this._recording.islander.shift(), {
                 method: entry.name,
-                vargs: entry.vargs
+                vargs: entry.$vargs
             })
         } else {
-            this.islander[entry.name].apply(this.islander, entry.vargs)
+            this.islander[entry.name].apply(this.islander, entry.$vargs)
             this.play(entry)
         }
     }
