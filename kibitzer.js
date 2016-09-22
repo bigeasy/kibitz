@@ -40,7 +40,7 @@ var Scheduler = require('happenstance')
 
 var abend = require('abend')
 
-var logger = require('prolific.logger').createLogger('bigeasy.kibitz.kibitzer')
+var logger = require('prolific.logger').createLogger('kibitz')
 
 function Kibitzer (islandId, id, options) {
     assert(id != null, 'id is required')
@@ -144,7 +144,7 @@ Kibitzer.prototype._logger = function (level, message, context) {
 Kibitzer.prototype._publish = cadence(function (async) {
     var loop = async(function () {
         var outgoing = this.islander.outbox()
-        logger.info('_publish', { outgoing: outgoing, sent: this.islander.sent.ordered })
+        logger.info('_publish', { $outgoing: outgoing, $sent: this.islander.sent.ordered })
         if (outgoing.length == 0) {
             return [ loop.break ]
         }
@@ -330,7 +330,7 @@ Kibitzer.prototype.dispatch = cadence(function (async, body) {
 
 Kibitzer.prototype.publish = function (entry) {
     var cookie = this.islander.publish(entry, false)
-    logger.info('publish', { entry: entry, cookie: cookie })
+    logger.info('publish', { $entry: entry, cookie: cookie })
     if (this.scheduler.scheduled('publish') == null) {
         this.scheduler.schedule(0, 'publish', { object: this, method: '_checkPublisher' })
     }
