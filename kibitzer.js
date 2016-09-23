@@ -23,23 +23,32 @@
 //
 // TODO Which is why I've made the event emitter in this class a separate
 // object. Which is such a good idea, I belive I'll go and do it Happenstance.
-var assert = require('assert')
-var events = require('events')
+//
+// TODO Here I am, back to remove the EventEmitter. Not sure how anyone is able
+// to program that way, treating everything in your application as a stream.
+// Pushing log entires as events, hard to reason about this firehose events, and
+// it makes any asynchronous calls in response to an event require subsequent
+// queuing of events, so why not use this queue that already exists?
 
+// Quality control.
+var assert = require('assert')
+
+// Varadic arguments.
 var slice = [].slice
 
-var Vestibule = require('vestibule')
+// Control-flow libraries.
+var abend = require('abend')
 var cadence = require('cadence')
-
 var Reactor = require('reactor')
+var Scheduler = require('happenstance')
+var Vestibule = require('vestibule')
+
+// Paxos libraries.
 var Legislator = require('paxos/legislator')
 var Islander = require('islander')
 var Monotonic = require('monotonic').asString
 
-var Scheduler = require('happenstance')
-
-var abend = require('abend')
-
+// Logging.
 var logger = require('prolific.logger').createLogger('kibitz')
 
 function Kibitzer (islandId, id, options) {
