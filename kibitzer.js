@@ -88,7 +88,7 @@ function Kibitzer (islandId, id, options) {
 }
 
 Kibitzer.prototype.play = function (entry) {
-    if (entry.qualifier == 'bigeasy.paxos') {
+    if (entry.qualifier == 'paxos') {
         if (this._recording.paxos.length) {
             assert.deepEqual(this._recording.paxos.shift(), {
                 method: entry.name,
@@ -99,7 +99,7 @@ Kibitzer.prototype.play = function (entry) {
             this._advanced.notify()
             this.play(entry)
         }
-    } else if (entry.qualifier == 'bigeasy.islander') {
+    } else if (entry.qualifier == 'islander') {
         if (this._recording.islander.length) {
             assert.deepEqual(this._recording.islander.shift(), {
                 method: entry.name,
