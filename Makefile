@@ -65,7 +65,8 @@ node_modules/.bin/edify:
 	npm install less edify edify.markdown edify.highlight edify.include
 
 watch: all
-	fswatch --exclude '.' --include '\.html$$' --include '\.less$$' --include '\.md$$' --include '\.js$$' pages css kibitz *.md | while read line; \
+	fswatch --exclude '.' --include '\.html$$' --include '\.less$$' --include
+	'\.md$$' --include '\.js$$' pages css source *.md | while read line; \
 	do \
 		make --no-print-directory all; \
 		osascript -e "$$CHROME_REFRESH"; \
@@ -74,9 +75,9 @@ watch: all
 css/%.css: css/%.less node_modules/.bin/lessc
 	node_modules/.bin/lessc $< > $@ || rm -f $@
 
-docco/%.html: kibitz/%.js node_modules/.bin/docco
+docco/%.html: source/%.js node_modules/.bin/docco
 	mkdir -p docco
-	node_modules/.bin/docco -o docco -c docco.css kibitz/*.js
+	node_modules/.bin/docco -o docco -c docco.css source/*.js
 	sed -i '' -e 's/[ \t]*$$//' docco/*.html
 
 index.html: index.md

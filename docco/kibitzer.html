@@ -246,8 +246,8 @@ an accessor to record the property setting.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._sender = <span class="hljs-keyword">new</span> Reactor({ <span class="hljs-attr">object</span>: <span class="hljs-keyword">this</span>, <span class="hljs-attr">method</span>: <span class="hljs-string">'_send'</span> })
-    <span class="hljs-keyword">this</span>._publisher = <span class="hljs-keyword">new</span> Reactor({ <span class="hljs-attr">object</span>: <span class="hljs-keyword">this</span>, <span class="hljs-attr">method</span>: <span class="hljs-string">'_publish'</span> })
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._sender = <span class="hljs-keyword">new</span> Reactor({ object: <span class="hljs-keyword">this</span>, method: <span class="hljs-string">'_send'</span> })
+    <span class="hljs-keyword">this</span>._publisher = <span class="hljs-keyword">new</span> Reactor({ object: <span class="hljs-keyword">this</span>, method: <span class="hljs-string">'_publish'</span> })
 
 </pre></div></div>
 
@@ -265,14 +265,14 @@ an accessor to record the property setting.</p>
             </div>
 
             <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._Date = options.Date || <span class="hljs-built_in">Date</span>
-    <span class="hljs-keyword">this</span>.scheduler = <span class="hljs-keyword">new</span> Scheduler({ <span class="hljs-attr">Date</span>: <span class="hljs-keyword">this</span>._Date })
+    <span class="hljs-keyword">this</span>.scheduler = <span class="hljs-keyword">new</span> Scheduler({ <span class="hljs-built_in">Date</span>: <span class="hljs-keyword">this</span>._Date })
 
     <span class="hljs-keyword">this</span>.legislator = <span class="hljs-keyword">new</span> Legislator(islandId, id, options.cookie || <span class="hljs-keyword">this</span>._Date.now(), {
-        <span class="hljs-attr">ping</span>: options.ping,
-        <span class="hljs-attr">timeout</span>: options.timeout,
-        <span class="hljs-attr">scheduler</span>: {
-            <span class="hljs-attr">Date</span>: options.Date || <span class="hljs-built_in">Date</span>,
-            <span class="hljs-attr">timerless</span>: options.timerless || <span class="hljs-literal">false</span>
+        ping: options.ping,
+        timeout: options.timeout,
+        scheduler: {
+            <span class="hljs-built_in">Date</span>: options.Date || <span class="hljs-built_in">Date</span>,
+            timerless: options.timerless || <span class="hljs-literal">false</span>
         }
     })
 
@@ -326,8 +326,8 @@ an accessor to record the property setting.</p>
             </div>
 
             <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.iterators = {
-        <span class="hljs-attr">legislator</span>: <span class="hljs-keyword">this</span>.legislator.log.min(),
-        <span class="hljs-attr">islander</span>: { <span class="hljs-attr">dummy</span>: <span class="hljs-literal">true</span> }
+        legislator: <span class="hljs-keyword">this</span>.legislator.log.min(),
+        islander: { dummy: <span class="hljs-literal">true</span> }
     }
 
 </pre></div></div>
@@ -382,7 +382,7 @@ an accessor to record the property setting.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._recording = { <span class="hljs-attr">paxos</span>: [], <span class="hljs-attr">islander</span>: [] }
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._recording = { paxos: [], islander: [] }
 }
 
 </pre></div></div>
@@ -462,10 +462,10 @@ of require, and that okay, if you’ve got that edge case for true.</p>
             </div>
 
             <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.legislator._trace = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">method, vargs</span>) </span>{
-        <span class="hljs-keyword">this</span>._recording.paxos.push({ <span class="hljs-attr">method</span>: method, <span class="hljs-attr">vargs</span>: <span class="hljs-built_in">JSON</span>.parse(<span class="hljs-built_in">JSON</span>.stringify(vargs)) })
+        <span class="hljs-keyword">this</span>._recording.paxos.push({ method: method, vargs: <span class="hljs-built_in">JSON</span>.parse(<span class="hljs-built_in">JSON</span>.stringify(vargs)) })
     }.bind(<span class="hljs-keyword">this</span>)
     <span class="hljs-keyword">this</span>.islander._trace = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">method, vargs</span>) </span>{
-        <span class="hljs-keyword">this</span>._recording.islander.push({ <span class="hljs-attr">method</span>: method, <span class="hljs-attr">vargs</span>: <span class="hljs-built_in">JSON</span>.parse(<span class="hljs-built_in">JSON</span>.stringify(vargs)) })
+        <span class="hljs-keyword">this</span>._recording.islander.push({ method: method, vargs: <span class="hljs-built_in">JSON</span>.parse(<span class="hljs-built_in">JSON</span>.stringify(vargs)) })
     }.bind(<span class="hljs-keyword">this</span>)
     <span class="hljs-keyword">this</span>._prime(abend)
 }
@@ -501,8 +501,8 @@ of require, and that okay, if you’ve got that edge case for true.</p>
     <span class="hljs-keyword">if</span> (entry.qualifier == <span class="hljs-string">'paxos'</span>) {
         <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._recording.paxos.length) {
             assert.deepEqual(<span class="hljs-keyword">this</span>._recording.paxos.shift(), {
-                <span class="hljs-attr">method</span>: entry.name,
-                <span class="hljs-attr">vargs</span>: entry.$vargs
+                method: entry.name,
+                vargs: entry.$vargs
             })
         } <span class="hljs-keyword">else</span> {
             <span class="hljs-keyword">this</span>.legislator[entry.name].apply(<span class="hljs-keyword">this</span>.legislator, entry.$vargs)
@@ -512,8 +512,8 @@ of require, and that okay, if you’ve got that edge case for true.</p>
     } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (entry.qualifier == <span class="hljs-string">'islander'</span>) {
         <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._recording.islander.length) {
             assert.deepEqual(<span class="hljs-keyword">this</span>._recording.islander.shift(), {
-                <span class="hljs-attr">method</span>: entry.name,
-                <span class="hljs-attr">vargs</span>: entry.$vargs
+                method: entry.name,
+                vargs: entry.$vargs
             })
         } <span class="hljs-keyword">else</span> {
             <span class="hljs-keyword">this</span>.islander[entry.name].apply(<span class="hljs-keyword">this</span>.islander, entry.$vargs)
@@ -523,7 +523,7 @@ of require, and that okay, if you’ve got that edge case for true.</p>
 }
 
 Kibitzer.prototype.bootstrap = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
-    <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'bootstrap'</span>, { <span class="hljs-attr">kibitzerId</span>: <span class="hljs-keyword">this</span>.legislator.id })
+    <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'bootstrap'</span>, { kibitzerId: <span class="hljs-keyword">this</span>.legislator.id })
     <span class="hljs-keyword">this</span>._prime(<span class="hljs-keyword">async</span>())
     <span class="hljs-keyword">this</span>.legislator.bootstrap(<span class="hljs-keyword">this</span>._Date.now(), <span class="hljs-keyword">this</span>.properties)
     <span class="hljs-keyword">this</span>._checkOutbox()
@@ -547,7 +547,7 @@ Kibitzer.prototype.bootstrap = cadence(<span class="hljs-function"><span class="
             <div class="content"><div class='highlight'><pre>Kibitzer.prototype.join = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, properties</span>) </span>{
     assert(<span class="hljs-keyword">typeof</span> properties == <span class="hljs-string">'object'</span>)
     <span class="hljs-keyword">this</span>._prime(<span class="hljs-keyword">async</span>())
-    <span class="hljs-keyword">this</span>.scheduler.schedule(<span class="hljs-keyword">this</span>._Date.now() + <span class="hljs-number">0</span>, <span class="hljs-string">'join'</span>, { <span class="hljs-attr">object</span>: <span class="hljs-keyword">this</span>, <span class="hljs-attr">method</span>: <span class="hljs-string">'_checkJoin'</span> }, properties)
+    <span class="hljs-keyword">this</span>.scheduler.schedule(<span class="hljs-keyword">this</span>._Date.now() + <span class="hljs-number">0</span>, <span class="hljs-string">'join'</span>, { object: <span class="hljs-keyword">this</span>, method: <span class="hljs-string">'_checkJoin'</span> }, properties)
 })
 
 </pre></div></div>
@@ -569,9 +569,9 @@ that the message was lost.</p>
 
             <div class="content"><div class='highlight'><pre>Kibitzer.prototype.publish = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">entry</span>) </span>{
     <span class="hljs-keyword">var</span> cookie = <span class="hljs-keyword">this</span>.islander.publish(entry, <span class="hljs-literal">false</span>)
-    logger.info(<span class="hljs-string">'publish'</span>, { <span class="hljs-attr">$entry</span>: entry, <span class="hljs-attr">cookie</span>: cookie })
+    logger.info(<span class="hljs-string">'publish'</span>, { $entry: entry, cookie: cookie })
     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.scheduler.scheduled(<span class="hljs-string">'publish'</span>) == <span class="hljs-literal">null</span>) {
-        <span class="hljs-keyword">this</span>.scheduler.schedule(<span class="hljs-number">0</span>, <span class="hljs-string">'publish'</span>, { <span class="hljs-attr">object</span>: <span class="hljs-keyword">this</span>, <span class="hljs-attr">method</span>: <span class="hljs-string">'_checkPublisher'</span> })
+        <span class="hljs-keyword">this</span>.scheduler.schedule(<span class="hljs-number">0</span>, <span class="hljs-string">'publish'</span>, { object: <span class="hljs-keyword">this</span>, method: <span class="hljs-string">'_checkPublisher'</span> })
     }
     <span class="hljs-keyword">return</span> cookie
 }
@@ -654,7 +654,7 @@ Kibitz.</p>
                 <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.iterators.legislator.next != <span class="hljs-literal">null</span>) {
                     <span class="hljs-keyword">this</span>.iterators.legislator = <span class="hljs-keyword">this</span>.iterators.legislator.nex
                     <span class="hljs-keyword">this</span>.iterators.islander = {
-                        <span class="hljs-attr">next</span>: <span class="hljs-keyword">this</span>.islander.prime(<span class="hljs-keyword">this</span>.iterators.legislator)
+                        next: <span class="hljs-keyword">this</span>.islander.prime(<span class="hljs-keyword">this</span>.iterators.legislator)
                     }
                     <span class="hljs-keyword">return</span> [ loop.break ]
                 }
@@ -752,21 +752,21 @@ immigrated. That’s the only way.</p>
     }
     <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
         <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'join'</span>, {
-            <span class="hljs-attr">kibitzerId</span>: <span class="hljs-keyword">this</span>.legislator.id,
-            <span class="hljs-attr">received</span>: <span class="hljs-built_in">JSON</span>.stringify(properties)
+            kibitzerId: <span class="hljs-keyword">this</span>.legislator.id,
+            received: <span class="hljs-built_in">JSON</span>.stringify(properties)
         })
         <span class="hljs-keyword">this</span>._ua.send(properties, {
-            <span class="hljs-attr">type</span>: <span class="hljs-string">'immigrate'</span>,
-            <span class="hljs-attr">islandId</span>: <span class="hljs-keyword">this</span>.legislator.islandId,
-            <span class="hljs-attr">id</span>: <span class="hljs-keyword">this</span>.legislator.id,
-            <span class="hljs-attr">cookie</span>: <span class="hljs-keyword">this</span>.legislator.cookie,
-            <span class="hljs-attr">properties</span>: <span class="hljs-keyword">this</span>.properties,
-            <span class="hljs-attr">hops</span>: <span class="hljs-number">0</span>
+            type: <span class="hljs-string">'immigrate'</span>,
+            islandId: <span class="hljs-keyword">this</span>.legislator.islandId,
+            id: <span class="hljs-keyword">this</span>.legislator.id,
+            cookie: <span class="hljs-keyword">this</span>.legislator.cookie,
+            properties: <span class="hljs-keyword">this</span>.properties,
+            hops: <span class="hljs-number">0</span>
         }, <span class="hljs-keyword">async</span>())
     }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">response</span>) </span>{
         <span class="hljs-keyword">if</span> (response == <span class="hljs-literal">null</span> || !response.enqueued) {
             <span class="hljs-keyword">var</span> delay = <span class="hljs-keyword">this</span>._Date.now() + <span class="hljs-number">1000</span>
-            <span class="hljs-keyword">this</span>.scheduler.schedule(delay, <span class="hljs-string">'join'</span>, { <span class="hljs-attr">object</span>: <span class="hljs-keyword">this</span>, <span class="hljs-attr">method</span>: <span class="hljs-string">'_checkJoin'</span> }, properties)
+            <span class="hljs-keyword">this</span>.scheduler.schedule(delay, <span class="hljs-string">'join'</span>, { object: <span class="hljs-keyword">this</span>, method: <span class="hljs-string">'_checkJoin'</span> }, properties)
         }
     })
 })
@@ -789,7 +789,7 @@ correct use of <code>Operation</code>.</p>
             </div>
 
             <div class="content"><div class='highlight'><pre>Kibitzer.prototype._checkPublisher = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-    logger.info(<span class="hljs-string">'_checkPublisher'</span>, { <span class="hljs-attr">publisher</span>: <span class="hljs-keyword">this</span>._publisher.turnstile.health })
+    logger.info(<span class="hljs-string">'_checkPublisher'</span>, { publisher: <span class="hljs-keyword">this</span>._publisher.turnstile.health })
     <span class="hljs-keyword">this</span>._publisher.check()
 }
 
@@ -811,7 +811,7 @@ correct use of <code>Operation</code>.</p>
             <div class="content"><div class='highlight'><pre>Kibitzer.prototype._publish = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
     <span class="hljs-keyword">var</span> loop = <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
         <span class="hljs-keyword">var</span> outgoing = <span class="hljs-keyword">this</span>.islander.outbox()
-        logger.info(<span class="hljs-string">'_publish'</span>, { <span class="hljs-attr">$outgoing</span>: outgoing, <span class="hljs-attr">$sent</span>: <span class="hljs-keyword">this</span>.islander.sent.ordered })
+        logger.info(<span class="hljs-string">'_publish'</span>, { $outgoing: outgoing, $sent: <span class="hljs-keyword">this</span>.islander.sent.ordered })
         <span class="hljs-keyword">if</span> (outgoing.length == <span class="hljs-number">0</span>) {
             <span class="hljs-keyword">return</span> [ loop.break ]
         }
@@ -819,18 +819,18 @@ correct use of <code>Operation</code>.</p>
         <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
             <span class="hljs-keyword">var</span> properties = <span class="hljs-keyword">this</span>.legislator.properties[<span class="hljs-keyword">this</span>.legislator.government.majority[<span class="hljs-number">0</span>]]
             <span class="hljs-keyword">this</span>._ua.send(properties, post = {
-                <span class="hljs-attr">islandId</span>: <span class="hljs-keyword">this</span>.legislator.islandId,
-                <span class="hljs-attr">type</span>: <span class="hljs-string">'enqueue'</span>,
-                <span class="hljs-attr">entries</span>: outgoing
+                islandId: <span class="hljs-keyword">this</span>.legislator.islandId,
+                type: <span class="hljs-string">'enqueue'</span>,
+                entries: outgoing
             }, <span class="hljs-keyword">async</span>())
         }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">body</span>) </span>{
             <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'enqueued'</span>, {
-                <span class="hljs-attr">kibitzerId</span>: <span class="hljs-keyword">this</span>.legislator.id,
-                <span class="hljs-attr">sent</span>: post,
-                <span class="hljs-attr">received</span>: body
+                kibitzerId: <span class="hljs-keyword">this</span>.legislator.id,
+                sent: post,
+                received: body
             })
             <span class="hljs-keyword">if</span> (body == <span class="hljs-literal">null</span>) {
-                body = { <span class="hljs-attr">entries</span>: [] }
+                body = { entries: [] }
             }
             <span class="hljs-keyword">this</span>.islander.published(body.entries)
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.iterators.islander.next) {
@@ -870,15 +870,15 @@ tell it to no longer schedule.</p>
                 } <span class="hljs-keyword">else</span> {
                     <span class="hljs-keyword">var</span> properties = <span class="hljs-keyword">this</span>.legislator.properties[id]
                     <span class="hljs-keyword">this</span>._ua.send(properties, {
-                        <span class="hljs-attr">type</span>: <span class="hljs-string">'receive'</span>,
-                        <span class="hljs-attr">pulse</span>: pulse
+                        type: <span class="hljs-string">'receive'</span>,
+                        pulse: pulse
                     }, <span class="hljs-keyword">async</span>())
                 }
             }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">response</span>) </span>{
                 <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'published'</span>, {
-                    <span class="hljs-attr">kibitzerId</span>: <span class="hljs-keyword">this</span>.legislator.id,
-                    <span class="hljs-attr">sent</span>: pulse,
-                    <span class="hljs-attr">received</span>: response
+                    kibitzerId: <span class="hljs-keyword">this</span>.legislator.id,
+                    sent: pulse,
+                    received: response
                 })
                 responses[id] = response
             })
@@ -917,9 +917,9 @@ Kibitzer.prototype._naturalize = cadence(<span class="hljs-function"><span class
     assert(post.hops != <span class="hljs-literal">null</span>)
     <span class="hljs-keyword">var</span> outcome = <span class="hljs-keyword">this</span>.legislator.immigrate(<span class="hljs-keyword">this</span>._Date.now(), post.islandId, post.id, post.cookie, post.properties)
     <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'enqueue'</span>, {
-        <span class="hljs-attr">kibitzerId</span>: <span class="hljs-keyword">this</span>.legislator.id,
-        <span class="hljs-attr">received</span>: <span class="hljs-built_in">JSON</span>.stringify(post),
-        <span class="hljs-attr">outcome</span>: <span class="hljs-built_in">JSON</span>.stringify(outcome)
+        kibitzerId: <span class="hljs-keyword">this</span>.legislator.id,
+        received: <span class="hljs-built_in">JSON</span>.stringify(post),
+        outcome: <span class="hljs-built_in">JSON</span>.stringify(outcome)
     })
     <span class="hljs-keyword">if</span> (!outcome.enqueued &amp;&amp; outcome.leader != <span class="hljs-literal">null</span> &amp;&amp; post.hops == <span class="hljs-number">0</span>) {
         <span class="hljs-keyword">var</span> properties = <span class="hljs-keyword">this</span>.legislator.properties[<span class="hljs-keyword">this</span>.legislator.government.majority[<span class="hljs-number">0</span>]]
@@ -932,7 +932,7 @@ Kibitzer.prototype._naturalize = cadence(<span class="hljs-function"><span class
 })
 
 Kibitzer.prototype._enqueue = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, post</span>) </span>{
-    <span class="hljs-keyword">var</span> response = { <span class="hljs-attr">posted</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">entries</span>: [] }
+    <span class="hljs-keyword">var</span> response = { posted: <span class="hljs-literal">false</span>, entries: [] }
 </pre></div></div>
 
         </li>
@@ -955,21 +955,21 @@ Kibitzer.prototype._enqueue = cadence(<span class="hljs-function"><span class="h
             response.entries.length = <span class="hljs-number">0</span>
             <span class="hljs-keyword">break</span>
         }
-        response.entries.push({ <span class="hljs-attr">cookie</span>: entry.cookie, <span class="hljs-attr">promise</span>: outcome.promise })
+        response.entries.push({ cookie: entry.cookie, promise: outcome.promise })
     }
     <span class="hljs-keyword">this</span>._checkOutbox()
     <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'enqueue'</span>, {
-        <span class="hljs-attr">kibitzerId</span>: <span class="hljs-keyword">this</span>.legislator.id,
-        <span class="hljs-attr">received</span>: <span class="hljs-built_in">JSON</span>.stringify(post),
-        <span class="hljs-attr">sent</span>: <span class="hljs-built_in">JSON</span>.stringify(response)
+        kibitzerId: <span class="hljs-keyword">this</span>.legislator.id,
+        received: <span class="hljs-built_in">JSON</span>.stringify(post),
+        sent: <span class="hljs-built_in">JSON</span>.stringify(response)
     })
     <span class="hljs-keyword">return</span> response
 })
 
 Kibitzer.prototype._receive = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, pulse</span>) </span>{
     <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'receive'</span>, {
-        <span class="hljs-attr">kibitzerId</span>: <span class="hljs-keyword">this</span>.legislator.id,
-        <span class="hljs-attr">received</span>: pulse
+        kibitzerId: <span class="hljs-keyword">this</span>.legislator.id,
+        received: pulse
     })
     <span class="hljs-keyword">var</span> ret = [ <span class="hljs-keyword">this</span>.legislator.receive(<span class="hljs-keyword">this</span>._Date.now(), pulse, pulse.messages) ]
     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.iterators.legislator.next != <span class="hljs-literal">null</span>) {
@@ -989,10 +989,10 @@ Kibitzer.prototype._advance = cadence(<span class="hljs-function"><span class="h
         <span class="hljs-keyword">while</span> (<span class="hljs-keyword">this</span>.iterators.legislator.next != <span class="hljs-literal">null</span>) {
             <span class="hljs-keyword">this</span>.iterators.legislator = <span class="hljs-keyword">this</span>.iterators.legislator.nex
             <span class="hljs-keyword">this</span>._logger(<span class="hljs-string">'info'</span>, <span class="hljs-string">'consuming'</span>, {
-                <span class="hljs-attr">kibitzerId</span>: <span class="hljs-keyword">this</span>.legislator.id,
-                <span class="hljs-attr">route</span>: <span class="hljs-keyword">this</span>.iterators.legislator.route,
-                <span class="hljs-attr">promise</span>: <span class="hljs-keyword">this</span>.iterators.legislator.promise,
-                <span class="hljs-attr">value</span>: <span class="hljs-keyword">this</span>.iterators.legislator.value
+                kibitzerId: <span class="hljs-keyword">this</span>.legislator.id,
+                route: <span class="hljs-keyword">this</span>.iterators.legislator.route,
+                promise: <span class="hljs-keyword">this</span>.iterators.legislator.promise,
+                value: <span class="hljs-keyword">this</span>.iterators.legislator.value
             })
             <span class="hljs-keyword">this</span>.islander.receive([ <span class="hljs-keyword">this</span>.iterators.legislator ])
         }
@@ -1019,9 +1019,9 @@ TODO Maybe header and body and the header is used internallyish? Islander would 
             <span class="hljs-keyword">var</span> government = Monotonic.isBoundary(entry.promise, <span class="hljs-number">0</span>)
             <span class="hljs-keyword">var</span> value = government ? entry.value : entry.value.value
             <span class="hljs-keyword">this</span>.log.emit(<span class="hljs-string">'entry'</span>, {
-                <span class="hljs-attr">government</span>: government,
-                <span class="hljs-attr">promise</span>: entry.promise,
-                <span class="hljs-attr">value</span>: value
+                government: government,
+                promise: entry.promise,
+                value: value
             })
         }
     })()
