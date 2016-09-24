@@ -32,6 +32,7 @@
 
 // Quality control.
 var assert = require('assert')
+var events = require('events')
 
 // Varadic arguments.
 var slice = [].slice
