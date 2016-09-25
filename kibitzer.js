@@ -37,9 +37,6 @@ var assert = require('assert')
 var events = require('events')
 var util = require('util')
 
-// Callback wrapper.
-var Operation = require('operation')
-
 // Varadic arguments.
 var slice = [].slice
 
