@@ -1,4 +1,4 @@
-require('proof/redux')(8, require('cadence')(prove))
+require('proof/redux')(7, require('cadence')(prove))
 
 function prove (async, assert) {
     var cadence = require('cadence')
@@ -10,9 +10,9 @@ function prove (async, assert) {
         return JSON.parse(JSON.stringify(object))
     }
 
-    new Kibitzer(1, '1').shutdown()
+    new Kibitzer({ kibitzerId: '1', ua: {} }).shutdown()
 
-    var kibitzer = new Kibitzer(1, '1', { timeout: 1001 })
+    var kibitzer = new Kibitzer({ kibitzerId: '1', timeout: 1001, ua: {} })
     assert(kibitzer.legislator.timeout, 1001, 'numeric timeout')
     kibitzer.shutdown()
 
@@ -43,30 +43,40 @@ function prove (async, assert) {
         __Date: { now: function () { return time } }
     }
     async(function () {
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: createLocation() } }, options)))
+        kibitzers.push(new Kibitzer(extend({
+            kibitzerId: createIdentifier(),
+            properties: { location: createLocation() }
+        }, options)))
     }, function () {
-        kibitzers[0].bootstrap(async())
+        kibitzers[0].bootstrap(0)
     }, function () {
         assert(kibitzers[0].legislator.properties[1].location, '127.0.0.1:8086', 'bootstraped')
-        kibitzers.push(new Kibitzer(1, createIdentifier(), extend({ properties: { location: '127.0.0.1:8088' } }, options)))
-        kibitzers[1].join({ location: '127.0.0.1:8086' }, async())
+        kibitzers.push(new Kibitzer(extend({
+            kibitzerId: createIdentifier(),
+            properties: { location: '127.0.0.1:8088' }
+        }, options)))
+        kibitzers[1].join({ location: '127.0.0.1:8086', islandId: 0 }, async())
         delta(async()).ee(kibitzers[1]).on('enqueued')
     }, function () {
-        assert(kibitzers[1].getProperties().map(function (properties) {
-            return properties.location
-        }), [ '127.0.0.1:8086', '127.0.0.1:8088' ], 'joined')
-    }, function () {
-        assert(kibitzers[1].shift().promise, '2/0', 'naturalized')
-        assert(kibitzers[1].shift(), null, 'queue empty')
+        assert(kibitzers[1].shift().type, 'join', 'joined')
+        assert(kibitzers[1].shift().entry.promise, '2/0', 'immigrated')
         var cookie = kibitzers[1].publish({ count: 1 })
-        delta(async()).ee(kibitzers[1]).on('enqueued')
-    }, function () {
-        var entry = kibitzers[1].shift()
-        assert(entry.value, { count: 1 }, 'publish')
+        var loop = async(function () {
+            async(function () {
+                delta(async()).ee(kibitzers[1]).on('enqueued')
+            }, function () {
+                var message = kibitzers[1].shift()
+                if (message != null) {
+                    return [ loop.break, message ]
+                }
+            })
+        })()
+    }, function (message) {
+        assert(message.entry.value, { count: 1 }, 'publish')
     }, function () {
         kibitzers[1]._enqueue({ entries: [{}] }, async())
     }, function (response) {
-        assert(response, { posted: false, entries: [] }, 'failed enqueue')
+        assert(response, [], 'failed enqueue')
         kibitzers[1].shutdown()
         kibitzers[1].shutdown()
     }, function () {
