@@ -110,7 +110,7 @@ var Players = {
         var replayed = this._kibitzer._replayed.shift()
         if (replayed != null) {
             var shifted = this._kibitzer._shifter.shift()
-            departure.raise(replayed.shifted, shifted)
+            departure.raise(shifted, replayed.shifted)
             setImmediate(replayed.callback)
             return shifted
         }
