@@ -22,6 +22,7 @@
     {
                             "abend":                        "1.0.x",
                             "cadence":                      "1.0.x",
+                            "departure":                    "0.0.1",
                             "happenstance":                 "2.7.x",
                             "islander":                     "0.1.x",
                             "paxos":                        "3.7.x",

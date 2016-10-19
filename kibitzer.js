@@ -36,8 +36,7 @@ var assert = require('assert')
 // EventEmitter API.
 var events = require('events')
 var util = require('util')
-var deepEqual = require('deep-equal')
-var diff = require('deep-diff')
+var departure = require('departure')
 
 var util = require('util')
 
@@ -111,12 +110,7 @@ var Players = {
         var replayed = this._kibitzer._replayed.shift()
         if (replayed != null) {
             var shifted = this._kibitzer._shifter.shift()
-            console.log('shifted', shifted)
-            if (!deepEqual(replayed.shifted, shifted)) {
-                console.log('EXPECTED', util.inspect(replayed.shifted, null, Infinity))
-                console.log('GOT', util.inspect(shifted, null, Infinity))
-                console.log('DIFF', diff(replayed.shifted, shifted))
-            }
+            departure.raise(replayed.shifted, shifted)
             setImmediate(replayed.callback)
             return shifted
         }
@@ -272,10 +266,10 @@ Kibitzer.prototype.play = cadence(function (async, entry) {
     case 'islander':
         var recording = this._recording[entry.qualifier]
         if (recording.length) {
-            assert.deepEqual(recording.shift(), {
+            departure.raise({
                 method: entry.name,
                 vargs: entry.$vargs
-            })
+            }, recording.shift())
         } else {
             this['_play_' + entry.qualifier](entry, async())
         }
