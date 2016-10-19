@@ -283,12 +283,6 @@ Kibitzer.prototype.bootstrap = function (startedAt) {
     this._checkOutbox()
 }
 
-// TODO Use Isochronous to repeatedly send join message.
-Kibitzer.prototype.join = cadence(function (async, properties) {
-    assert(typeof properties == 'object')
-    this.scheduler.schedule(this._Date.now() + 0, 'join', { object: this, method: '_checkJoin' }, properties)
-})
-
 // Enqueue a user message into the `Islander`. The `Islander` will submit the
 // message, monitor the atomic log, and then resubmit the message if it detects
 // that the message was lost.
@@ -366,7 +360,7 @@ Kibitzer.prototype.join = cadence(function (async, leader) {
     // throw new Error
     async(function () {
         this._logger('info', 'join', { kibitzerId: this.legislator.id })
-        this.legislator.islandId = leader.islandId
+        this.legislator.join(this._Date.now(), leader.islandId)
         this._ua.send(leader, {
             type: 'immigrate',
             islandId: leader.islandId,
