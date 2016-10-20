@@ -146,7 +146,7 @@ function Kibitzer (options) {
     this._Date = options.Date || Date
     this.scheduler = new Scheduler({ Date: this._Date })
 
-    this.legislator = new Legislator(null, options.kibitzerId, options.cookie || this._Date.now(), {
+    this.legislator = new Legislator(options.kibitzerId, {
         ping: options.ping,
         timeout: options.timeout,
         scheduler: {
