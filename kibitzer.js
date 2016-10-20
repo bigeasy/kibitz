@@ -359,7 +359,6 @@ Kibitzer.prototype.join = cadence(function (async, leader) {
     }
     // throw new Error
     async(function () {
-        this._logger('info', 'join', { kibitzerId: this.legislator.id })
         this.legislator.join(this._Date.now(), leader.islandId)
         this._ua.send(leader, {
             type: 'immigrate',
@@ -370,6 +369,7 @@ Kibitzer.prototype.join = cadence(function (async, leader) {
             hops: 0
         }, async())
     }, function (response) {
+        logger.info('join', { kibitzerId: this.legislator.id, leader: leader, response: response })
         return response != null && response.enqueued
     })
 })
@@ -399,7 +399,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
                 entries: outgoing
             }, async())
         }, function (entries) {
-            this._logger('info', 'enqueued', {
+            logger.info('enqueued', {
                 kibitzerId: this.legislator.id,
                 $post: post,
                 $entries: entries
@@ -471,10 +471,10 @@ Kibitzer.prototype._checkOutbox = function () {
 Kibitzer.prototype._naturalize = cadence(function (async, post) {
     assert(post.hops != null)
     var outcome = this.legislator.immigrate(this._Date.now(), post.islandId, post.id, post.cookie, post.properties)
-    this._logger('info', 'enqueue', {
+    logger.info('naturalize', {
         kibitzerId: this.legislator.id,
-        received: JSON.stringify(post),
-        outcome: JSON.stringify(outcome)
+        $post: post,
+        $repsonse: outcome
     })
     if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
         var properties = this.legislator.properties[this.legislator.government.majority[0]]
@@ -499,7 +499,7 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
         entries.push({ cookie: entry.cookie, promise: outcome.promise })
     }
     this._checkOutbox()
-    this._logger('info', 'enqueue', {
+    logger.info('enqueue', {
         kibitzerId: this.legislator.id,
         $post: post,
         $entries: entries
