@@ -533,6 +533,7 @@ Kibitzer.prototype._advance = function () {
     this.emit('enqueued')
 }
 
+// TODO This is "nudge to pull."
 Kibitzer.prototype.shift = function () {
     var shifted = this._player.shift()
     if (shifted != null) {
