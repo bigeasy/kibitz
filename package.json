@@ -25,7 +25,7 @@
                             "cliffhanger":                  "1.2.x",
                             "departure":                    "0.0.1",
                             "happenstance":                 "2.7.x",
-                            "islander":                     "0.3.0-alpha.2",
+                            "islander":                     "0.3.x",
                             "paxos":                        "4.0.x",
                             "procession":                   "0.0.12",
                             "prolific.logger":              "2.0.x",
