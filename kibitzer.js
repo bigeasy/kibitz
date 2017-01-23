@@ -381,7 +381,7 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
         var entry = post.entries[i]
         var outcome = this._legislator.enqueue(this._Date.now(), post.islandId, entry)
         if (!outcome.enqueued) {
-            entries.length = 0
+            entries = null
             break
         }
         entries.push({ cookie: entry.cookie, promise: outcome.promise })
