@@ -52,7 +52,7 @@ var Queue = require('procession')
 var Sequester = require('sequester')
 
 // Paxos libraries.
-var Legislator = require('paxos/legislator')
+var Paxos = require('paxos/legislator')
 var Islander = require('islander')
 var Monotonic = require('monotonic').asString
 
@@ -87,7 +87,7 @@ function Kibitzer (options) {
     this._Date = options.Date || Date
     this.scheduler = new Scheduler({ Date: this._Date })
 
-    this._legislator = new Legislator(options.id, {
+    this.paxos = new Paxos(options.id, {
         ping: options.ping,
         timeout: options.timeout,
         scheduler: {
@@ -99,8 +99,8 @@ function Kibitzer (options) {
     // Submission queue with resubmission logic.
     this._islander = new Islander(options.id)
 
-    // Legislator sends messages to islander.
-    this._legislator.log.shifter().pump(this._islander)
+    // Paxos sends messages to islander.
+    this.paxos.log.shifter().pump(this._islander)
 
     // While we read messages off of the Islander, uh, but it is not necessary!?!
     this.shifter = this._islander.log.shifter()
@@ -110,7 +110,7 @@ function Kibitzer (options) {
 
     this._messengers = { legislator: new Queue, islander: new Queue }
 
-    this._legislator.outbox.shifter().pump(this._messengers.legislator)
+    this.paxos.outbox.shifter().pump(this._messengers.legislator)
     this._islander.outbox.shifter().pump(this._messengers.islander)
 
     this._outboxes = {
@@ -221,7 +221,7 @@ Kibitzer.prototype.play = cadence(function (async, entry) {
 
 // You can just as easily use POSIX time for the `islandId`.
 Kibitzer.prototype.bootstrap = function (islandId) {
-    this._legislator.bootstrap(this._Date.now(), islandId, this.properties)
+    this.paxos.bootstrap(this._Date.now(), islandId, this.properties)
 }
 
 // Enqueue a user message into the `Islander`. The `Islander` will submit the
@@ -256,7 +256,7 @@ Kibitzer.prototype.shutdown = cadence(function (async) {
         this._outboxes.islander.destroy()
         this._shutdown = true
         this.scheduler.shutdown()
-        this._legislator.scheduler.shutdown()
+        this.paxos.scheduler.shutdown()
     }
 })
 
@@ -265,22 +265,22 @@ Kibitzer.prototype.join = cadence(function (async, leader) {
 // enqueue messages until you immigrate. You don't know when that will be.
 // You're only going to know if you've succeeded if your legislator has
 // immigrated. That's the only way.
-    if (this._legislator.government.promise != '0/0') {
+    if (this.paxos.government.promise != '0/0') {
         // TODO This should be rejected when you enqueue, it shoudln't matter.
         console.log('Hey! I got a government.')
         return
     }
     // throw new Error
     async(function () {
-        this._legislator.join(this._Date.now(), leader.islandId)
+        this.paxos.join(this._Date.now(), leader.islandId)
         this._requester.request('kibitz', {
             module: 'kibitz',
             method: 'immigrate',
             to: leader,
             body: {
                 islandId: leader.islandId,
-                id: this._legislator.id,
-                cookie: this._legislator.cookie,
+                id: this.paxos.id,
+                cookie: this.paxos.cookie,
                 properties: this.properties,
                 hops: 0
             }
@@ -303,13 +303,13 @@ Kibitzer.prototype._publish = cadence(function (async) {
                     return [ loop.break ]
                 }
                 async(function () {
-                    var properties = this._legislator.government.properties[this._legislator.government.majority[0]]
+                    var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
                     this._requester.request('kibitz', {
                         module: 'kibitz',
                         method: 'enqueue',
                         to: properties,
                         body: {
-                            islandId: this._legislator.islandId,
+                            islandId: this.paxos.islandId,
                             entries: envelope.messages
                         }
                     }, async())
@@ -346,11 +346,11 @@ Kibitzer.prototype._send = cadence(function (async) {
                 var responses = []
                 async(function () {
                     pulse.route.forEach(function (id) {
-                        if (id == this._legislator.id) {
-                            responses[id] = this._legislator.receive(this._Date.now(), pulse, pulse.messages)
+                        if (id == this.paxos.id) {
+                            responses[id] = this.paxos.receive(this._Date.now(), pulse, pulse.messages)
                         } else {
                             async(function () {
-                                var properties = this._legislator.government.properties[id]
+                                var properties = this.paxos.government.properties[id]
                                 this._requester.request('kibitz', {
                                     module: 'kibitz',
                                     method: 'receive',
@@ -363,7 +363,7 @@ Kibitzer.prototype._send = cadence(function (async) {
                         }
                     }, this)
                 }, function () {
-                    this._legislator.sent(this._Date.now(), pulse, responses)
+                    this.paxos.sent(this._Date.now(), pulse, responses)
                 })
             })
         })()
@@ -372,9 +372,9 @@ Kibitzer.prototype._send = cadence(function (async) {
 
 Kibitzer.prototype._immigrate = cadence(function (async, post) {
     assert(post.hops != null)
-    var outcome = this._legislator.immigrate(this._Date.now(), post.islandId, post.id, post.cookie, post.properties)
+    var outcome = this.paxos.immigrate(this._Date.now(), post.islandId, post.id, post.cookie, post.properties)
     if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
-        var properties = this._legislator.government.properties[outcome.leader]
+        var properties = this.paxos.government.properties[outcome.leader]
         post.hops++
         this._requester.request('kibitz', {
             module: 'kibtiz',
@@ -391,7 +391,7 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
     var entries = []
     for (var i = 0, I = post.entries.length; i < I; i++) {
         var entry = post.entries[i]
-        var outcome = this._legislator.enqueue(this._Date.now(), post.islandId, entry)
+        var outcome = this.paxos.enqueue(this._Date.now(), post.islandId, entry)
         if (!outcome.enqueued) {
             entries = null
             break
@@ -402,11 +402,11 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
 })
 
 Kibitzer.prototype._receive = cadence(function (async, pulse) {
-    return [ this._legislator.receive(this._Date.now(), pulse, pulse.messages) ]
+    return [ this.paxos.receive(this._Date.now(), pulse, pulse.messages) ]
 })
 
-// TODO Where is this being used? Why not just reference the Legislators
-// properties directly?
+// TODO Where is this being used? Why not just reference the Paxos properties
+// directly?
 Kibitzer.prototype.getProperties = function () {
     var properties = []
     for (var key in this.legislator.properties) {
