@@ -313,12 +313,8 @@ Kibitzer.prototype._publish = cadence(function (async) {
                             entries: envelope.messages
                         }
                     }, async())
-                }, function (response) {
-                    var map = {}
-                    response.forEach(function (response) {
-                        map[response.cookie] = response.promise
-                    })
-                    this._islander.receipts(map)
+                }, function (promises) {
+                    this._islander.receipts(promises)
                 })
             })
         })()
@@ -388,7 +384,7 @@ Kibitzer.prototype._immigrate = cadence(function (async, post) {
 })
 
 Kibitzer.prototype._enqueue = cadence(function (async, post) {
-    var entries = []
+    var promises = {}
     for (var i = 0, I = post.entries.length; i < I; i++) {
         var entry = post.entries[i]
         var outcome = this.paxos.enqueue(this._Date.now(), post.islandId, entry)
@@ -396,9 +392,9 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
             entries = null
             break
         }
-        entries.push({ cookie: entry.cookie, promise: outcome.promise })
+        promises[entry.cookie] = outcome.promise
     }
-    return [ entries ]
+    return [ promises ]
 })
 
 Kibitzer.prototype._receive = cadence(function (async, pulse) {
