@@ -46,7 +46,7 @@ SHELL := env PATH=$(PATH) /bin/sh
 javascript := $(filter-out ../_%, $(wildcard ../*.js))
 sources := $(patsubst ../%.js,source/%.js.js,$(javascript))
 docco := $(patsubst source/%.js.js,docco/%.js.html,$(sources))
-outputs := $(docco) css/style.css index.html
+outputs := $(docco) css/style.css index.html docco/index.html
 
 all: $(outputs)
 
@@ -65,7 +65,7 @@ node_modules/.bin/lessc:
 
 node_modules/.bin/edify:
 	mkdir -p node_modules
-	npm install less edify edify.pug edify.markdown edify.highlight edify.include
+	npm install less edify edify.pug edify.markdown edify.highlight edify.include edify.ls
 
 watch: all
 	fswatch --exclude '.' --include '\.pug$$' --include '\.less$$' --include '\.md$$' --include '\.js$$' pages css $(javascript) *.md | while read line; \
@@ -88,6 +88,9 @@ $(docco): $(sources) node_modules/.bin/docco
 	sed -i '' -e 's/\.js\.js/.js/' docco/*.js.html
 
 index.html: index.md
+
+docco/index.html: docco.pug $(docco)
+	node node_modules/.bin/edify pug $$(node_modules/.bin/edify ls docco) < $< > $@
 
 %.html: pages/%.pug node_modules/.bin/edify
 	@echo generating $@
