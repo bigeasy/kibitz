@@ -99,7 +99,7 @@ index.html: index.md
 clean:
 	rm -f $(outputs) docco/*.html
 
-serve: node_modules/.bin/serve
+serve: node_modules/.bin/serve all
 	node_modules/.bin/serve --no-less --port 4000
 
 .INTERMEDIATE: $(sources)
