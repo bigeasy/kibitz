@@ -11,16 +11,16 @@ function prove (async, assert) {
 
     kibitzers.push(createKibitzer())
     assert(kibitzers[0], 'construct')
-    kibitzers[0].bootstrap('x')
+    kibitzers[0].bootstrap(0)
 
     var shifter = kibitzers[0].log.shifter()
 
     async(function () {
         kibitzers.push(createKibitzer())
-        kibitzers[1].join({ islandId: 'x', location: '0' }, async())
+        kibitzers[1].join({ republic: 0, location: '0' }, async())
     }, function () {
         kibitzers.push(createKibitzer())
-        kibitzers[2].join({ islandId: 'x', location: '1' }, async())
+        kibitzers[2].join({ republic: 0, location: '1' }, async())
     }, function () {
         shifter.join(function (entry) { return entry.body.body == 1 }, async())
         kibitzers[2].publish(1)

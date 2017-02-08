@@ -52,7 +52,7 @@ var Queue = require('procession')
 var Sequester = require('sequester')
 
 // Paxos libraries.
-var Paxos = require('paxos/legislator')
+var Paxos = require('paxos')
 var Islander = require('islander')
 var Monotonic = require('monotonic').asString
 
@@ -219,9 +219,9 @@ Kibitzer.prototype.play = cadence(function (async, entry) {
     }
 })
 
-// You can just as easily use POSIX time for the `islandId`.
-Kibitzer.prototype.bootstrap = function (islandId) {
-    this.paxos.bootstrap(this._Date.now(), islandId, this.properties)
+// You can just as easily use POSIX time for the `republic`.
+Kibitzer.prototype.bootstrap = function (republic) {
+    this.paxos.bootstrap(this._Date.now(), republic, this.properties)
 }
 
 // Enqueue a user message into the `Islander`. The `Islander` will submit the
@@ -272,13 +272,13 @@ Kibitzer.prototype.join = cadence(function (async, leader) {
     }
     // throw new Error
     async(function () {
-        this.paxos.join(this._Date.now(), leader.islandId)
+        this.paxos.join(this._Date.now(), leader.republic)
         this._requester.request('kibitz', {
             module: 'kibitz',
             method: 'immigrate',
             to: leader,
             body: {
-                islandId: leader.islandId,
+                republic: leader.republic,
                 id: this.paxos.id,
                 cookie: this.paxos.cookie,
                 properties: this.properties,
@@ -298,8 +298,8 @@ Kibitzer.prototype._publish = cadence(function (async) {
         var loop = async(function () {
             async(function () {
                 this._outboxes.islander.dequeue(async())
-            }, function (envelope) {
-                if (envelope == null) {
+            }, function (messages) {
+                if (messages == null) {
                     return [ loop.break ]
                 }
                 async(function () {
@@ -309,12 +309,12 @@ Kibitzer.prototype._publish = cadence(function (async) {
                         method: 'enqueue',
                         to: properties,
                         body: {
-                            islandId: this.paxos.islandId,
-                            entries: envelope.messages
+                            republic: this.paxos.republic,
+                            entries: messages
                         }
                     }, async())
                 }, function (promises) {
-                    this._islander.receipts(promises)
+                    this._islander.sent(promises)
                 })
             })
         })()
@@ -368,7 +368,7 @@ Kibitzer.prototype._send = cadence(function (async) {
 
 Kibitzer.prototype._immigrate = cadence(function (async, post) {
     assert(post.hops != null)
-    var outcome = this.paxos.immigrate(this._Date.now(), post.islandId, post.id, post.cookie, post.properties)
+    var outcome = this.paxos.immigrate(this._Date.now(), post.republic, post.id, post.cookie, post.properties)
     if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
         var properties = this.paxos.government.properties[outcome.leader]
         post.hops++
@@ -387,7 +387,7 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
     var promises = {}
     for (var i = 0, I = post.entries.length; i < I; i++) {
         var entry = post.entries[i]
-        var outcome = this.paxos.enqueue(this._Date.now(), post.islandId, entry)
+        var outcome = this.paxos.enqueue(this._Date.now(), post.republic, entry)
         if (!outcome.enqueued) {
             entries = null
             break
