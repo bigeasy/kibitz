@@ -27,7 +27,7 @@
                             "departure":                    "0.0.1",
                             "happenstance":                 "2.7.x",
                             "islander":                     "0.4.x",
-                            "paxos":                        "4.2.x",
+                            "paxos":                        "4.3.x",
                             "procession":                   "0.0.31",
                             "prolific.logger":              "2.0.x",
                             "reactor":                      "2.2.x",
