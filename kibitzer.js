@@ -46,7 +46,6 @@ var slice = [].slice
 // Control-flow libraries.
 var abend = require('abend')
 var cadence = require('cadence')
-var Reactor = require('reactor')
 var Scheduler = require('happenstance')
 var Queue = require('procession')
 var Sequester = require('sequester')
