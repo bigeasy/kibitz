@@ -29,7 +29,7 @@
                             "islander":                     "0.5.x",
                             "paxos":                        "4.3.x",
                             "procession":                   "0.0.31",
-                            "prolific.logger":              "2.0.x",
+                            "prolific.logger":              "3.0.x",
                             "monotonic":                    "2.0.x",
                             "sequester":                    "1.0.x"
     },
