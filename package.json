@@ -28,7 +28,7 @@
                             "happenstance":                 "2.7.x",
                             "islander":                     "0.6.0",
                             "paxos":                        "4.3.x",
-                            "procession":                   "0.0.31",
+                            "procession":                   "0.0.32",
                             "prolific.logger":              "3.0.x",
                             "monotonic":                    "2.0.x",
                             "sequester":                    "1.0.x"
