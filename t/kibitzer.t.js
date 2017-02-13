@@ -9,18 +9,18 @@ function prove (async, assert) {
     var Kibitzer = require('..')
     var kibitzers = []
 
-    kibitzers.push(createKibitzer())
+    kibitzers.push(createKibitzer('0'))
     assert(kibitzers[0], 'construct')
-    kibitzers[0].bootstrap(0)
+    kibitzers[0].bootstrap(0, { location: '0' })
 
     var shifter = kibitzers[0].log.shifter()
 
     async(function () {
-        kibitzers.push(createKibitzer())
-        kibitzers[1].join({ republic: 0, location: '0' }, async())
+        kibitzers.push(createKibitzer('1'))
+        kibitzers[1].join({ republic: 0, location: '0' }, { location: '1' }, async())
     }, function () {
-        kibitzers.push(createKibitzer())
-        kibitzers[2].join({ republic: 0, location: '1' }, async())
+        kibitzers.push(createKibitzer('2'))
+        kibitzers[2].join({ republic: 0, location: '1' }, { location: '2' }, async())
     }, function () {
         shifter.join(function (entry) { return entry.body.body == 1 }, async())
         kibitzers[2].publish(1)
@@ -32,16 +32,15 @@ function prove (async, assert) {
     })
 
 
-    function createKibitzer () {
+    function createKibitzer (id) {
         var responder = new Responder({
             request: cadence(function (async, envelope) {
                 kibitzers.filter(function (kibitzer) {
-                    return kibitzer.properties.location == envelope.to.location
+                    return kibitzer.paxos.id == envelope.to.location
                 }).pop().request(envelope, async())
             })
         }, 'kibitz')
-        var id = String(kibitzers.length)
-        var kibitzer = new Kibitzer({ id: id, properties: { location: id } })
+        var kibitzer = new Kibitzer({ id: id })
         kibitzer.spigot.emptyInto(responder.basin)
         return kibitzer
     }

@@ -219,8 +219,8 @@ Kibitzer.prototype.play = cadence(function (async, entry) {
 })
 
 // You can just as easily use POSIX time for the `republic`.
-Kibitzer.prototype.bootstrap = function (republic) {
-    this.paxos.bootstrap(this._Date.now(), republic, this.properties)
+Kibitzer.prototype.bootstrap = function (republic, properties) {
+    this.paxos.bootstrap(this._Date.now(), republic, properties)
 }
 
 // Enqueue a user message into the `Islander`. The `Islander` will submit the
@@ -259,7 +259,7 @@ Kibitzer.prototype.shutdown = cadence(function (async) {
     }
 })
 
-Kibitzer.prototype.join = cadence(function (async, leader) {
+Kibitzer.prototype.join = cadence(function (async, leader, properties) {
 // TODO Should this be or should this not be? It should be. You're sending your
 // enqueue messages until you immigrate. You don't know when that will be.
 // You're only going to know if you've succeeded if your legislator has
@@ -280,7 +280,7 @@ Kibitzer.prototype.join = cadence(function (async, leader) {
                 republic: leader.republic,
                 id: this.paxos.id,
                 cookie: this.paxos.cookie,
-                properties: this.properties,
+                properties: properties,
                 hops: 0
             }
         }, async())
