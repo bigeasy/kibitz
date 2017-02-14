@@ -6,6 +6,8 @@ function prove (async, assert) {
     var Procession = require('procession')
     var Responder = require('conduit/responder')
 
+    var Timer = require('happenstance').Timer
+
     var Kibitzer = require('..')
     var kibitzers = []
 
@@ -42,6 +44,7 @@ function prove (async, assert) {
         }, 'kibitz')
         var kibitzer = new Kibitzer({ id: id })
         kibitzer.spigot.emptyInto(responder.basin)
+        kibitzer.paxos.scheduler.events.pump(new Timer(kibitzer.paxos.scheduler))
         return kibitzer
     }
 }

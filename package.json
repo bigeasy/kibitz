@@ -25,12 +25,13 @@
                             "conduit":                      "0.0.26",
                             "cliffhanger":                  "1.4.x",
                             "departure":                    "0.0.1",
-                            "happenstance":                 "2.7.x",
+                            "happenstance":                 "2.8.x",
                             "islander":                     "0.6.1",
-                            "paxos":                        "4.3.x",
+                            "paxos":                        "4.4.x",
                             "procession":                   "0.0.32",
                             "prolific.logger":              "3.0.x",
                             "monotonic":                    "2.0.x",
+                            "nop":                          "1.0.0",
                             "sequester":                    "1.0.x"
     },
     "devDependencies":

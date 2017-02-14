@@ -38,10 +38,9 @@ var events = require('events')
 var util = require('util')
 var departure = require('departure')
 
+// Common utiltieis.
 var util = require('util')
-
-// Varadic arguments.
-var slice = [].slice
+var nop = require('nop')
 
 // Control-flow libraries.
 var abend = require('abend')
@@ -76,24 +75,18 @@ function Kibitzer (options) {
     options.ping || (options.ping = 250)
     options.timeout || (options.timeout = 1000)
 
-    // TODO How are these properties used? It seems like there is a properties
-    // object at every level of abstraction. I'd expect the properties object in
-    // Paxos to be the definitive properties mechanism. They should be set with
-    // an accessor to record the property setting.
-    this.properties = options.properties || {}
-
     // Time obtained from optional `Date` for unit testing.
     this._Date = options.Date || Date
-    this.scheduler = new Scheduler({ Date: this._Date })
 
     this.paxos = new Paxos(options.id, {
         ping: options.ping,
-        timeout: options.timeout,
-        scheduler: {
-            Date: options.Date || Date,
-            timerless: options.replaying
-        }
+        timeout: options.timeout
     })
+
+    // TODO Pass an "operation" to `Procession.pump`.
+    this.paxos.scheduler.events.pump(function (envelope) {
+        this.play('event', envelope, abend)
+    }.bind(this))
 
     // Submission queue with resubmission logic.
     this._islander = new Islander(options.id)
@@ -121,6 +114,8 @@ function Kibitzer (options) {
     this._requester = new Requester('kibitz')
     this.spigot = this._requester.spigot
 
+    this.played = new Queue
+
     this._islander.log.pump(this.log)
 
     this._publish(abend)
@@ -131,117 +126,67 @@ function Kibitzer (options) {
     this._pumping.share(function () {})
 }
 
-// We record events generated during playback so that they can be compared with
-// the actual events played back from the log to assert that the playback is
-// indeed determinic.
-
-//
-
-// Put the Kibitzer in a replay state. TODO Maybe move this into the
-// constructor, or better still, use a decorator pattern.
-
-//
-Kibitzer.prototype.replay = function () {
-// TODO Can Prolific Logger support this pattern? TODO Actually, just patch over
-// the `Writer` with a decorator, document the example as the way to do it. The
-// writer is passive, you should only be setting it up in a program, during
-// program startup, prior to any logging. There ought to be no logging during
-// `require`, but if there is, then you need to concern yourself with the order
-// of require, and that okay, if you've got that edge case for true.
-    var sink = require('prolific.logger').sink
-    var writer = sink.writer
-    var recording = this._recording
-    sink.writer = {
-        write: function (buffer) {
-            var entry = JSON.parse(buffer.toString())
-            switch (entry.qualifier) {
-            case 'kibitz':
-                break
-            case 'paxos':
-            case 'islander':
-                recording[entry.qualifier].push({
-                    method: entry.name,
-                    vargs: entry.$vargs
-                })
-                break
-            }
-            writer.write(buffer)
-        }
-    }
-}
-
-Kibitzer.prototype._play_paxos = function (entry, callback) {
-    this.legislator[entry.name].apply(this.legislator, entry.$vargs)
-    this._notifier.notify()
-    this.play(entry, callback)
-}
-
-Kibitzer.prototype._play_islander = function (entry, callback) {
-    this.islander[entry.name].apply(this.islander, entry.$vargs)
-    this._notifier.notify()
-    this.play(entry, callback)
-}
-
-// Play an entry in the playback log.
-
-//
-var waiting = false
-Kibitzer.prototype.play = cadence(function (async, entry) {
-    assert(!waiting)
-    switch (entry.qualifier) {
-    case 'kibitz':
-        if (entry.name == 'shift') {
-            async(function () {
-                waiting = true
-                this._replayed.push({
-                    shifted: entry.shifted,
-                    callback: async()
-                })
-                this.emit('enqueued')
-            }, function () {
-                waiting = false
-            })
-        }
-        break
-    case 'paxos':
-    case 'islander':
-        var recording = this._recording[entry.qualifier]
-        if (recording.length) {
-            departure.raise({
-                method: entry.name,
-                vargs: entry.$vargs
-            }, recording.shift())
-        } else {
-            this['_play_' + entry.qualifier](entry, async())
-        }
-        break
-    }
-})
-
 // You can just as easily use POSIX time for the `republic`.
 Kibitzer.prototype.bootstrap = function (republic, properties) {
-    this.paxos.bootstrap(this._Date.now(), republic, properties)
+    this.play('bootstrap', { republic: republic, properties: properties }, abend)
 }
 
 // Enqueue a user message into the `Islander`. The `Islander` will submit the
 // message, monitor the atomic log, and then resubmit the message if it detects
 // that the message was lost.
 Kibitzer.prototype.publish = function (entry) {
-    return this._islander.publish(entry)
+    this.play('publish', entry, abend)
 }
 
 // Called by your network implementation with messages enqueued from another
 // Kibitz.
 Kibitzer.prototype.request = cadence(function (async, envelope) {
+    this.play('request', envelope, async())
+})
+
+Kibitzer.prototype.play = function (method, body, callback) {
+    var envelope = {
+        module: 'kibitz',
+        method: method,
+        when: this._Date.now(),
+        body: body
+    }
+    this.played.push(envelope)
+    this.replay(envelope, callback)
+}
+
+Kibitzer.prototype.replay = cadence(function (async, envelope) {
     switch (envelope.method) {
-    case 'immigrate':
-        this._immigrate(envelope.body, async())
+    case 'bootstrap':
+        this.paxos.bootstrap(envelope.when, envelope.body.republic, envelope.body.properties)
+        break
+    case 'join':
+        this._join(envelope.body.leader, envelope.body.properties, envelope.when, async())
+        break
+    case 'event':
+        this.paxos.event(envelope.body)
+        break
+    case 'request':
+        switch (envelope.body.method) {
+        case 'immigrate':
+            this._immigrate(envelope.body.body, envelope.when, async())
+            break
+        case 'receive':
+            this._receive(envelope.body.body, envelope.when, async())
+            break
+        case 'enqueue':
+            this._enqueue(envelope.body.body, envelope.when, async())
+            break
+        }
+        break
+    case 'publish':
+        this._islander.publish(envelope.body)
         break
     case 'receive':
-        this._receive(envelope.body, async())
-        break
-    case 'enqueue':
-        this._enqueue(envelope.body, async())
+        // TODO Just send the pulse.
+        return [ this.paxos.receive(envelope.when, envelope.body.pulse, envelope.body.pulse.messages) ]
+    case 'sent':
+        this.paxos.sent(envelope.when, envelope.body.pulse, envelope.body.responses)
         break
     }
 })
@@ -254,12 +199,15 @@ Kibitzer.prototype.shutdown = cadence(function (async) {
         this._outboxes.legislator.destroy()
         this._outboxes.islander.destroy()
         this._shutdown = true
-        this.scheduler.shutdown()
-        this.paxos.scheduler.shutdown()
+        this.paxos.scheduler.clear()
     }
 })
 
 Kibitzer.prototype.join = cadence(function (async, leader, properties) {
+    this.play('join', { leader: leader, properties: properties }, async())
+})
+
+Kibitzer.prototype._join = cadence(function (async, leader, properties, when) {
 // TODO Should this be or should this not be? It should be. You're sending your
 // enqueue messages until you immigrate. You don't know when that will be.
 // You're only going to know if you've succeeded if your legislator has
@@ -271,7 +219,7 @@ Kibitzer.prototype.join = cadence(function (async, leader, properties) {
     }
     // throw new Error
     async(function () {
-        this.paxos.join(this._Date.now(), leader.republic)
+        this.paxos.join(when, leader.republic)
         this._requester.request('kibitz', {
             module: 'kibitz',
             method: 'immigrate',
@@ -341,10 +289,10 @@ Kibitzer.prototype._send = cadence(function (async) {
                 var responses = []
                 async(function () {
                     pulse.route.forEach(function (id) {
-                        if (id == this.paxos.id) {
-                            responses[id] = this.paxos.receive(this._Date.now(), pulse, pulse.messages)
-                        } else {
-                            async(function () {
+                        async(function () {
+                            if (id == this.paxos.id) {
+                                this.play('receive', { pulse: pulse }, async())
+                            } else {
                                 var properties = this.paxos.government.properties[id]
                                 this._requester.request('kibitz', {
                                     module: 'kibitz',
@@ -352,22 +300,23 @@ Kibitzer.prototype._send = cadence(function (async) {
                                     to: properties,
                                     body: pulse
                                 }, async())
-                            }, function (response) {
-                                responses[id] = response
-                            })
-                        }
+                            }
+                        }, function (response) {
+                            responses[id] = response
+                        })
                     }, this)
                 }, function () {
-                    this.paxos.sent(this._Date.now(), pulse, responses)
+                    this.play('sent', { pulse: pulse, responses: responses }, async())
                 })
             })
         })()
     })
 })
 
-Kibitzer.prototype._immigrate = cadence(function (async, post) {
+Kibitzer.prototype._immigrate = cadence(function (async, post, when) {
     assert(post.hops != null)
-    var outcome = this.paxos.immigrate(this._Date.now(), post.republic, post.id, post.cookie, post.properties)
+    assert(when != null)
+    var outcome = this.paxos.immigrate(when, post.republic, post.id, post.cookie, post.properties)
     if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
         var properties = this.paxos.government.properties[outcome.leader]
         post.hops++
@@ -382,11 +331,11 @@ Kibitzer.prototype._immigrate = cadence(function (async, post) {
     }
 })
 
-Kibitzer.prototype._enqueue = cadence(function (async, post) {
+Kibitzer.prototype._enqueue = cadence(function (async, post, when) {
     var promises = {}
     for (var i = 0, I = post.entries.length; i < I; i++) {
         var entry = post.entries[i]
-        var outcome = this.paxos.enqueue(this._Date.now(), post.republic, entry)
+        var outcome = this.paxos.enqueue(when, post.republic, entry)
         if (!outcome.enqueued) {
             entries = null
             break
@@ -396,18 +345,8 @@ Kibitzer.prototype._enqueue = cadence(function (async, post) {
     return [ promises ]
 })
 
-Kibitzer.prototype._receive = cadence(function (async, pulse) {
-    return [ this.paxos.receive(this._Date.now(), pulse, pulse.messages) ]
+Kibitzer.prototype._receive = cadence(function (async, pulse, when) {
+    return [ this.paxos.receive(when, pulse, pulse.messages) ]
 })
-
-// TODO Where is this being used? Why not just reference the Paxos properties
-// directly?
-Kibitzer.prototype.getProperties = function () {
-    var properties = []
-    for (var key in this.legislator.properties) {
-        properties.push(this.legislator.properties[key])
-    }
-    return properties
-}
 
 module.exports = Kibitzer
