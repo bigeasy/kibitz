@@ -84,11 +84,6 @@ function Kibitzer (options) {
         timeout: options.timeout
     })
 
-    // TODO Pass an "operation" to `Procession.pump`.
-    this.paxos.scheduler.events.pump(function (envelope) {
-        this.play('event', envelope, abend)
-    }.bind(this))
-
     // Submission queue with resubmission logic.
     this.islander = new Islander(options.id)
 
@@ -110,6 +105,10 @@ function Kibitzer (options) {
 }
 
 Kibitzer.prototype.listen = cadence(function (async) {
+    // TODO Pass an "operation" to `Procession.pump`.
+    this.paxos.scheduler.events.pump(function (envelope) {
+        this.play('event', envelope, abend)
+    }.bind(this))
     this._shifters = {
         paxos: this.paxos.outbox.shifter(),
         islander: this.islander.outbox.shifter()
