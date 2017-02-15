@@ -102,6 +102,9 @@ function Kibitzer (options) {
 
     this._destructor = new Destructor
     this._destructor.markDestroyed(this, 'destroyed')
+    this._destructor.addDestructor('scheduler', this.paxos.scheduler.clear.bind(this.paxos.scheduler))
+
+    this.destruction = this._destructor.events
 }
 
 Kibitzer.prototype.listen = cadence(function (async) {
@@ -187,13 +190,9 @@ Kibitzer.prototype.replay = cadence(function (async, envelope) {
 
 // Stop timers, and stop timers only. We're not in a position to notify clients
 // that there will be no more messages.
-Kibitzer.prototype.shutdown = cadence(function (async) {
-    if (!this._shutdown) {
-        // TODO What does `destroy` do exactly? Empty the queue? Error?
-        this._shutdown = true
-        this.paxos.scheduler.clear()
-    }
-})
+Kibitzer.prototype.destroy = function () {
+    this._destructor.destroy()
+}
 
 Kibitzer.prototype.join = cadence(function (async, leader, properties) {
     this.play('join', { leader: leader, properties: properties }, async())
@@ -231,10 +230,8 @@ Kibitzer.prototype._join = cadence(function (async, leader, properties, when) {
 
 // Publish to consensus algorithm from islander retryable client.
 Kibitzer.prototype._publish = cadence(function (async) {
-    this._destructor.destructible(cadence(function (async) {
-        this._destructor.addDestructor('publish', function () {
-            this._shifters.islander.destroy()
-        }.bind(this))
+    this._destructor.async(async, 'publish')(function () {
+        this._destructor.addDestructor('publish', this._shifters.islander.destroy.bind(this._shifters.islander))
         var loop = async(function () {
             this._shifters.islander.dequeue(async())
         }, function (messages) {
@@ -256,7 +253,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
                 this.play('published', { promises: promises }, async())
             })
         })()
-    }).bind(this), async())
+    })
 })
 
 // TODO Annoying how difficult it is to stop this crazy thing. There are going
@@ -267,10 +264,8 @@ Kibitzer.prototype._publish = cadence(function (async) {
 // TODO We could kill the timer in the scheduler, set the boolean we added to
 // tell it to no longer schedule.
 Kibitzer.prototype._send = cadence(function (async) {
-    this._destructor.destructible(cadence(function (async) {
-        this._destructor.addDestructor('send', function () {
-            this._shifters.paxos.destroy()
-        }.bind(this))
+    this._destructor.async(async, 'send')(function () {
+        this._destructor.addDestructor('send', this._shifters.paxos.destroy.bind(this._shifters.paxos))
         var loop = async(function () {
             this._shifters.paxos.dequeue(async())
         }, function (pulse) {
@@ -300,7 +295,7 @@ Kibitzer.prototype._send = cadence(function (async) {
                 this.play('sent', { pulse: pulse, responses: responses }, async())
             })
         })()
-    }).bind(this), async())
+    })
 })
 
 Kibitzer.prototype._immigrate = cadence(function (async, post, when) {

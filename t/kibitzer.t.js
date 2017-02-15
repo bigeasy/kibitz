@@ -29,9 +29,9 @@ function prove (async, assert) {
         kibitzers[2].publish(1)
     }, function (entry) {
         assert(entry.body.body, 1, 'published')
-        kibitzers.forEach(function (kibitzer) { kibitzer.shutdown(async()) })
+        kibitzers.forEach(function (kibitzer) { kibitzer.destroy() })
     }, function () {
-        kibitzers.forEach(function (kibitzer) { kibitzer.shutdown(async()) })
+        kibitzers.forEach(function (kibitzer) { kibitzer.destroy() })
     })
 
 
