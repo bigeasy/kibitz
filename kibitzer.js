@@ -45,7 +45,7 @@ var nop = require('nop')
 // Control-flow libraries.
 var abend = require('abend')
 var cadence = require('cadence')
-var Scheduler = require('happenstance')
+var Timer = require('happenstance').Timer
 var Queue = require('procession')
 
 // Paxos libraries.
@@ -109,9 +109,11 @@ function Kibitzer (options) {
 
 Kibitzer.prototype.listen = cadence(function (async) {
     // TODO Pass an "operation" to `Procession.pump`.
-    this.paxos.scheduler.events.pump(function (envelope) {
+    var timer = new Timer(this.paxos.scheduler)
+    timer.events.pump(function (envelope) {
         this.play('event', envelope, abend)
     }.bind(this))
+    this.paxos.scheduler.events.pump(timer)
     this._shifters = {
         paxos: this.paxos.outbox.shifter(),
         islander: this.islander.outbox.shifter()
