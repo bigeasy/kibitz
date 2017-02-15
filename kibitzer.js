@@ -47,12 +47,13 @@ var abend = require('abend')
 var cadence = require('cadence')
 var Scheduler = require('happenstance')
 var Queue = require('procession')
-var Sequester = require('sequester')
 
 // Paxos libraries.
 var Paxos = require('paxos')
 var Islander = require('islander')
 var Monotonic = require('monotonic').asString
+
+var Destructor = require('destructible')
 
 // Logging.
 var logger = require('prolific.logger').createLogger('kibitz')
@@ -100,13 +101,13 @@ function Kibitzer (options) {
     // Used to record events generated during playback.
     this._recording = { paxos: [], islander: [] }
 
-    this._messengers = { legislator: new Queue, islander: new Queue }
+    this._messengers = { paxos: new Queue, islander: new Queue }
 
-    this.paxos.outbox.shifter().pump(this._messengers.legislator)
+    this.paxos.outbox.shifter().pump(this._messengers.paxos)
     this._islander.outbox.shifter().pump(this._messengers.islander)
 
     this._outboxes = {
-        legislator: this._messengers.legislator.shifter(),
+        paxos: this._messengers.paxos.shifter(),
         islander: this._messengers.islander.shifter()
     }
 
@@ -118,13 +119,13 @@ function Kibitzer (options) {
 
     this._islander.log.pump(this.log)
 
-    this._publish(abend)
-    this._send(abend)
-
-    this._pumping = Sequester.createLock()
-    this._pumping.share(function () {})
-    this._pumping.share(function () {})
+    this._destructor = new Destructor
 }
+
+Kibitzer.prototype.listen = cadence(function (async) {
+    this._publish(async())
+    this._send(async())
+})
 
 // You can just as easily use POSIX time for the `republic`.
 Kibitzer.prototype.bootstrap = function (republic, properties) {
@@ -182,6 +183,9 @@ Kibitzer.prototype.replay = cadence(function (async, envelope) {
     case 'publish':
         this._islander.publish(envelope.body)
         break
+    case 'published':
+        this._islander.sent(envelope.body.promises)
+        break
     case 'receive':
         // TODO Just send the pulse.
         return [ this.paxos.receive(envelope.when, envelope.body.pulse, envelope.body.pulse.messages) ]
@@ -195,8 +199,8 @@ Kibitzer.prototype.replay = cadence(function (async, envelope) {
 // that there will be no more messages.
 Kibitzer.prototype.shutdown = cadence(function (async) {
     if (!this._shutdown) {
-        this._pumping.exclude(async())
-        this._outboxes.legislator.destroy()
+        // TODO What does `destroy` do exactly? Empty the queue? Error?
+        this._outboxes.paxos.destroy()
         this._outboxes.islander.destroy()
         this._shutdown = true
         this.paxos.scheduler.clear()
@@ -239,78 +243,76 @@ Kibitzer.prototype._join = cadence(function (async, leader, properties, when) {
 
 // Publish to consensus algorithm from islander retryable client.
 Kibitzer.prototype._publish = cadence(function (async) {
-    async([function () {
-        this._pumping.unlock()
-    }], function () {
+    this._destructor.destructible(cadence(function (async) {
+        this._destructor.addDestructor('publish', function () {
+            this._outboxes.islander.destroy()
+        }.bind(this))
         var loop = async(function () {
+            this._outboxes.islander.dequeue(async())
+        }, function (messages) {
+            if (messages == null) {
+                return [ loop.break ]
+            }
             async(function () {
-                this._outboxes.islander.dequeue(async())
-            }, function (messages) {
-                if (messages == null) {
-                    return [ loop.break ]
-                }
-                async(function () {
-                    var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
-                    this._requester.request('kibitz', {
-                        module: 'kibitz',
-                        method: 'enqueue',
-                        to: properties,
-                        body: {
-                            republic: this.paxos.republic,
-                            entries: messages
-                        }
-                    }, async())
-                }, function (promises) {
-                    this._islander.sent(promises)
-                })
+                var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
+                this._requester.request('kibitz', {
+                    module: 'kibitz',
+                    method: 'enqueue',
+                    to: properties,
+                    body: {
+                        republic: this.paxos.republic,
+                        entries: messages
+                    }
+                }, async())
+            }, function (promises) {
+                this.play('published', { promises: promises }, async())
             })
         })()
-    })
+    }).bind(this), async())
 })
 
 // TODO Annoying how difficult it is to stop this crazy thing. There are going
 // to be race conditions where we have a termination, come in, we shut things
 // down, but then we continue with processing a pulse which triggers a timer.
-// Sending messages to legislator can restart it's scheduler.
+// Sending messages to paxos can restart it's scheduler.
 //
 // TODO We could kill the timer in the scheduler, set the boolean we added to
 // tell it to no longer schedule.
 Kibitzer.prototype._send = cadence(function (async) {
-    async([function () {
-        this._pumping.unlock()
-    }], function () {
+    this._destructor.destructible(cadence(function (async) {
+        this._destructor.addDestructor('send', function () {
+            this._outboxes.paxos.destroy()
+        }.bind(this))
         var loop = async(function () {
+            this._outboxes.paxos.dequeue(async())
+        }, function (pulse) {
+            if (pulse == null) {
+                return [ loop.break ]
+            }
+            var responses = []
             async(function () {
-                this._outboxes.legislator.dequeue(async())
-            }, function (pulse) {
-                if (pulse == null) {
-                    return [ loop.break ]
-                }
-                var responses = []
-                async(function () {
-                    pulse.route.forEach(function (id) {
-                        async(function () {
-                            if (id == this.paxos.id) {
-                                this.play('receive', { pulse: pulse }, async())
-                            } else {
-                                var properties = this.paxos.government.properties[id]
-                                this._requester.request('kibitz', {
-                                    module: 'kibitz',
-                                    method: 'receive',
-                                    to: properties,
-                                    body: pulse
-                                }, async())
-                            }
-                        }, function (response) {
-                            responses[id] = response
-                        })
-                    }, this)
-                }, function () {
-                    this.play('sent', { pulse: pulse, responses: responses }, async())
-                })
+                pulse.route.forEach(function (id) {
+                    async(function () {
+                        if (id == this.paxos.id) {
+                            this.play('receive', { pulse: pulse }, async())
+                        } else {
+                            var properties = this.paxos.government.properties[id]
+                            this._requester.request('kibitz', {
+                                module: 'kibitz',
+                                method: 'receive',
+                                to: properties,
+                                body: pulse
+                            }, async())
+                        }
+                    }, function (response) {
+                        responses[id] = response
+                    })
+                }, this)
+            }, function () {
+                this.play('sent', { pulse: pulse, responses: responses }, async())
             })
         })()
-    })
+    }).bind(this), async())
 })
 
 Kibitzer.prototype._immigrate = cadence(function (async, post, when) {

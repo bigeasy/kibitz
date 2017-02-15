@@ -1,6 +1,7 @@
 require('proof/redux')(2, require('cadence')(prove))
 
 function prove (async, assert) {
+    var abend = require('abend')
     var cadence = require('cadence')
 
     var Procession = require('procession')
@@ -43,6 +44,7 @@ function prove (async, assert) {
             })
         }, 'kibitz')
         var kibitzer = new Kibitzer({ id: id })
+        kibitzer.listen(abend)
         kibitzer.spigot.emptyInto(responder.basin)
         kibitzer.paxos.scheduler.events.pump(new Timer(kibitzer.paxos.scheduler))
         return kibitzer
