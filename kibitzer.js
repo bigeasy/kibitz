@@ -142,11 +142,11 @@ Kibitzer.prototype.play = function (method, body, callback) {
         when: this._Date.now(),
         body: body
     }
-    this.played.push(envelope)
     this.replay(envelope, callback)
 }
 
 Kibitzer.prototype.replay = cadence(function (async, envelope) {
+    this.played.push(envelope)
     switch (envelope.method) {
     case 'bootstrap':
         this.paxos.bootstrap(envelope.when, envelope.body.republic, envelope.body.properties)
