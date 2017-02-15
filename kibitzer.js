@@ -90,26 +90,12 @@ function Kibitzer (options) {
     }.bind(this))
 
     // Submission queue with resubmission logic.
-    this._islander = new Islander(options.id)
+    this.islander = new Islander(options.id)
 
     // Paxos sends messages to islander.
-    this.paxos.log.shifter().pump(this._islander)
+    this.paxos.log.shifter().pump(this.islander)
 
-    // While we read messages off of the Islander, uh, but it is not necessary!?!
-    this.shifter = this._islander.log.shifter()
-
-    // Used to record events generated during playback.
-    this._recording = { paxos: [], islander: [] }
-
-    this._messengers = { paxos: new Queue, islander: new Queue }
-
-    this.paxos.outbox.shifter().pump(this._messengers.paxos)
-    this._islander.outbox.shifter().pump(this._messengers.islander)
-
-    this._outboxes = {
-        paxos: this._messengers.paxos.shifter(),
-        islander: this._messengers.islander.shifter()
-    }
+    this._shifters = null
 
     // Requesters to make network requests.
     this._requester = new Requester('kibitz')
@@ -117,12 +103,17 @@ function Kibitzer (options) {
 
     this.played = new Queue
 
-    this._islander.log.pump(this.log)
+    this.islander.log.pump(this.log)
 
     this._destructor = new Destructor
+    this._destructor.markDestroyed(this, 'destroyed')
 }
 
 Kibitzer.prototype.listen = cadence(function (async) {
+    this._shifters = {
+        paxos: this.paxos.outbox.shifter(),
+        islander: this.islander.outbox.shifter()
+    }
     this._publish(async())
     this._send(async())
 })
@@ -181,10 +172,10 @@ Kibitzer.prototype.replay = cadence(function (async, envelope) {
         }
         break
     case 'publish':
-        this._islander.publish(envelope.body)
+        this.islander.publish(envelope.body)
         break
     case 'published':
-        this._islander.sent(envelope.body.promises)
+        this.islander.sent(envelope.body.promises)
         break
     case 'receive':
         // TODO Just send the pulse.
@@ -200,8 +191,6 @@ Kibitzer.prototype.replay = cadence(function (async, envelope) {
 Kibitzer.prototype.shutdown = cadence(function (async) {
     if (!this._shutdown) {
         // TODO What does `destroy` do exactly? Empty the queue? Error?
-        this._outboxes.paxos.destroy()
-        this._outboxes.islander.destroy()
         this._shutdown = true
         this.paxos.scheduler.clear()
     }
@@ -245,10 +234,10 @@ Kibitzer.prototype._join = cadence(function (async, leader, properties, when) {
 Kibitzer.prototype._publish = cadence(function (async) {
     this._destructor.destructible(cadence(function (async) {
         this._destructor.addDestructor('publish', function () {
-            this._outboxes.islander.destroy()
+            this._shifters.islander.destroy()
         }.bind(this))
         var loop = async(function () {
-            this._outboxes.islander.dequeue(async())
+            this._shifters.islander.dequeue(async())
         }, function (messages) {
             if (messages == null) {
                 return [ loop.break ]
@@ -281,10 +270,10 @@ Kibitzer.prototype._publish = cadence(function (async) {
 Kibitzer.prototype._send = cadence(function (async) {
     this._destructor.destructible(cadence(function (async) {
         this._destructor.addDestructor('send', function () {
-            this._outboxes.paxos.destroy()
+            this._shifters.paxos.destroy()
         }.bind(this))
         var loop = async(function () {
-            this._outboxes.paxos.dequeue(async())
+            this._shifters.paxos.dequeue(async())
         }, function (pulse) {
             if (pulse == null) {
                 return [ loop.break ]
