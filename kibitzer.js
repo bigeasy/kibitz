@@ -110,9 +110,7 @@ function Kibitzer (options) {
 Kibitzer.prototype.listen = cadence(function (async) {
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
-    timer.events.pump(function (envelope) {
-        this.play('event', envelope, abend)
-    }.bind(this))
+    timer.events.pump(function (envelope) { this.play('event', envelope) }.bind(this))
     this.paxos.scheduler.events.pump(timer)
     this._shifters = {
         paxos: this.paxos.outbox.shifter(),
@@ -124,14 +122,14 @@ Kibitzer.prototype.listen = cadence(function (async) {
 
 // You can just as easily use POSIX time for the `republic`.
 Kibitzer.prototype.bootstrap = function (republic, properties) {
-    this.play('bootstrap', { republic: republic, properties: properties }, abend)
+    this.play('bootstrap', { republic: republic, properties: properties })
 }
 
 // Enqueue a user message into the `Islander`. The `Islander` will submit the
 // message, monitor the atomic log, and then resubmit the message if it detects
 // that the message was lost.
 Kibitzer.prototype.publish = function (entry) {
-    this.play('publish', entry, abend)
+    this.play('publish', entry)
 }
 
 // Called by your network implementation with messages enqueued from another
@@ -142,25 +140,24 @@ Kibitzer.prototype.request = cadence(function (async, envelope) {
         this._immigrate(envelope.body, async())
         break
     case 'receive':
-        this.play('receive', envelope.body, async())
-        break
+        return [ this.play('receive', envelope.body) ]
     case 'enqueue':
-        this.play('enqueue', envelope.body, async())
-        break
+        return [ this.play('enqueue', envelope.body) ]
     }
 })
 
-Kibitzer.prototype.play = function (method, body, callback) {
+Kibitzer.prototype.play = function (method, body) {
     var envelope = {
         module: 'kibitz',
         method: method,
         when: this._Date.now(),
         body: body
     }
-    this.replay(envelope, callback)
+    return this.replay(envelope)
 }
 
-Kibitzer.prototype.replay = cadence(function (async, envelope) {
+
+Kibitzer.prototype.replay = function (envelope) {
     this.played.push(envelope)
     switch (envelope.method) {
     case 'bootstrap':
@@ -174,14 +171,13 @@ Kibitzer.prototype.replay = cadence(function (async, envelope) {
         break
     case 'immigrate':
         var body = envelope.body
-        return [ this.paxos.immigrate(envelope.when, body.republic, body.id, body.cookie, body.properties) ]
+        return this.paxos.immigrate(envelope.when, body.republic, body.id, body.cookie, body.properties)
         break
     case 'receive':
         // TODO Split pulse from messages somehow, make them siblings, not nested.
-        return [ this.paxos.receive(envelope.when, envelope.body, envelope.body.messages) ]
-        break
+        return this.paxos.receive(envelope.when, envelope.body, envelope.body.messages)
     case 'enqueue':
-        return [ this._enqueue(envelope.when, envelope.body) ]
+        return this._enqueue(envelope.when, envelope.body)
     case 'publish':
         this.islander.publish(envelope.body)
         break
@@ -192,7 +188,7 @@ Kibitzer.prototype.replay = cadence(function (async, envelope) {
         this.paxos.sent(envelope.when, envelope.body.pulse, envelope.body.responses)
         break
     }
-})
+}
 
 // Stop timers, and stop timers only. We're not in a position to notify clients
 // that there will be no more messages.
@@ -212,7 +208,7 @@ Kibitzer.prototype.join = cadence(function (async, leader, properties) {
     }
     // throw new Error
     async(function () {
-        this.play('join', { republic: leader.republic  }, async())
+        this.play('join', { republic: leader.republic  })
         this._requester.request('kibitz', {
             module: 'kibitz',
             method: 'immigrate',
@@ -252,7 +248,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
                     }
                 }, async())
             }, function (promises) {
-                this.play('published', { promises: promises }, async())
+                this.play('published', { promises: promises })
             })
         })()
     })
@@ -294,7 +290,7 @@ Kibitzer.prototype._send = cadence(function (async) {
                     })
                 }, this)
             }, function () {
-                this.play('sent', { pulse: pulse, responses: responses }, async())
+                this.play('sent', { pulse: pulse, responses: responses })
             })
         })()
     })
@@ -303,7 +299,8 @@ Kibitzer.prototype._send = cadence(function (async) {
 Kibitzer.prototype._immigrate = cadence(function (async, post) {
     async(function () {
         assert(post.hops != null)
-        this.play('immigrate', post, async())
+        var outcome = this.play('immigrate', post)
+        return outcome
     }, function (outcome) {
         if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
             var properties = this.paxos.government.properties[outcome.leader]
