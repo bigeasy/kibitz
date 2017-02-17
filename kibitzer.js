@@ -167,7 +167,7 @@ Kibitzer.prototype.replay = cadence(function (async, envelope) {
         this.paxos.bootstrap(envelope.when, envelope.body.republic, envelope.body.properties)
         break
     case 'join':
-        this._join(envelope.body.leader, envelope.body.properties, envelope.when, async())
+        this.paxos.join(envelope.when, envelope.body.republic)
         break
     case 'event':
         this.paxos.event(envelope.body)
@@ -201,10 +201,6 @@ Kibitzer.prototype.destroy = function () {
 }
 
 Kibitzer.prototype.join = cadence(function (async, leader, properties) {
-    this.play('join', { leader: leader, properties: properties }, async())
-})
-
-Kibitzer.prototype._join = cadence(function (async, leader, properties, when) {
 // TODO Should this be or should this not be? It should be. You're sending your
 // enqueue messages until you immigrate. You don't know when that will be.
 // You're only going to know if you've succeeded if your legislator has
@@ -216,7 +212,7 @@ Kibitzer.prototype._join = cadence(function (async, leader, properties, when) {
     }
     // throw new Error
     async(function () {
-        this.paxos.join(when, leader.republic)
+        this.play('join', { republic: leader.republic  }, async())
         this._requester.request('kibitz', {
             module: 'kibitz',
             method: 'immigrate',
