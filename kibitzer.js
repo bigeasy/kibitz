@@ -208,7 +208,11 @@ Kibitzer.prototype.join = cadence(function (async, leader, properties) {
     }
     // throw new Error
     async(function () {
-        this.play('join', { republic: leader.republic  })
+        // Note that we're passing properties so that they're logged for
+        // inspection during debugging replay, but they're not going to be used
+        // as an argument to Paxos on this side. We give them to our leader when
+        // we request immigration.
+        this.play('join', { republic: leader.republic, properties: properties  })
         this._requester.request('kibitz', {
             module: 'kibitz',
             method: 'immigrate',
