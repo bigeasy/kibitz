@@ -173,7 +173,6 @@ Kibitzer.prototype.replay = function (envelope) {
     case 'immigrate':
         var body = envelope.body
         return this.paxos.immigrate(envelope.when, body.republic, body.id, body.cookie, body.properties)
-        break
     case 'receive':
         // TODO Split pulse from messages somehow, make them siblings, not nested.
         return this.paxos.receive(envelope.when, envelope.body, envelope.body.messages)
