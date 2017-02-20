@@ -340,8 +340,4 @@ Kibitzer.prototype._enqueue = function (when, post) {
     return promises
 }
 
-Kibitzer.prototype._receive = cadence(function (async, pulse, when) {
-    return [ this.paxos.receive(when, pulse, pulse.messages) ]
-})
-
 module.exports = Kibitzer
