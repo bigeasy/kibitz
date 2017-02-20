@@ -70,9 +70,7 @@ function Kibitzer (options) {
     // Log used to drain Islander.
     this.log = new Queue
 
-    // Set option defaults.
-    options || (options = {})
-
+    // These defaults are a bit harsh if you're going to log everything.
     options.ping || (options.ping = 250)
     options.timeout || (options.timeout = 1000)
 
