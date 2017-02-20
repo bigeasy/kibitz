@@ -166,6 +166,9 @@ Kibitzer.prototype.replay = function (envelope) {
     case 'join':
         this.paxos.join(envelope.when, envelope.body.republic)
         break
+    case 'naturalize':
+        this.paxos.naturalize()
+        break
     case 'event':
         this.paxos.event(envelope.body)
         break
@@ -229,6 +232,10 @@ Kibitzer.prototype.join = cadence(function (async, leader, properties) {
         return response != null && response.enqueued
     })
 })
+
+Kibitzer.prototype.naturalize = function () {
+    this.play('naturalize', {})
+}
 
 // Publish to consensus algorithm from islander retryable client.
 Kibitzer.prototype._publish = cadence(function (async) {
