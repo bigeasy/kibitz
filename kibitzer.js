@@ -201,11 +201,10 @@ Kibitzer.prototype.join = cadence(function (async, leader, properties) {
 // enqueue messages until you immigrate. You don't know when that will be.
 // You're only going to know if you've succeeded if your legislator has
 // immigrated. That's the only way.
-    if (this.paxos.government.promise != '0/0') {
-        // TODO This should be rejected when you enqueue, it shoudln't matter.
-        console.log('Hey! I got a government.')
-        return
-    }
+
+// TODO Was a test, but it is now an assertion and it really ought be an
+// exception because it is not impossible.
+    assert(this.paxos.government.promise == '0/0', 'already have government')
     // throw new Error
     async(function () {
         // Note that we're passing properties so that they're logged for
