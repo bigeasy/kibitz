@@ -330,7 +330,7 @@ Kibitzer.prototype._enqueue = function (when, post) {
         var entry = post.entries[i]
         var outcome = this.paxos.enqueue(when, post.republic, entry)
         if (!outcome.enqueued) {
-            entries = null
+            promises = null
             break
         }
         promises[entry.cookie] = outcome.promise

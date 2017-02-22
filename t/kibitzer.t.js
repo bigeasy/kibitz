@@ -1,4 +1,4 @@
-require('proof/redux')(2, require('cadence')(prove))
+require('proof/redux')(3, require('cadence')(prove))
 
 function prove (async, assert) {
     var abend = require('abend')
@@ -30,6 +30,12 @@ function prove (async, assert) {
         kibitzers[2].publish(1)
     }, function (entry) {
         assert(entry.body.body, 1, 'published')
+        kibitzers[2].request({
+            method: 'enqueue',
+            body: { cookie: '1', republic: 0, entries: [ '1' ] }
+        }, async())
+    }, function (response) {
+        assert(response, null, 'failed submission')
         kibitzers.forEach(function (kibitzer) { kibitzer.destroy() })
     }, function () {
         kibitzers.forEach(function (kibitzer) { kibitzer.destroy() })
