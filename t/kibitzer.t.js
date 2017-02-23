@@ -22,8 +22,12 @@ function prove (async, assert) {
         kibitzers.push(createKibitzer('1'))
         kibitzers[1].join({ republic: 0, location: '0' }, { location: '1' }, async())
     }, function () {
+        setTimeout(async(), 100)
+    }, function () {
         kibitzers.push(createKibitzer('2'))
         kibitzers[2].join({ republic: 0, location: '1' }, { location: '2' }, async())
+    }, function () {
+        setTimeout(async(), 100)
     }, function () {
         kibitzers[2].naturalize()
         shifter.join(function (entry) { return entry.body.body == 1 }, async())
