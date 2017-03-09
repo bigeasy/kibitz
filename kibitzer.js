@@ -93,7 +93,7 @@ function Kibitzer (options) {
     // Requesters to make network requests.
     this.read = new Procession
     this.write = new Procession
-    this._requester = new Requester('kibitz', this.write, this.read)
+    this._requester = new Requester('kibitz', this.read, this.write)
 
     this.played = new Procession
 
