@@ -46,7 +46,7 @@ var nop = require('nop')
 var abend = require('abend')
 var cadence = require('cadence')
 var Timer = require('happenstance').Timer
-var Queue = require('procession')
+var Procession = require('procession')
 
 // Paxos libraries.
 var Paxos = require('paxos')
@@ -68,7 +68,7 @@ var Requester = require('conduit/requester')
 //
 function Kibitzer (options) {
     // Log used to drain Islander.
-    this.log = new Queue
+    this.log = new Procession
 
     // These defaults are a bit harsh if you're going to log everything.
     options.ping || (options.ping = 250)
@@ -91,10 +91,11 @@ function Kibitzer (options) {
     this._shifters = null
 
     // Requesters to make network requests.
-    this._requester = new Requester('kibitz')
-    this.spigot = this._requester.spigot
+    this.read = new Procession
+    this.write = new Procession
+    this._requester = new Requester('kibitz', this.write, this.read)
 
-    this.played = new Queue
+    this.played = new Procession
 
     this.islander.log.pump(this.log)
 

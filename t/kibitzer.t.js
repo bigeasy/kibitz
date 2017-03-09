@@ -47,16 +47,15 @@ function prove (async, assert) {
 
 
     function createKibitzer (id) {
+        var kibitzer = new Kibitzer({ id: id })
         var responder = new Responder({
             request: cadence(function (async, envelope) {
                 kibitzers.filter(function (kibitzer) {
                     return kibitzer.paxos.id == envelope.to.location
                 }).pop().request(envelope, async())
             })
-        }, 'kibitz')
-        var kibitzer = new Kibitzer({ id: id })
+        }, 'kibitz', kibitzer.read, kibitzer.write)
         kibitzer.listen(abend)
-        kibitzer.spigot.emptyInto(responder.basin)
         kibitzer.paxos.scheduler.events.pump(new Timer(kibitzer.paxos.scheduler))
         return kibitzer
     }
