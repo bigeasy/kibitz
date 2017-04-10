@@ -115,8 +115,12 @@ Kibitzer.prototype.listen = cadence(function (async) {
         paxos: this.paxos.outbox.shifter(),
         islander: this.islander.outbox.shifter()
     }
-    this._publish(async())
-    this._send(async())
+    this._destructor.async(async, 'publish')(function () {
+        this._publish(async())
+    })
+    this._destructor.async(async, 'send')(function () {
+        this._send(async())
+    })
 })
 
 // You can just as easily use POSIX time for the `republic`.
