@@ -53,7 +53,9 @@ var Paxos = require('paxos')
 var Islander = require('islander')
 var Monotonic = require('monotonic').asString
 
+// Construction notification and destruction.
 var Destructible = require('destructible')
+var Signal = require('signal')
 
 // Logging.
 var logger = require('prolific.logger').createLogger('kibitz')
@@ -86,7 +88,7 @@ function Kibitzer (options) {
     this.islander = new Islander(options.id)
 
     // Paxos sends messages to islander.
-    this.paxos.log.shifter().pump(this.islander)
+    this.paxos.log.shifter().pump(this.islander, 'enqueue')
 
     this._shifters = null
 
@@ -97,32 +99,37 @@ function Kibitzer (options) {
 
     this.played = new Procession
 
-    this.islander.log.pump(this.log)
+    this.islander.log.pump(this.log, 'enqueue')
 
     this._destructible = new Destructible
     this._destructible.markDestroyed(this, 'destroyed')
     this._destructible.addDestructor('scheduler', this.paxos.scheduler, 'clear')
 
     this.destruction = this._destructible.events
+
+    this.ready = new Signal
 }
 
 Kibitzer.prototype.listen = cadence(function (async) {
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
     timer.events.pump(function (envelope) { this.play('event', envelope) }.bind(this))
-    this.paxos.scheduler.events.pump(timer)
+    this.paxos.scheduler.events.pump(timer, 'enqueue')
     this._shifters = {
         paxos: this.paxos.outbox.shifter(),
         islander: this.islander.outbox.shifter()
     }
-    this._destructible.async(async, 'publish')(function () {
+    this._destructible.stack(async, 'publish')(function (ready) {
         this._destructible.addDestructor('publish', this._shifters.islander, 'destroy')
         this._publish(async())
+        ready.unlatch()
     })
-    this._destructible.async(async, 'send')(function () {
+    this._destructible.stack(async, 'send')(function (ready) {
         this._destructible.addDestructor('send', this._shifters.paxos, 'destroy')
         this._send(async())
+        ready.unlatch()
     })
+    this._destructible.ready.wait(this.ready, 'unlatch')
 })
 
 // You can just as easily use POSIX time for the `republic`.
