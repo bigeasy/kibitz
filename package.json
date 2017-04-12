@@ -33,7 +33,8 @@
                             "paxos":                        "5.0.x",
                             "procession":                   "0.4.x",
                             "prolific.logger":              "3.0.x",
-                            "sequester":                    "1.0.x"
+                            "sequester":                    "1.0.x",
+                            "signal":                       "1.10.x"
     },
     "devDependencies":
     {
