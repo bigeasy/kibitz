@@ -135,6 +135,7 @@ Kibitzer.prototype.listen = cadence(function (async) {
         ready.unlatch()
     })
     thereafter.ready.wait(this.ready, 'unlatch')
+    this._destructible.completed(async())
 })
 
 // You can just as easily use POSIX time for the `republic`.
