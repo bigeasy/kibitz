@@ -25,7 +25,7 @@
                             "cliffhanger":                  "1.4.x",
                             "conduit":                      "0.7.x",
                             "departure":                    "0.0.3",
-                            "destructible":                 "0.9.x",
+                            "destructible":                 "0.12.x",
                             "happenstance":                 "3.4.x",
                             "islander":                     "0.7.x",
                             "monotonic":                    "3.0.x",
@@ -34,7 +34,8 @@
                             "procession":                   "0.4.x",
                             "prolific.logger":              "3.0.x",
                             "sequester":                    "1.0.x",
-                            "signal":                       "1.10.x"
+                            "signal":                       "1.10.x",
+                            "thereafter":                   "0.0.x"
     },
     "devDependencies":
     {
