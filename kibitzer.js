@@ -123,6 +123,7 @@ Kibitzer.prototype.listen = cadence(function (async) {
         islander: this.islander.outbox.shifter()
     }
     var thereafter = new Thereafter
+    this._destructible.addDestructor('thereafter', thereafter, 'cancel')
     thereafter.run(this, function (ready) {
         this._destructible.addDestructor('publish', this._shifters.islander, 'destroy')
         this._publish(this._destructible.monitor('publish'))
