@@ -258,7 +258,6 @@ Kibitzer.prototype._publish = cadence(function (async) {
     var loop = async(function () {
         this._shifters.islander.dequeue(async())
     }, function (messages) {
-        console.log('messages ----> ', messages)
         if (messages == null) {
             return [ loop.break ]
         }
@@ -290,7 +289,6 @@ Kibitzer.prototype._send = cadence(function (async) {
     var loop = async(function () {
         this._shifters.paxos.dequeue(async())
     }, function (pulse) {
-        console.log('pluse ----> ', pulse)
         if (pulse == null) {
             return [ loop.break ]
         }
@@ -320,7 +318,6 @@ Kibitzer.prototype._send = cadence(function (async) {
 })
 
 Kibitzer.prototype._immigrate = cadence(function (async, post) {
-    console.log('immigration!')
     async(function () {
         assert(post.hops != null)
         var outcome = this.play('immigrate', post)
