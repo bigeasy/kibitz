@@ -102,7 +102,7 @@ function Kibitzer (options) {
 
     this.played = new Procession
 
-    this.islander.log.pump(this.log, 'enqueue')
+    this.islander.log.shifter().pump(this.log, 'enqueue')
 
     this._destructible = new Destructible
     this._destructible.markDestroyed(this, 'destroyed')
@@ -117,7 +117,7 @@ Kibitzer.prototype.listen = cadence(function (async) {
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
     timer.events.shifter().pump(function (envelope) { this.play('event', envelope) }.bind(this))
-    this.paxos.scheduler.events.pump(timer, 'enqueue')
+    this.paxos.scheduler.events.shifter().pump(timer, 'enqueue')
     this._shifters = {
         paxos: this.paxos.outbox.shifter(),
         islander: this.islander.outbox.shifter()

@@ -56,7 +56,7 @@ function prove (async, assert) {
             })
         }, 'kibitz', kibitzer.write, kibitzer.read)
         kibitzer.listen(abend)
-        kibitzer.paxos.scheduler.events.pump(new Timer(kibitzer.paxos.scheduler), 'enqueue')
+        kibitzer.paxos.scheduler.events.shifter().pump(new Timer(kibitzer.paxos.scheduler), 'enqueue')
         return kibitzer
     }
 }
