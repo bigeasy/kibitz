@@ -96,9 +96,10 @@ function Kibitzer (options) {
     this._shifters = null
 
     // Requesters to make network requests.
-    this.read = new Procession
-    this.write = new Procession
-    this._requester = new Requester('kibitz', this.read, this.write)
+    this._requester = new Requester
+
+    this.read = this._requester.read
+    this.write = this._requester.write
 
     this.played = new Procession
 
@@ -232,7 +233,7 @@ Kibitzer.prototype.join = cadence(function (async, leader, properties) {
         // as an argument to Paxos on this side. We give them to our leader when
         // we request immigration.
         this.play('join', { republic: leader.republic, properties: properties  })
-        this._requester.request('kibitz', {
+        this._requester.request({
             module: 'kibitz',
             method: 'immigrate',
             to: leader,
@@ -263,7 +264,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
         }
         async(function () {
             var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
-            this._requester.request('kibitz', {
+            this._requester.request({
                 module: 'kibitz',
                 method: 'enqueue',
                 to: properties,
@@ -300,7 +301,7 @@ Kibitzer.prototype._send = cadence(function (async) {
                         this.request({ method: 'receive', body: pulse }, async())
                     } else {
                         var properties = this.paxos.government.properties[id]
-                        this._requester.request('kibitz', {
+                        this._requester.request({
                             module: 'kibitz',
                             method: 'receive',
                             to: properties,
@@ -326,7 +327,7 @@ Kibitzer.prototype._immigrate = cadence(function (async, post) {
         if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
             var properties = this.paxos.government.properties[outcome.leader]
             post.hops++
-            this._requester.request('kibitz', {
+            this._requester.request({
                 module: 'kibtiz',
                 method: 'immigrate',
                 to: properties,

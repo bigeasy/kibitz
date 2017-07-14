@@ -54,7 +54,9 @@ function prove (async, assert) {
                     return kibitzer.paxos.id == envelope.to.location
                 }).pop().request(envelope, async())
             })
-        }, 'kibitz', kibitzer.write, kibitzer.read)
+        })
+        kibitzer.read.shifter().pump(responder.write, 'enqueue')
+        responder.read.shifter().pump(kibitzer.write, 'enqueue')
         kibitzer.listen(abend)
         kibitzer.paxos.scheduler.events.shifter().pump(new Timer(kibitzer.paxos.scheduler), 'enqueue')
         return kibitzer
