@@ -116,7 +116,7 @@ function Kibitzer (options) {
 Kibitzer.prototype.listen = cadence(function (async) {
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
-    timer.events.pump(function (envelope) { this.play('event', envelope) }.bind(this))
+    timer.events.shifter().pump(function (envelope) { this.play('event', envelope) }.bind(this))
     this.paxos.scheduler.events.pump(timer, 'enqueue')
     this._shifters = {
         paxos: this.paxos.outbox.shifter(),
