@@ -34,7 +34,7 @@
                             "procession":                   "0.9.x",
                             "prolific.logger":              "5.0.x",
                             "sequester":                    "1.0.x",
-                            "signal":                       "1.10.x",
+                            "signal":                       "3.0.x",
                             "thereafter":                   "0.1.x"
     },
     "devDependencies":
