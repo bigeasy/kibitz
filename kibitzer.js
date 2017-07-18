@@ -105,7 +105,7 @@ function Kibitzer (options) {
 
     this.islander.log.shifter().pump(this.log, 'enqueue')
 
-    this._destructible = new Destructible
+    this._destructible = new Destructible('kibitzer')
     this._destructible.markDestroyed(this, 'destroyed')
     this._destructible.addDestructor('scheduler', this.paxos.scheduler, 'clear')
 
