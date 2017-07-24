@@ -299,7 +299,7 @@ Kibitzer.prototype._send = cadence(function (async) {
         if (pulse == null) {
             return [ loop.break ]
         }
-        var responses = []
+        var responses = {}
         async(function () {
             pulse.route.forEach(function (id) {
                 async([function () {
