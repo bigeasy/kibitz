@@ -82,7 +82,8 @@ function Kibitzer (options) {
     // Time obtained from optional `Date` for unit testing.
     this._Date = options.Date || Date
 
-    this.paxos = new Paxos(options.id, {
+    assert(options.republic != null)
+    this.paxos = new Paxos(this._Date.now(), options.republic, options.id, {
         ping: options.ping,
         timeout: options.timeout
     })
@@ -136,8 +137,8 @@ Kibitzer.prototype.listen = cadence(function (async) {
 })
 
 // You can just as easily use POSIX time for the `republic`.
-Kibitzer.prototype.bootstrap = function (republic, properties) {
-    this.play('bootstrap', { republic: republic, properties: properties })
+Kibitzer.prototype.bootstrap = function (properties) {
+    this.play('bootstrap', { properties: properties })
 }
 
 // Enqueue a user message into the `Islander`. The `Islander` will submit the
@@ -176,10 +177,7 @@ Kibitzer.prototype.replay = function (envelope) {
     this.played.push(envelope)
     switch (envelope.method) {
     case 'bootstrap':
-        this.paxos.bootstrap(envelope.when, envelope.body.republic, envelope.body.properties)
-        break
-    case 'join':
-        this.paxos.join(envelope.when, envelope.body.republic)
+        this.paxos.bootstrap(envelope.when, envelope.body.properties)
         break
     case 'naturalize':
         this.paxos.naturalize()
@@ -192,7 +190,7 @@ Kibitzer.prototype.replay = function (envelope) {
         return this.paxos.immigrate(envelope.when, body.republic, body.id, body.cookie, body.properties)
     case 'receive':
         // TODO Split pulse from messages somehow, make them siblings, not nested.
-        return this.paxos.receive(envelope.when, envelope.body, envelope.body.messages)
+        return this.paxos.request(envelope.when, envelope.body)
     case 'enqueue':
         return this._enqueue(envelope.when, envelope.body)
     case 'publish':
@@ -202,7 +200,8 @@ Kibitzer.prototype.replay = function (envelope) {
         this.islander.sent(envelope.body.promises)
         break
     case 'sent':
-        this.paxos.sent(envelope.when, envelope.body.pulse, envelope.body.responses)
+        console.log(envelope)
+        this.paxos.response(envelope.when, envelope.body.cookie, envelope.body.responses)
         break
     }
 }
@@ -228,13 +227,12 @@ Kibitzer.prototype.join = cadence(function (async, leader, properties) {
         // inspection during debugging replay, but they're not going to be used
         // as an argument to Paxos on this side. We give them to our leader when
         // we request immigration.
-        this.play('join', { republic: leader.republic, properties: properties  })
         this._requester.request({
             module: 'kibitz',
             method: 'immigrate',
             to: leader,
             body: {
-                republic: leader.republic,
+                republic: this.paxos.republic,
                 id: this.paxos.id,
                 cookie: this.paxos.cookie,
                 properties: properties,
@@ -285,35 +283,39 @@ Kibitzer.prototype._publish = cadence(function (async) {
 Kibitzer.prototype._send = cadence(function (async) {
     var loop = async(function () {
         this._shifters.paxos.dequeue(async())
-    }, function (pulse) {
-        if (pulse == null) {
+    }, function (communique) {
+        if (communique == null) {
             return [ loop.break ]
         }
         var responses = {}
         async(function () {
-            pulse.route.forEach(function (id) {
+            communique.envelopes.forEach(function (envelope) {
                 async([function () {
-                    if (id == this.paxos.id) {
-                        this.request({ method: 'receive', body: pulse }, async())
+                    if (envelope.to == this.paxos.id) {
+                        this.request({ method: 'receive', body: envelope.request }, async())
                     } else {
-                        var properties = this.paxos.government.properties[id]
+                        console.log('>>', envelope)
                         this._requester.request({
                             module: 'kibitz',
                             method: 'receive',
-                            to: properties,
-                            body: pulse
+                            to: envelope.properties,
+                            body: envelope.request
                         }, async())
                     }
                 }, rescue(/^conduit#endOfStream$/m, null)], function (response) {
-                    responses[id] = response
+                    console.log('response !!>>', response)
+                    communique.responses[envelope.to] = response
                 })
             }, this)
         }, function () {
-            this.play('sent', { pulse: pulse, responses: responses })
+            console.log('>', communique.responses)
+            this.play('sent', { cookie: communique.cookie, responses: communique.responses })
         })
     })()
 })
 
+// TODO Hopping is a second way of doing a thing and we don't need a second way
+// of doing a thing.
 Kibitzer.prototype._immigrate = cadence(function (async, post) {
     async(function () {
         assert(post.hops != null)

@@ -3,8 +3,7 @@ require('proof')(3, require('cadence')(prove))
 function prove (async, assert) {
     var abend = require('abend')
     var cadence = require('cadence')
-
-    var Procession = require('procession')
+var Procession = require('procession')
     var Responder = require('conduit/responder')
 
     var Timer = require('happenstance').Timer
@@ -12,20 +11,20 @@ function prove (async, assert) {
     var Kibitzer = require('..')
     var kibitzers = []
 
-    kibitzers.push(createKibitzer('0'))
+    kibitzers.push(createKibitzer('0', 0))
     assert(kibitzers[0], 'construct')
-    kibitzers[0].bootstrap(0, { location: '0' })
+    kibitzers[0].bootstrap({ location: '0' })
 
     var shifter = kibitzers[0].log.shifter()
 
     async(function () {
-        kibitzers.push(createKibitzer('1'))
-        kibitzers[1].join({ republic: 0, location: '0' }, { location: '1' }, async())
+        kibitzers.push(createKibitzer('1', 0))
+        kibitzers[1].join({ location: '0' }, { location: '1' }, async())
     }, function () {
         setTimeout(async(), 100)
     }, function () {
-        kibitzers.push(createKibitzer('2'))
-        kibitzers[2].join({ republic: 0, location: '1' }, { location: '2' }, async())
+        kibitzers.push(createKibitzer('2', 0))
+        kibitzers[2].join({ location: '1' }, { location: '2' }, async())
     }, function () {
         setTimeout(async(), 100)
     }, function () {
@@ -46,10 +45,11 @@ function prove (async, assert) {
     })
 
 
-    function createKibitzer (id) {
-        var kibitzer = new Kibitzer({ id: id })
+    function createKibitzer (id, republic) {
+        var kibitzer = new Kibitzer({ republic: republic, id: id })
         var responder = new Responder({
             request: cadence(function (async, envelope) {
+                console.log('request!!!', envelope)
                 kibitzers.filter(function (kibitzer) {
                     return kibitzer.paxos.id == envelope.to.location
                 }).pop().request(envelope, async())
