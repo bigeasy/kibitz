@@ -63,9 +63,7 @@ var logger = require('prolific.logger').createLogger('kibitz')
 // Message queue.
 var Requester = require('conduit/requester')
 
-// Cancelable series of function invocations.
-var Thereafter = require('thereafter')
-
+// Catch exceptions based on a regex match of an error message or property.
 var rescue = require('rescue')
 
 // The `Kibitzer` object contains an islander, which will submit messages to
@@ -107,7 +105,7 @@ function Kibitzer (options) {
 
     this.islander.log.shifter().pump(this.log, 'enqueue')
 
-    this._destructible = new Destructible('kibitzer')
+    this._destructible = new Destructible(1000, 'kibitzer')
     this._destructible.markDestroyed(this, 'destroyed')
 
     this._shifters = {
@@ -131,18 +129,10 @@ Kibitzer.prototype.listen = cadence(function (async) {
     var timer = new Timer(this.paxos.scheduler)
     timer.events.shifter().pump(function (envelope) { this.play('event', envelope) }.bind(this))
     this.paxos.scheduler.events.shifter().pump(timer, 'enqueue')
-    var thereafter = new Thereafter
-    this._destructible.addDestructor('thereafter', thereafter, 'cancel')
-    thereafter.run(this, function (ready) {
-        this._publish(this._destructible.monitor('publish'))
-        ready.unlatch()
-    })
-    thereafter.run(this, function (ready) {
-        this._send(this._destructible.monitor('send'))
-        ready.unlatch()
-    })
-    thereafter.ready.wait(this.ready, 'unlatch')
-    this._destructible.completed(1000, async())
+    this._publish(this._destructible.monitor('publish'))
+    this._send(this._destructible.monitor('send'))
+    this.ready.unlatch()
+    this._destructible.completed.wait(async())
 })
 
 // You can just as easily use POSIX time for the `republic`.
