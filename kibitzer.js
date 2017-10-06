@@ -200,7 +200,6 @@ Kibitzer.prototype.replay = function (envelope) {
         this.islander.sent(envelope.body.promises)
         break
     case 'sent':
-        console.log(envelope)
         this.paxos.response(envelope.when, envelope.body.cookie, envelope.body.responses)
         break
     }
@@ -294,7 +293,6 @@ Kibitzer.prototype._send = cadence(function (async) {
                     if (envelope.to == this.paxos.id) {
                         this.request({ method: 'receive', body: envelope.request }, async())
                     } else {
-                        console.log('>>', envelope)
                         this._requester.request({
                             module: 'kibitz',
                             method: 'receive',
@@ -303,12 +301,10 @@ Kibitzer.prototype._send = cadence(function (async) {
                         }, async())
                     }
                 }, rescue(/^conduit#endOfStream$/m, null)], function (response) {
-                    console.log('response !!>>', response)
                     communique.responses[envelope.to] = response
                 })
             }, this)
         }, function () {
-            console.log('>', communique.responses)
             this.play('sent', { cookie: communique.cookie, responses: communique.responses })
         })
     })()
