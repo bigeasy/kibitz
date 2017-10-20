@@ -52,7 +52,7 @@ var Procession = require('procession')
                 console.log('request!!!', envelope)
                 kibitzers.filter(function (kibitzer) {
                     return kibitzer.paxos.id == envelope.to.location
-                }).pop().request(envelope, async())
+                }).pop().request(JSON.parse(JSON.stringify(envelope)), async())
             })
         })
         kibitzer.read.shifter().pump(responder.write, 'enqueue')
