@@ -82,7 +82,6 @@ function Kibitzer (options) {
     // Time obtained from optional `Date` for unit testing.
     this._Date = options.Date || Date
 
-    assert(options.republic != null)
     this.paxos = new Paxos(this._Date.now(), null, options.id, {
         ping: options.ping,
         timeout: options.timeout
