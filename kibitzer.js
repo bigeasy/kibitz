@@ -83,7 +83,7 @@ function Kibitzer (options) {
     this._Date = options.Date || Date
 
     assert(options.republic != null)
-    this.paxos = new Paxos(this._Date.now(), options.republic, options.id, {
+    this.paxos = new Paxos(this._Date.now(), null, options.id, {
         ping: options.ping,
         timeout: options.timeout
     })
@@ -137,8 +137,8 @@ Kibitzer.prototype.listen = cadence(function (async) {
 })
 
 // You can just as easily use POSIX time for the `republic`.
-Kibitzer.prototype.bootstrap = function (properties) {
-    this.play('bootstrap', { properties: properties })
+Kibitzer.prototype.bootstrap = function (republic, properties) {
+    this.play('bootstrap', { republic: republic, properties: properties })
 }
 
 // Enqueue a user message into the `Islander`. The `Islander` will submit the
@@ -177,7 +177,11 @@ Kibitzer.prototype.replay = function (envelope) {
     this.played.push(envelope)
     switch (envelope.method) {
     case 'bootstrap':
+        this.paxos.republic = envelope.republic
         this.paxos.bootstrap(envelope.when, envelope.body.properties)
+        break
+    case 'join':
+        this.paxos.republic = envelope.republic
         break
     case 'naturalize':
         this.paxos.naturalize()
@@ -211,7 +215,7 @@ Kibitzer.prototype.destroy = function () {
     this._destructible.destroy()
 }
 
-Kibitzer.prototype.join = cadence(function (async, leader, properties) {
+Kibitzer.prototype.join = cadence(function (async, republic, leader, properties) {
 // TODO Should this be or should this not be? It should be. You're sending your
 // enqueue messages until you immigrate. You don't know when that will be.
 // You're only going to know if you've succeeded if your legislator has
@@ -222,6 +226,7 @@ Kibitzer.prototype.join = cadence(function (async, leader, properties) {
     assert(this.paxos.government.promise == '0/0', 'already have government')
     // throw new Error
     async(function () {
+        this.play('join', { republic: republic })
         // Note that we're passing properties so that they're logged for
         // inspection during debugging replay, but they're not going to be used
         // as an argument to Paxos on this side. We give them to our leader when

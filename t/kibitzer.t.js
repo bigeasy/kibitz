@@ -13,18 +13,18 @@ var Procession = require('procession')
 
     kibitzers.push(createKibitzer('0', 0))
     assert(kibitzers[0], 'construct')
-    kibitzers[0].bootstrap({ location: '0' })
+    kibitzers[0].bootstrap(1, { location: '0' })
 
     var shifter = kibitzers[0].log.shifter()
 
     async(function () {
         kibitzers.push(createKibitzer('1', 0))
-        kibitzers[1].join({ location: '0' }, { location: '1' }, async())
+        kibitzers[1].join(1, { location: '0' }, { location: '1' }, async())
     }, function () {
         setTimeout(async(), 100)
     }, function () {
         kibitzers.push(createKibitzer('2', 0))
-        kibitzers[2].join({ location: '1' }, { location: '2' }, async())
+        kibitzers[2].join(1, { location: '1' }, { location: '2' }, async())
     }, function () {
         setTimeout(async(), 100)
     }, function () {
@@ -49,7 +49,6 @@ var Procession = require('procession')
         var kibitzer = new Kibitzer({ republic: republic, id: id })
         var responder = new Responder({
             request: cadence(function (async, envelope) {
-                console.log('request!!!', envelope)
                 kibitzers.filter(function (kibitzer) {
                     return kibitzer.paxos.id == envelope.to.location
                 }).pop().request(JSON.parse(JSON.stringify(envelope)), async())
