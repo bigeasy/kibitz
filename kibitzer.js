@@ -214,6 +214,11 @@ Kibitzer.prototype.destroy = function () {
     this._destructible.destroy()
 }
 
+// TODO You are assuming that an address is not an address but a set of
+// properties, so you need to provide those properties for leader as an
+// argument, not just a url or identifier.
+
+//
 Kibitzer.prototype.join = cadence(function (async, republic, leader, properties) {
 // TODO Should this be or should this not be? It should be. You're sending your
 // enqueue messages until you immigrate. You don't know when that will be.
