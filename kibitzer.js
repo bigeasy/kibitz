@@ -176,11 +176,11 @@ Kibitzer.prototype.replay = function (envelope) {
     this.played.push(envelope)
     switch (envelope.method) {
     case 'bootstrap':
-        this.paxos.republic = envelope.republic
+        this.paxos.republic = envelope.body.republic
         this.paxos.bootstrap(envelope.when, envelope.body.properties)
         break
     case 'join':
-        this.paxos.republic = envelope.republic
+        this.paxos.republic = envelope.body.republic
         break
     case 'naturalize':
         this.paxos.naturalize()
