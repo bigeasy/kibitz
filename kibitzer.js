@@ -137,6 +137,7 @@ Kibitzer.prototype.listen = cadence(function (async) {
 
 // You can just as easily use POSIX time for the `republic`.
 Kibitzer.prototype.bootstrap = function (republic, properties) {
+    assert(republic != null)
     this.play('bootstrap', { republic: republic, properties: properties })
 }
 
@@ -176,11 +177,11 @@ Kibitzer.prototype.replay = function (envelope) {
     this.played.push(envelope)
     switch (envelope.method) {
     case 'bootstrap':
-        this.paxos.republic = envelope.republic
+        this.paxos.republic = envelope.body.republic
         this.paxos.bootstrap(envelope.when, envelope.body.properties)
         break
     case 'join':
-        this.paxos.republic = envelope.republic
+        this.paxos.republic = envelope.body.republic
         break
     case 'naturalize':
         this.paxos.naturalize()
@@ -222,7 +223,12 @@ Kibitzer.prototype.join = cadence(function (async, republic, leader, properties)
 
 // TODO Was a test, but it is now an assertion and it really ought be an
 // exception because it is not impossible.
-    assert(this.paxos.government.promise == '0/0', 'already have government')
+    if (this.paxos.government.promise != '0/0') {
+        return
+    }
+
+    assert(republic != null)
+
     // throw new Error
     async(function () {
         this.play('join', { republic: republic })
