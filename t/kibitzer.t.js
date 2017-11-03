@@ -28,6 +28,8 @@ var Procession = require('procession')
     }, function () {
         setTimeout(async(), 100)
     }, function () {
+        kibitzers[2].join(1, { location: '1' }, { location: '2' }, async())
+    }, function () {
         kibitzers[2].naturalize()
         shifter.join(function (entry) { return entry.body.body == 1 }, async())
         kibitzers[2].publish(1)
