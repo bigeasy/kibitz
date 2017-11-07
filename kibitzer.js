@@ -61,7 +61,7 @@ var Signal = require('signal')
 var logger = require('prolific.logger').createLogger('kibitz')
 
 // Message queue.
-var Requester = require('conduit/requester')
+var Caller = require('conduit/caller')
 
 // Catch exceptions based on a regex match of an error message or property.
 var rescue = require('rescue')
@@ -95,11 +95,11 @@ function Kibitzer (options) {
 
     this._shifters = null
 
-    // Requesters to make network requests.
-    this._requester = new Requester
+    // Caller to make network requests.
+    this._caller = new Caller
 
-    this.read = this._requester.read
-    this.write = this._requester.write
+    this.read = this._caller.read
+    this.write = this._caller.write
 
     this.played = new Procession
 
@@ -242,7 +242,7 @@ Kibitzer.prototype.join = cadence(function (async, republic, leader, properties)
         // inspection during debugging replay, but they're not going to be used
         // as an argument to Paxos on this side. We give them to our leader when
         // we request immigration.
-        this._requester.request({
+        this._caller.invoke({
             module: 'kibitz',
             method: 'immigrate',
             to: leader,
@@ -273,7 +273,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
         }
         async([function () {
             var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
-            this._requester.request({
+            this._caller.invoke({
                 module: 'kibitz',
                 method: 'enqueue',
                 to: properties,
@@ -309,7 +309,7 @@ Kibitzer.prototype._send = cadence(function (async) {
                     if (envelope.to == this.paxos.id) {
                         this.request({ method: 'receive', body: envelope.request }, async())
                     } else {
-                        this._requester.request({
+                        this._caller.invoke({
                             module: 'kibitz',
                             method: 'receive',
                             to: envelope.properties,
@@ -337,7 +337,7 @@ Kibitzer.prototype._immigrate = cadence(function (async, post) {
         if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
             var properties = this.paxos.government.properties[outcome.leader]
             post.hops++
-            this._requester.request({
+            this._caller.invoke({
                 module: 'kibtiz',
                 method: 'immigrate',
                 to: properties,

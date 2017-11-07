@@ -3,8 +3,8 @@ require('proof')(3, require('cadence')(prove))
 function prove (async, assert) {
     var abend = require('abend')
     var cadence = require('cadence')
-var Procession = require('procession')
-    var Responder = require('conduit/responder')
+    var Procession = require('procession')
+    var Procedure = require('conduit/procedure')
 
     var Timer = require('happenstance').Timer
 
@@ -49,13 +49,11 @@ var Procession = require('procession')
 
     function createKibitzer (id, republic) {
         var kibitzer = new Kibitzer({ republic: republic, id: id })
-        var responder = new Responder({
-            request: cadence(function (async, envelope) {
-                kibitzers.filter(function (kibitzer) {
-                    return kibitzer.paxos.id == envelope.to.location
-                }).pop().request(JSON.parse(JSON.stringify(envelope)), async())
-            })
-        })
+        var responder = new Procedure(cadence(function (async, envelope) {
+            kibitzers.filter(function (kibitzer) {
+                return kibitzer.paxos.id == envelope.to.location
+            }).pop().request(JSON.parse(JSON.stringify(envelope)), async())
+        }))
         kibitzer.read.shifter().pump(responder.write, 'enqueue')
         responder.read.shifter().pump(kibitzer.write, 'enqueue')
         kibitzer.listen(abend)
