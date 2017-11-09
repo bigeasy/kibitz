@@ -306,16 +306,12 @@ Kibitzer.prototype._send = cadence(function (async) {
         async(function () {
             communique.envelopes.forEach(function (envelope) {
                 async([function () {
-                    if (false && envelope.to == this.paxos.id) {
-                        this.request({ method: 'receive', body: envelope.request }, async())
-                    } else {
-                        this._caller.invoke({
-                            module: 'kibitz',
-                            method: 'receive',
-                            to: envelope.properties,
-                            body: envelope.request
-                        }, async())
-                    }
+                    this._caller.invoke({
+                        module: 'kibitz',
+                        method: 'receive',
+                        to: envelope.properties,
+                        body: envelope.request
+                    }, async())
                 }, rescue(/^conduit#endOfStream$/m, null)], function (response) {
                     communique.responses[envelope.to] = response
                 })
