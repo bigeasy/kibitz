@@ -35,7 +35,7 @@
                             "prolific.logger":              "5.0.x",
                             "rescue":                       "3.2.x",
                             "sequester":                    "1.0.x",
-                            "signal":                       "3.0.x"
+                            "signal":                       "3.2.x"
     },
     "devDependencies":
     {
