@@ -27,7 +27,7 @@
                             "departure":                    "0.0.x",
                             "destructible":                 "0.17.x",
                             "happenstance":                 "5.0.x",
-                            "islander":                     "0.8.x",
+                            "islander":                     "0.9.x",
                             "monotonic":                    "3.0.x",
                             "nop":                          "1.0.0",
                             "paxos":                        "9.0.x",

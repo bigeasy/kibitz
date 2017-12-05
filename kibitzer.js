@@ -90,7 +90,10 @@ function Kibitzer (options) {
     // Submission queue with resubmission logic.
     this.islander = new Islander(options.id)
 
-    // Paxos sends messages to islander.
+    // Copy messages from the Paxos log to our log.
+    this.paxos.log.shifter().pump(this.log, 'enqueue')
+
+    // Paxos also sends messages to Islander for accounting.
     this.paxos.log.shifter().pump(this.islander, 'enqueue')
 
     this._shifters = null
@@ -103,7 +106,6 @@ function Kibitzer (options) {
 
     this.played = new Procession
 
-    this.islander.log.shifter().pump(this.log, 'enqueue')
 
     this._destructible = new Destructible(1000, 'kibitzer')
     this._destructible.markDestroyed(this, 'destroyed')
@@ -205,7 +207,7 @@ Kibitzer.prototype.replay = function (envelope) {
         this.islander.publish(envelope.body)
         break
     case 'published':
-        this.islander.sent(envelope.body.promises)
+        this.islander.sent(envelope.body.cookie, envelope.body.promises)
         break
     case 'sent':
         this.paxos.response(envelope.when, envelope.body.cookie, envelope.body.responses)
@@ -270,8 +272,8 @@ Kibitzer.prototype.naturalize = function () {
 Kibitzer.prototype._publish = cadence(function (async) {
     var loop = async(function () {
         this._shifters.islander.dequeue(async())
-    }, function (messages) {
-        if (messages == null) {
+    }, function (envelope) {
+        if (envelope == null) {
             return [ loop.break ]
         }
         async([function () {
@@ -282,11 +284,11 @@ Kibitzer.prototype._publish = cadence(function (async) {
                 to: properties,
                 body: {
                     republic: this.paxos.republic,
-                    entries: messages
+                    entries: envelope.messages
                 }
             }, async())
         }, rescue(/^conduit#endOfStream$/m, null)], function (promises) {
-            this.play('published', { promises: promises })
+            this.play('published', { cookie: envelope.cookie, promises: promises })
         })
     })()
 })
