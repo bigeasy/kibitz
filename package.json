@@ -16,7 +16,7 @@
     "repository":
     {
                             "type": "git",
-                            "url": "http://github.com/bigeasy/kibitz.git"
+                            "url": "bigeasy/kibitz"
     },
     "dependencies":
     {
