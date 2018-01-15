@@ -11,29 +11,6 @@
   <div id="container">
     <div id="background"></div>
 
-      <ul id="jump_to">
-        <li>
-          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
-          <a class="small" href="javascript:void(0);">+</a>
-          <div id="jump_wrapper">
-          <div id="jump_page_wrapper">
-            <div id="jump_page">
-
-
-                <a class="source" href="address.js.html">
-                  address.js
-                </a>
-
-
-                <a class="source" href="kibitzer.js.html">
-                  kibitzer.js
-                </a>
-
-            </div>
-          </div>
-        </li>
-      </ul>
-
     <ul class="sections">
 
           <li id="title">
@@ -107,9 +84,7 @@ queuing of events, so why not use this queue that already exists?</p>
 
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> events = <span class="hljs-built_in">require</span>(<span class="hljs-string">'events'</span>)
 <span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>)
-<span class="hljs-keyword">var</span> departure = <span class="hljs-built_in">require</span>(<span class="hljs-string">'departure'</span>)
-
-<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>)</pre></div></div>
+<span class="hljs-keyword">var</span> departure = <span class="hljs-built_in">require</span>(<span class="hljs-string">'departure'</span>)</pre></div></div>
 
         </li>
 
@@ -120,11 +95,12 @@ queuing of events, so why not use this queue that already exists?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Varadic arguments.</p>
+              <p>Common utiltieis.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> slice = [].slice</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>)
+<span class="hljs-keyword">var</span> nop = <span class="hljs-built_in">require</span>(<span class="hljs-string">'nop'</span>)</pre></div></div>
 
         </li>
 
@@ -141,9 +117,8 @@ queuing of events, so why not use this queue that already exists?</p>
 
             <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> abend = <span class="hljs-built_in">require</span>(<span class="hljs-string">'abend'</span>)
 <span class="hljs-keyword">var</span> cadence = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cadence'</span>)
-<span class="hljs-keyword">var</span> Scheduler = <span class="hljs-built_in">require</span>(<span class="hljs-string">'happenstance'</span>)
-<span class="hljs-keyword">var</span> Queue = <span class="hljs-built_in">require</span>(<span class="hljs-string">'procession'</span>)
-<span class="hljs-keyword">var</span> Sequester = <span class="hljs-built_in">require</span>(<span class="hljs-string">'sequester'</span>)</pre></div></div>
+<span class="hljs-keyword">var</span> Timer = <span class="hljs-built_in">require</span>(<span class="hljs-string">'happenstance'</span>).Timer
+<span class="hljs-keyword">var</span> Procession = <span class="hljs-built_in">require</span>(<span class="hljs-string">'procession'</span>)</pre></div></div>
 
         </li>
 
@@ -171,11 +146,12 @@ queuing of events, so why not use this queue that already exists?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Logging.</p>
+              <p>Construction notification and destruction.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'prolific.logger'</span>).createLogger(<span class="hljs-string">'kibitz'</span>)</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Destructible = <span class="hljs-built_in">require</span>(<span class="hljs-string">'destructible'</span>)
+<span class="hljs-keyword">var</span> Signal = <span class="hljs-built_in">require</span>(<span class="hljs-string">'signal'</span>)</pre></div></div>
 
         </li>
 
@@ -186,11 +162,11 @@ queuing of events, so why not use this queue that already exists?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>Message queue.</p>
+              <p>Logging.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Requester = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conduit/requester'</span>)</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'prolific.logger'</span>).createLogger(<span class="hljs-string">'kibitz'</span>)</pre></div></div>
 
         </li>
 
@@ -201,11 +177,11 @@ queuing of events, so why not use this queue that already exists?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>The <code>Kibitzer</code> object contains an islander, which will submit messages to
-Paxos, track the log generated by Paxos and resubit any messages that might
-have been dropped.</p>
+              <p>Message queue.</p>
 
             </div>
+
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Caller = <span class="hljs-built_in">require</span>(<span class="hljs-string">'conduit/caller'</span>)</pre></div></div>
 
         </li>
 
@@ -216,10 +192,11 @@ have been dropped.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
+              <p>Catch exceptions based on a regex match of an error message or property.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Kibitzer</span> (<span class="hljs-params">options</span>) </span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> rescue = <span class="hljs-built_in">require</span>(<span class="hljs-string">'rescue'</span>)</pre></div></div>
 
         </li>
 
@@ -230,11 +207,11 @@ have been dropped.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>Log used to drain Islander.</p>
+              <p>The <code>Kibitzer</code> object contains an islander, which will submit messages to
+Paxos, track the log generated by Paxos and resubit any messages that might
+have been dropped.</p>
 
             </div>
-
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.log = <span class="hljs-keyword">new</span> Queue</pre></div></div>
 
         </li>
 
@@ -245,14 +222,10 @@ have been dropped.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
-              <p>Set option defaults.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    options || (options = {})
-
-    options.ping || (options.ping = <span class="hljs-number">250</span>)
-    options.timeout || (options.timeout = <span class="hljs-number">1000</span>)</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Kibitzer</span> (<span class="hljs-params">options</span>) </span>{</pre></div></div>
 
         </li>
 
@@ -263,14 +236,11 @@ have been dropped.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>TODO How are these properties used? It seems like there is a properties
-object at every level of abstraction. I’d expect the properties object in
-Paxos to be the definitive properties mechanism. They should be set with
-an accessor to record the property setting.</p>
+              <p>Log used to drain Islander.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.properties = options.properties || {}</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.log = <span class="hljs-keyword">new</span> Procession</pre></div></div>
 
         </li>
 
@@ -281,21 +251,12 @@ an accessor to record the property setting.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
-              <p>Time obtained from optional <code>Date</code> for unit testing.</p>
+              <p>These defaults are a bit harsh if you’re going to log everything.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._Date = options.Date || <span class="hljs-built_in">Date</span>
-    <span class="hljs-keyword">this</span>.scheduler = <span class="hljs-keyword">new</span> Scheduler({ <span class="hljs-attr">Date</span>: <span class="hljs-keyword">this</span>._Date })
-
-    <span class="hljs-keyword">this</span>.paxos = <span class="hljs-keyword">new</span> Paxos(options.id, {
-        <span class="hljs-attr">ping</span>: options.ping,
-        <span class="hljs-attr">timeout</span>: options.timeout,
-        <span class="hljs-attr">scheduler</span>: {
-            <span class="hljs-attr">Date</span>: options.Date || <span class="hljs-built_in">Date</span>,
-            <span class="hljs-attr">timerless</span>: options.replaying
-        }
-    })</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    options.ping || (options.ping = <span class="hljs-number">250</span>)
+    options.timeout || (options.timeout = <span class="hljs-number">1000</span>)</pre></div></div>
 
         </li>
 
@@ -306,11 +267,16 @@ an accessor to record the property setting.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
-              <p>Submission queue with resubmission logic.</p>
+              <p>Time obtained from optional <code>Date</code> for unit testing.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._islander = <span class="hljs-keyword">new</span> Islander(options.id)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._Date = options.Date || <span class="hljs-built_in">Date</span>
+
+    <span class="hljs-keyword">this</span>.paxos = <span class="hljs-keyword">new</span> Paxos(<span class="hljs-keyword">this</span>._Date.now(), <span class="hljs-literal">null</span>, options.id, {
+        <span class="hljs-attr">ping</span>: options.ping,
+        <span class="hljs-attr">timeout</span>: options.timeout
+    })</pre></div></div>
 
         </li>
 
@@ -321,11 +287,11 @@ an accessor to record the property setting.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
-              <p>Paxos sends messages to islander.</p>
+              <p>Submission queue with resubmission logic.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.paxos.log.shifter().pump(<span class="hljs-keyword">this</span>._islander)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.islander = <span class="hljs-keyword">new</span> Islander(options.id)</pre></div></div>
 
         </li>
 
@@ -336,11 +302,11 @@ an accessor to record the property setting.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
-              <p>While we read messages off of the Islander, uh, but it is not necessary!?!</p>
+              <p>Copy messages from the Paxos log to our log.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.shifter = <span class="hljs-keyword">this</span>._islander.log.shifter()</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.paxos.log.shifter().pump(<span class="hljs-keyword">this</span>.log, <span class="hljs-string">'enqueue'</span>)</pre></div></div>
 
         </li>
 
@@ -351,21 +317,13 @@ an accessor to record the property setting.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
-              <p>Used to record events generated during playback.</p>
+              <p>Paxos also sends messages to Islander for accounting.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._recording = { <span class="hljs-attr">paxos</span>: [], <span class="hljs-attr">islander</span>: [] }
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.paxos.log.shifter().pump(<span class="hljs-keyword">this</span>.islander, <span class="hljs-string">'enqueue'</span>)
 
-    <span class="hljs-keyword">this</span>._messengers = { <span class="hljs-attr">legislator</span>: <span class="hljs-keyword">new</span> Queue, <span class="hljs-attr">islander</span>: <span class="hljs-keyword">new</span> Queue }
-
-    <span class="hljs-keyword">this</span>.paxos.outbox.shifter().pump(<span class="hljs-keyword">this</span>._messengers.legislator)
-    <span class="hljs-keyword">this</span>._islander.outbox.shifter().pump(<span class="hljs-keyword">this</span>._messengers.islander)
-
-    <span class="hljs-keyword">this</span>._outboxes = {
-        <span class="hljs-attr">legislator</span>: <span class="hljs-keyword">this</span>._messengers.legislator.shifter(),
-        <span class="hljs-attr">islander</span>: <span class="hljs-keyword">this</span>._messengers.islander.shifter()
-    }</pre></div></div>
+    <span class="hljs-keyword">this</span>._shifters = <span class="hljs-literal">null</span></pre></div></div>
 
         </li>
 
@@ -376,22 +334,38 @@ an accessor to record the property setting.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
-              <p>Requesters to make network requests.</p>
+              <p>Caller to make network requests.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._requester = <span class="hljs-keyword">new</span> Requester(<span class="hljs-string">'kibitz'</span>)
-    <span class="hljs-keyword">this</span>.spigot = <span class="hljs-keyword">this</span>._requester.spigot
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>._caller = <span class="hljs-keyword">new</span> Caller
 
-    <span class="hljs-keyword">this</span>._islander.log.pump(<span class="hljs-keyword">this</span>.log)
+    <span class="hljs-keyword">this</span>.read = <span class="hljs-keyword">this</span>._caller.read
+    <span class="hljs-keyword">this</span>.write = <span class="hljs-keyword">this</span>._caller.write
 
-    <span class="hljs-keyword">this</span>._publish(abend)
-    <span class="hljs-keyword">this</span>._send(abend)
+    <span class="hljs-keyword">this</span>.played = <span class="hljs-keyword">new</span> Procession
 
-    <span class="hljs-keyword">this</span>._pumping = Sequester.createLock()
-    <span class="hljs-keyword">this</span>._pumping.share(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{})
-    <span class="hljs-keyword">this</span>._pumping.share(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{})
-}</pre></div></div>
+
+    <span class="hljs-keyword">this</span>._destructible = <span class="hljs-keyword">new</span> Destructible(<span class="hljs-number">1000</span>, <span class="hljs-string">'kibitzer'</span>)
+    <span class="hljs-keyword">this</span>._destructible.markDestroyed(<span class="hljs-keyword">this</span>, <span class="hljs-string">'destroyed'</span>)
+
+    <span class="hljs-keyword">this</span>._shifters = {
+        <span class="hljs-attr">paxos</span>: <span class="hljs-keyword">this</span>.paxos.outbox.shifter(),
+        <span class="hljs-attr">islander</span>: <span class="hljs-keyword">this</span>.islander.outbox.shifter()
+    }
+
+    <span class="hljs-keyword">this</span>._destructible.addDestructor(<span class="hljs-string">'publish'</span>, <span class="hljs-keyword">this</span>._shifters.islander, <span class="hljs-string">'destroy'</span>)
+    <span class="hljs-keyword">this</span>._destructible.addDestructor(<span class="hljs-string">'send'</span>, <span class="hljs-keyword">this</span>._shifters.paxos, <span class="hljs-string">'destroy'</span>)
+
+    <span class="hljs-keyword">this</span>._destructible.addDestructor(<span class="hljs-string">'scheduler'</span>, <span class="hljs-keyword">this</span>.paxos.scheduler, <span class="hljs-string">'clear'</span>)
+    <span class="hljs-keyword">this</span>._destructible.addDestructor(<span class="hljs-string">'eos'</span>, <span class="hljs-keyword">this</span>.write, <span class="hljs-string">'push'</span>)
+
+    <span class="hljs-keyword">this</span>.destruction = <span class="hljs-keyword">this</span>._destructible.events
+
+    <span class="hljs-keyword">this</span>.ready = <span class="hljs-keyword">new</span> Signal
+}
+
+Kibitzer.prototype.listen = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{</pre></div></div>
 
         </li>
 
@@ -402,11 +376,21 @@ an accessor to record the property setting.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
-              <p>We record events generated during playback so that they can be compared with
-the actual events played back from the log to assert that the playback is
-indeed determinic.</p>
+              <p>TODO Pass an “operation” to <code>Procession.pump</code>.</p>
 
             </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> timer = <span class="hljs-keyword">new</span> Timer(<span class="hljs-keyword">this</span>.paxos.scheduler)
+    timer.events.shifter().pump(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">envelope</span>) </span>{
+        logger.info(<span class="hljs-string">'timer'</span>, envelope)
+        <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'event'</span>, envelope)
+    }.bind(<span class="hljs-keyword">this</span>))
+    <span class="hljs-keyword">this</span>.paxos.scheduler.events.shifter().pump(timer, <span class="hljs-string">'enqueue'</span>)
+    <span class="hljs-keyword">this</span>._publish(<span class="hljs-keyword">this</span>._destructible.monitor(<span class="hljs-string">'publish'</span>))
+    <span class="hljs-keyword">this</span>._send(<span class="hljs-keyword">this</span>._destructible.monitor(<span class="hljs-string">'send'</span>))
+    <span class="hljs-keyword">this</span>.ready.unlatch()
+    <span class="hljs-keyword">this</span>._destructible.completed.wait(<span class="hljs-keyword">async</span>())
+})</pre></div></div>
 
         </li>
 
@@ -417,8 +401,14 @@ indeed determinic.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
+              <p>You can just as easily use POSIX time for the <code>republic</code>.</p>
 
             </div>
+
+            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.bootstrap = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">republic, properties</span>) </span>{
+    assert(republic != <span class="hljs-literal">null</span>)
+    <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'bootstrap'</span>, { <span class="hljs-attr">republic</span>: republic, <span class="hljs-attr">properties</span>: properties })
+}</pre></div></div>
 
         </li>
 
@@ -429,10 +419,15 @@ indeed determinic.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
-              <p>Put the Kibitzer in a replay state. TODO Maybe move this into the
-constructor, or better still, use a decorator pattern.</p>
+              <p>Enqueue a user message into the <code>Islander</code>. The <code>Islander</code> will submit the
+message, monitor the atomic log, and then resubmit the message if it detects
+that the message was lost.</p>
 
             </div>
+
+            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.publish = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">entry</span>) </span>{
+    <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'publish'</span>, entry)
+}</pre></div></div>
 
         </li>
 
@@ -442,166 +437,6 @@ constructor, or better still, use a decorator pattern.</p>
 
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-23">&#182;</a>
-              </div>
-
-            </div>
-
-            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.replay = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</pre></div></div>
-
-        </li>
-
-
-        <li id="section-24">
-            <div class="annotation">
-
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
-              </div>
-              <p>TODO Can Prolific Logger support this pattern? TODO Actually, just patch over
-the <code>Writer</code> with a decorator, document the example as the way to do it. The
-writer is passive, you should only be setting it up in a program, during
-program startup, prior to any logging. There ought to be no logging during
-<code>require</code>, but if there is, then you need to concern yourself with the order
-of require, and that okay, if you’ve got that edge case for true.</p>
-
-            </div>
-
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> sink = <span class="hljs-built_in">require</span>(<span class="hljs-string">'prolific.logger'</span>).sink
-    <span class="hljs-keyword">var</span> writer = sink.writer
-    <span class="hljs-keyword">var</span> recording = <span class="hljs-keyword">this</span>._recording
-    sink.writer = {
-        <span class="hljs-attr">write</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">buffer</span>) </span>{
-            <span class="hljs-keyword">var</span> entry = <span class="hljs-built_in">JSON</span>.parse(buffer.toString())
-            <span class="hljs-keyword">switch</span> (entry.qualifier) {
-            <span class="hljs-keyword">case</span> <span class="hljs-string">'kibitz'</span>:
-                <span class="hljs-keyword">break</span>
-            <span class="hljs-keyword">case</span> <span class="hljs-string">'paxos'</span>:
-            <span class="hljs-keyword">case</span> <span class="hljs-string">'islander'</span>:
-                recording[entry.qualifier].push({
-                    <span class="hljs-attr">method</span>: entry.name,
-                    <span class="hljs-attr">vargs</span>: entry.$vargs
-                })
-                <span class="hljs-keyword">break</span>
-            }
-            writer.write(buffer)
-        }
-    }
-}
-
-Kibitzer.prototype._play_paxos = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">entry, callback</span>) </span>{
-    <span class="hljs-keyword">this</span>.legislator[entry.name].apply(<span class="hljs-keyword">this</span>.legislator, entry.$vargs)
-    <span class="hljs-keyword">this</span>._notifier.notify()
-    <span class="hljs-keyword">this</span>.play(entry, callback)
-}
-
-Kibitzer.prototype._play_islander = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">entry, callback</span>) </span>{
-    <span class="hljs-keyword">this</span>.islander[entry.name].apply(<span class="hljs-keyword">this</span>.islander, entry.$vargs)
-    <span class="hljs-keyword">this</span>._notifier.notify()
-    <span class="hljs-keyword">this</span>.play(entry, callback)
-}</pre></div></div>
-
-        </li>
-
-
-        <li id="section-25">
-            <div class="annotation">
-
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
-              </div>
-              <p>Play an entry in the playback log.</p>
-
-            </div>
-
-        </li>
-
-
-        <li id="section-26">
-            <div class="annotation">
-
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
-              </div>
-
-            </div>
-
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> waiting = <span class="hljs-literal">false</span>
-Kibitzer.prototype.play = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, entry</span>) </span>{
-    assert(!waiting)
-    <span class="hljs-keyword">switch</span> (entry.qualifier) {
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'kibitz'</span>:
-        <span class="hljs-keyword">if</span> (entry.name == <span class="hljs-string">'shift'</span>) {
-            <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                waiting = <span class="hljs-literal">true</span>
-                <span class="hljs-keyword">this</span>._replayed.push({
-                    <span class="hljs-attr">shifted</span>: entry.shifted,
-                    <span class="hljs-attr">callback</span>: <span class="hljs-keyword">async</span>()
-                })
-                <span class="hljs-keyword">this</span>.emit(<span class="hljs-string">'enqueued'</span>)
-            }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                waiting = <span class="hljs-literal">false</span>
-            })
-        }
-        <span class="hljs-keyword">break</span>
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'paxos'</span>:
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'islander'</span>:
-        <span class="hljs-keyword">var</span> recording = <span class="hljs-keyword">this</span>._recording[entry.qualifier]
-        <span class="hljs-keyword">if</span> (recording.length) {
-            departure.raise({
-                <span class="hljs-attr">method</span>: entry.name,
-                <span class="hljs-attr">vargs</span>: entry.$vargs
-            }, recording.shift())
-        } <span class="hljs-keyword">else</span> {
-            <span class="hljs-keyword">this</span>[<span class="hljs-string">'_play_'</span> + entry.qualifier](entry, <span class="hljs-keyword">async</span>())
-        }
-        <span class="hljs-keyword">break</span>
-    }
-})</pre></div></div>
-
-        </li>
-
-
-        <li id="section-27">
-            <div class="annotation">
-
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
-              </div>
-              <p>You can just as easily use POSIX time for the <code>republic</code>.</p>
-
-            </div>
-
-            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.bootstrap = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">republic</span>) </span>{
-    <span class="hljs-keyword">this</span>.paxos.bootstrap(<span class="hljs-keyword">this</span>._Date.now(), republic, <span class="hljs-keyword">this</span>.properties)
-}</pre></div></div>
-
-        </li>
-
-
-        <li id="section-28">
-            <div class="annotation">
-
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
-              </div>
-              <p>Enqueue a user message into the <code>Islander</code>. The <code>Islander</code> will submit the
-message, monitor the atomic log, and then resubmit the message if it detects
-that the message was lost.</p>
-
-            </div>
-
-            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.publish = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">entry</span>) </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._islander.publish(entry)
-}</pre></div></div>
-
-        </li>
-
-
-        <li id="section-29">
-            <div class="annotation">
-
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Called by your network implementation with messages enqueued from another
 Kibitz.</p>
@@ -614,13 +449,155 @@ Kibitz.</p>
         <span class="hljs-keyword">this</span>._immigrate(envelope.body, <span class="hljs-keyword">async</span>())
         <span class="hljs-keyword">break</span>
     <span class="hljs-keyword">case</span> <span class="hljs-string">'receive'</span>:
-        <span class="hljs-keyword">this</span>._receive(envelope.body, <span class="hljs-keyword">async</span>())
-        <span class="hljs-keyword">break</span>
+        <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'receive'</span>, envelope.body) ]
     <span class="hljs-keyword">case</span> <span class="hljs-string">'enqueue'</span>:
-        <span class="hljs-keyword">this</span>._enqueue(envelope.body, <span class="hljs-keyword">async</span>())
+        <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'enqueue'</span>, envelope.body) ]
+    }
+})
+
+Kibitzer.prototype.play = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">method, body</span>) </span>{
+    <span class="hljs-keyword">var</span> envelope = {
+        <span class="hljs-attr">module</span>: <span class="hljs-string">'kibitz'</span>,
+        <span class="hljs-attr">method</span>: method,
+        <span class="hljs-attr">when</span>: <span class="hljs-keyword">this</span>._Date.now(),
+        <span class="hljs-attr">body</span>: body
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.replay(envelope)
+}
+
+
+Kibitzer.prototype.replay = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">envelope</span>) </span>{
+    <span class="hljs-keyword">this</span>.played.push(envelope)
+    <span class="hljs-keyword">switch</span> (envelope.method) {
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'bootstrap'</span>:
+        <span class="hljs-keyword">this</span>.paxos.republic = envelope.body.republic
+        <span class="hljs-keyword">this</span>.paxos.bootstrap(envelope.when, envelope.body.properties)
+        <span class="hljs-keyword">break</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'join'</span>:
+        <span class="hljs-keyword">this</span>.paxos.cookie = envelope.when
+        <span class="hljs-keyword">this</span>.paxos.republic = envelope.body.republic
+        <span class="hljs-keyword">break</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'naturalize'</span>:
+        <span class="hljs-keyword">this</span>.paxos.naturalize()
+        <span class="hljs-keyword">break</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'event'</span>:
+        <span class="hljs-keyword">this</span>.paxos.event(envelope.body)
+        <span class="hljs-keyword">break</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'immigrate'</span>:
+        <span class="hljs-keyword">var</span> body = envelope.body
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.paxos.immigrate(envelope.when, body.republic, body.id, body.cookie, body.properties)
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'receive'</span>:</pre></div></div>
+
+        </li>
+
+
+        <li id="section-24">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>TODO Split pulse from messages somehow, make them siblings, not nested.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.paxos.request(envelope.when, envelope.body)
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'enqueue'</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._enqueue(envelope.when, envelope.body)
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'publish'</span>:
+        <span class="hljs-keyword">this</span>.islander.publish(envelope.body)
+        <span class="hljs-keyword">break</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'published'</span>:
+        <span class="hljs-keyword">this</span>.islander.sent(envelope.body.cookie, envelope.body.promises)
+        <span class="hljs-keyword">break</span>
+    <span class="hljs-keyword">case</span> <span class="hljs-string">'sent'</span>:
+        <span class="hljs-keyword">this</span>.paxos.response(envelope.when, envelope.body.cookie, envelope.body.responses)
         <span class="hljs-keyword">break</span>
     }
-})</pre></div></div>
+}</pre></div></div>
+
+        </li>
+
+
+        <li id="section-25">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Stop timers, and stop timers only. We’re not in a position to notify clients
+that there will be no more messages.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.destroy = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">this</span>._destructible.destroy()
+}</pre></div></div>
+
+        </li>
+
+
+        <li id="section-26">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>TODO You are assuming that an address is not an address but a set of
+properties, so you need to provide those properties for leader as an
+argument, not just a url or identifier.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-27">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.join = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, republic, leader, properties</span>) </span>{</pre></div></div>
+
+        </li>
+
+
+        <li id="section-28">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>TODO Should this be or should this not be? It should be. You’re sending your
+enqueue messages until you immigrate. You don’t know when that will be.
+You’re only going to know if you’ve succeeded if your legislator has
+immigrated. That’s the only way.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-29">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>TODO Was a test, but it is now an assertion and it really ought be an
+exception because it is not impossible.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.paxos.government.promise != <span class="hljs-string">'0/0'</span>) {
+        <span class="hljs-keyword">return</span>
+    }
+
+    assert(republic != <span class="hljs-literal">null</span>)</pre></div></div>
 
         </li>
 
@@ -631,23 +608,12 @@ Kibitz.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
-              <p>Stop timers, and stop timers only. We’re not in a position to notify clients
-that there will be no more messages.</p>
+              <p>throw new Error</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.shutdown = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
-    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>._shutdown) {
-        <span class="hljs-keyword">this</span>._pumping.exclude(<span class="hljs-keyword">async</span>())
-        <span class="hljs-keyword">this</span>._outboxes.legislator.destroy()
-        <span class="hljs-keyword">this</span>._outboxes.islander.destroy()
-        <span class="hljs-keyword">this</span>._shutdown = <span class="hljs-literal">true</span>
-        <span class="hljs-keyword">this</span>.scheduler.shutdown()
-        <span class="hljs-keyword">this</span>.paxos.scheduler.shutdown()
-    }
-})
-
-Kibitzer.prototype.join = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, leader</span>) </span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'join'</span>, { <span class="hljs-attr">republic</span>: republic })</pre></div></div>
 
         </li>
 
@@ -658,14 +624,33 @@ Kibitzer.prototype.join = cadence(<span class="hljs-function"><span class="hljs-
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
-              <p>TODO Should this be or should this not be? It should be. You’re sending your
-enqueue messages until you immigrate. You don’t know when that will be.
-You’re only going to know if you’ve succeeded if your legislator has
-immigrated. That’s the only way.</p>
+              <p>Note that we’re passing properties so that they’re logged for
+inspection during debugging replay, but they’re not going to be used
+as an argument to Paxos on this side. We give them to our leader when
+we request immigration.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.paxos.government.promise != <span class="hljs-string">'0/0'</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">this</span>._caller.invoke({
+            <span class="hljs-attr">module</span>: <span class="hljs-string">'kibitz'</span>,
+            <span class="hljs-attr">method</span>: <span class="hljs-string">'immigrate'</span>,
+            <span class="hljs-attr">to</span>: leader,
+            <span class="hljs-attr">body</span>: {
+                <span class="hljs-attr">republic</span>: <span class="hljs-keyword">this</span>.paxos.republic,
+                <span class="hljs-attr">id</span>: <span class="hljs-keyword">this</span>.paxos.id,
+                <span class="hljs-attr">cookie</span>: <span class="hljs-keyword">this</span>.paxos.cookie,
+                <span class="hljs-attr">properties</span>: properties,
+                <span class="hljs-attr">hops</span>: <span class="hljs-number">0</span>
+            }
+        }, <span class="hljs-keyword">async</span>())
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">response</span>) </span>{
+        <span class="hljs-keyword">return</span> response != <span class="hljs-literal">null</span> &amp;&amp; response.enqueued
+    })
+})
+
+Kibitzer.prototype.naturalize = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'naturalize'</span>, {})
+}</pre></div></div>
 
         </li>
 
@@ -676,13 +661,33 @@ immigrated. That’s the only way.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
-              <p>TODO This should be rejected when you enqueue, it shoudln’t matter.</p>
+              <p>Publish to consensus algorithm from islander retryable client.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Hey! I got a government.'</span>)
-        <span class="hljs-keyword">return</span>
-    }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>Kibitzer.prototype._publish = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
+    <span class="hljs-keyword">var</span> loop = <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>._shifters.islander.dequeue(<span class="hljs-keyword">async</span>())
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">envelope</span>) </span>{
+        <span class="hljs-keyword">if</span> (envelope == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> [ loop.break ]
+        }
+        <span class="hljs-keyword">async</span>([<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> properties = <span class="hljs-keyword">this</span>.paxos.government.properties[<span class="hljs-keyword">this</span>.paxos.government.majority[<span class="hljs-number">0</span>]]
+            <span class="hljs-keyword">this</span>._caller.invoke({
+                <span class="hljs-attr">module</span>: <span class="hljs-string">'kibitz'</span>,
+                <span class="hljs-attr">method</span>: <span class="hljs-string">'enqueue'</span>,
+                <span class="hljs-attr">to</span>: properties,
+                <span class="hljs-attr">body</span>: {
+                    <span class="hljs-attr">republic</span>: <span class="hljs-keyword">this</span>.paxos.republic,
+                    <span class="hljs-attr">entries</span>: envelope.messages
+                }
+            }, <span class="hljs-keyword">async</span>())
+        }, rescue(<span class="hljs-regexp">/^conduit#endOfStream$/m</span>, <span class="hljs-literal">null</span>)], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">promises</span>) </span>{
+            <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'published'</span>, { <span class="hljs-attr">cookie</span>: envelope.cookie, <span class="hljs-attr">promises</span>: promises })
+        })
+    })()
+})</pre></div></div>
 
         </li>
 
@@ -693,27 +698,40 @@ immigrated. That’s the only way.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
-              <p>throw new Error</p>
+              <p>TODO Annoying how difficult it is to stop this crazy thing. There are going
+to be race conditions where we have a termination, come in, we shut things
+down, but then we continue with processing a pulse which triggers a timer.
+Sending messages to paxos can restart it’s scheduler.</p>
+<p>TODO We could kill the timer in the scheduler, set the boolean we added to
+tell it to no longer schedule.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-        <span class="hljs-keyword">this</span>.paxos.join(<span class="hljs-keyword">this</span>._Date.now(), leader.republic)
-        <span class="hljs-keyword">this</span>._requester.request(<span class="hljs-string">'kibitz'</span>, {
-            <span class="hljs-attr">module</span>: <span class="hljs-string">'kibitz'</span>,
-            <span class="hljs-attr">method</span>: <span class="hljs-string">'immigrate'</span>,
-            <span class="hljs-attr">to</span>: leader,
-            <span class="hljs-attr">body</span>: {
-                <span class="hljs-attr">republic</span>: leader.republic,
-                <span class="hljs-attr">id</span>: <span class="hljs-keyword">this</span>.paxos.id,
-                <span class="hljs-attr">cookie</span>: <span class="hljs-keyword">this</span>.paxos.cookie,
-                <span class="hljs-attr">properties</span>: <span class="hljs-keyword">this</span>.properties,
-                <span class="hljs-attr">hops</span>: <span class="hljs-number">0</span>
-            }
-        }, <span class="hljs-keyword">async</span>())
-    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">response</span>) </span>{
-        <span class="hljs-keyword">return</span> response != <span class="hljs-literal">null</span> &amp;&amp; response.enqueued
-    })
+            <div class="content"><div class='highlight'><pre>Kibitzer.prototype._send = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
+    <span class="hljs-keyword">var</span> loop = <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>._shifters.paxos.dequeue(<span class="hljs-keyword">async</span>())
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">communique</span>) </span>{
+        <span class="hljs-keyword">if</span> (communique == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> [ loop.break ]
+        }
+        <span class="hljs-keyword">var</span> responses = {}
+        <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            communique.envelopes.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">envelope</span>) </span>{
+                <span class="hljs-keyword">async</span>([<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+                    <span class="hljs-keyword">this</span>._caller.invoke({
+                        <span class="hljs-attr">module</span>: <span class="hljs-string">'kibitz'</span>,
+                        <span class="hljs-attr">method</span>: <span class="hljs-string">'receive'</span>,
+                        <span class="hljs-attr">to</span>: envelope.properties,
+                        <span class="hljs-attr">body</span>: envelope.request
+                    }, <span class="hljs-keyword">async</span>())
+                }, rescue(<span class="hljs-regexp">/^conduit#endOfStream$/m</span>, <span class="hljs-literal">null</span>)], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">response</span>) </span>{
+                    communique.responses[envelope.to] = response
+                })
+            }, <span class="hljs-keyword">this</span>)
+        }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'sent'</span>, { <span class="hljs-attr">cookie</span>: communique.cookie, <span class="hljs-attr">responses</span>: communique.responses })
+        })
+    })()
 })</pre></div></div>
 
         </li>
@@ -725,151 +743,44 @@ immigrated. That’s the only way.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
-              <p>Publish to consensus algorithm from islander retryable client.</p>
+              <p>TODO Hopping is a second way of doing a thing and we don’t need a second way
+of doing a thing.</p>
 
             </div>
 
-            <div class="content"><div class='highlight'><pre>Kibitzer.prototype._publish = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
-    <span class="hljs-keyword">async</span>([<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-        <span class="hljs-keyword">this</span>._pumping.unlock()
-    }], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-        <span class="hljs-keyword">var</span> loop = <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-            <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                <span class="hljs-keyword">this</span>._outboxes.islander.dequeue(<span class="hljs-keyword">async</span>())
-            }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">messages</span>) </span>{
-                <span class="hljs-keyword">if</span> (messages == <span class="hljs-literal">null</span>) {
-                    <span class="hljs-keyword">return</span> [ loop.break ]
-                }
-                <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                    <span class="hljs-keyword">var</span> properties = <span class="hljs-keyword">this</span>.paxos.government.properties[<span class="hljs-keyword">this</span>.paxos.government.majority[<span class="hljs-number">0</span>]]
-                    <span class="hljs-keyword">this</span>._requester.request(<span class="hljs-string">'kibitz'</span>, {
-                        <span class="hljs-attr">module</span>: <span class="hljs-string">'kibitz'</span>,
-                        <span class="hljs-attr">method</span>: <span class="hljs-string">'enqueue'</span>,
-                        <span class="hljs-attr">to</span>: properties,
-                        <span class="hljs-attr">body</span>: {
-                            <span class="hljs-attr">republic</span>: <span class="hljs-keyword">this</span>.paxos.republic,
-                            <span class="hljs-attr">entries</span>: messages
-                        }
-                    }, <span class="hljs-keyword">async</span>())
-                }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">promises</span>) </span>{
-                    <span class="hljs-keyword">this</span>._islander.sent(promises)
-                })
-            })
-        })()
-    })
-})</pre></div></div>
-
-        </li>
-
-
-        <li id="section-35">
-            <div class="annotation">
-
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
-              </div>
-              <p>TODO Annoying how difficult it is to stop this crazy thing. There are going
-to be race conditions where we have a termination, come in, we shut things
-down, but then we continue with processing a pulse which triggers a timer.
-Sending messages to legislator can restart it’s scheduler.</p>
-<p>TODO We could kill the timer in the scheduler, set the boolean we added to
-tell it to no longer schedule.</p>
-
-            </div>
-
-            <div class="content"><div class='highlight'><pre>Kibitzer.prototype._send = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async</span>) </span>{
-    <span class="hljs-keyword">async</span>([<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-        <span class="hljs-keyword">this</span>._pumping.unlock()
-    }], <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-        <span class="hljs-keyword">var</span> loop = <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-            <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                <span class="hljs-keyword">this</span>._outboxes.legislator.dequeue(<span class="hljs-keyword">async</span>())
-            }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pulse</span>) </span>{
-                <span class="hljs-keyword">if</span> (pulse == <span class="hljs-literal">null</span>) {
-                    <span class="hljs-keyword">return</span> [ loop.break ]
-                }
-                <span class="hljs-keyword">var</span> responses = []
-                <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                    pulse.route.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id</span>) </span>{
-                        <span class="hljs-keyword">if</span> (id == <span class="hljs-keyword">this</span>.paxos.id) {
-                            responses[id] = <span class="hljs-keyword">this</span>.paxos.receive(<span class="hljs-keyword">this</span>._Date.now(), pulse, pulse.messages)
-                        } <span class="hljs-keyword">else</span> {
-                            <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                                <span class="hljs-keyword">var</span> properties = <span class="hljs-keyword">this</span>.paxos.government.properties[id]
-                                <span class="hljs-keyword">this</span>._requester.request(<span class="hljs-string">'kibitz'</span>, {
-                                    <span class="hljs-attr">module</span>: <span class="hljs-string">'kibitz'</span>,
-                                    <span class="hljs-attr">method</span>: <span class="hljs-string">'receive'</span>,
-                                    <span class="hljs-attr">to</span>: properties,
-                                    <span class="hljs-attr">body</span>: pulse
-                                }, <span class="hljs-keyword">async</span>())
-                            }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">response</span>) </span>{
-                                responses[id] = response
-                            })
-                        }
-                    }, <span class="hljs-keyword">this</span>)
-                }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-                    <span class="hljs-keyword">this</span>.paxos.sent(<span class="hljs-keyword">this</span>._Date.now(), pulse, responses)
-                })
-            })
-        })()
+            <div class="content"><div class='highlight'><pre>Kibitzer.prototype._immigrate = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, post</span>) </span>{
+    <span class="hljs-keyword">async</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        assert(post.hops != <span class="hljs-literal">null</span>)
+        <span class="hljs-keyword">var</span> outcome = <span class="hljs-keyword">this</span>.play(<span class="hljs-string">'immigrate'</span>, post)
+        <span class="hljs-keyword">return</span> outcome
+    }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">outcome</span>) </span>{
+        <span class="hljs-keyword">if</span> (!outcome.enqueued &amp;&amp; outcome.leader != <span class="hljs-literal">null</span> &amp;&amp; post.hops == <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">var</span> properties = <span class="hljs-keyword">this</span>.paxos.government.properties[outcome.leader]
+            post.hops++
+            <span class="hljs-keyword">this</span>._caller.invoke({
+                <span class="hljs-attr">module</span>: <span class="hljs-string">'kibtiz'</span>,
+                <span class="hljs-attr">method</span>: <span class="hljs-string">'immigrate'</span>,
+                <span class="hljs-attr">to</span>: properties,
+                <span class="hljs-attr">body</span>: post
+            }, <span class="hljs-keyword">async</span>())
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span> [ outcome ]
+        }
     })
 })
 
-Kibitzer.prototype._immigrate = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, post</span>) </span>{
-    assert(post.hops != <span class="hljs-literal">null</span>)
-    <span class="hljs-keyword">var</span> outcome = <span class="hljs-keyword">this</span>.paxos.immigrate(<span class="hljs-keyword">this</span>._Date.now(), post.republic, post.id, post.cookie, post.properties)
-    <span class="hljs-keyword">if</span> (!outcome.enqueued &amp;&amp; outcome.leader != <span class="hljs-literal">null</span> &amp;&amp; post.hops == <span class="hljs-number">0</span>) {
-        <span class="hljs-keyword">var</span> properties = <span class="hljs-keyword">this</span>.paxos.government.properties[outcome.leader]
-        post.hops++
-        <span class="hljs-keyword">this</span>._requester.request(<span class="hljs-string">'kibitz'</span>, {
-            <span class="hljs-attr">module</span>: <span class="hljs-string">'kibtiz'</span>,
-            <span class="hljs-attr">method</span>: <span class="hljs-string">'immigrate'</span>,
-            <span class="hljs-attr">to</span>: properties,
-            <span class="hljs-attr">body</span>: post
-        }, <span class="hljs-keyword">async</span>())
-    } <span class="hljs-keyword">else</span> {
-        <span class="hljs-keyword">return</span> [ outcome ]
-    }
-})
-
-Kibitzer.prototype._enqueue = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, post</span>) </span>{
+Kibitzer.prototype._enqueue = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">when, post</span>) </span>{
     <span class="hljs-keyword">var</span> promises = {}
     <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, I = post.entries.length; i &lt; I; i++) {
         <span class="hljs-keyword">var</span> entry = post.entries[i]
-        <span class="hljs-keyword">var</span> outcome = <span class="hljs-keyword">this</span>.paxos.enqueue(<span class="hljs-keyword">this</span>._Date.now(), post.republic, entry)
+        <span class="hljs-keyword">var</span> outcome = <span class="hljs-keyword">this</span>.paxos.enqueue(when, post.republic, entry)
         <span class="hljs-keyword">if</span> (!outcome.enqueued) {
-            entries = <span class="hljs-literal">null</span>
+            promises = <span class="hljs-literal">null</span>
             <span class="hljs-keyword">break</span>
         }
         promises[entry.cookie] = outcome.promise
     }
-    <span class="hljs-keyword">return</span> [ promises ]
-})
-
-Kibitzer.prototype._receive = cadence(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">async, pulse</span>) </span>{
-    <span class="hljs-keyword">return</span> [ <span class="hljs-keyword">this</span>.paxos.receive(<span class="hljs-keyword">this</span>._Date.now(), pulse, pulse.messages) ]
-})</pre></div></div>
-
-        </li>
-
-
-        <li id="section-36">
-            <div class="annotation">
-
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
-              </div>
-              <p>TODO Where is this being used? Why not just reference the Paxos properties
-directly?</p>
-
-            </div>
-
-            <div class="content"><div class='highlight'><pre>Kibitzer.prototype.getProperties = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-    <span class="hljs-keyword">var</span> properties = []
-    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.legislator.properties) {
-        properties.push(<span class="hljs-keyword">this</span>.legislator.properties[key])
-    }
-    <span class="hljs-keyword">return</span> properties
+    <span class="hljs-keyword">return</span> promises
 }
 
 <span class="hljs-built_in">module</span>.exports = Kibitzer</pre></div></div>
