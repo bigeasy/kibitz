@@ -183,11 +183,13 @@ Kibitzer.prototype.replay = function (envelope) {
     switch (envelope.method) {
     case 'bootstrap':
         this.paxos.republic = envelope.body.republic
+        this.paxos.government.republic = envelope.body.republic
         this.paxos.bootstrap(envelope.when, envelope.body.properties)
         break
     case 'join':
         this.paxos.cookie = envelope.when
         this.paxos.republic = envelope.body.republic
+        this.paxos.government.republic = envelope.body.republic
         break
     case 'naturalize':
         this.paxos.naturalize()
