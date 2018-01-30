@@ -82,7 +82,7 @@ function Kibitzer (options) {
     // Time obtained from optional `Date` for unit testing.
     this._Date = options.Date || Date
 
-    this.paxos = new Paxos(this._Date.now(), null, options.id, {
+    this.paxos = new Paxos(this._Date.now(), options.id, {
         ping: options.ping,
         timeout: options.timeout
     })
@@ -157,8 +157,8 @@ Kibitzer.prototype.publish = function (entry) {
 // Kibitz.
 Kibitzer.prototype.request = cadence(function (async, envelope) {
     switch (envelope.method) {
-    case 'immigrate':
-        this._immigrate(envelope.body, async())
+    case 'arrive':
+        this._arrive(envelope.body, async())
         break
     case 'receive':
         return [ this.play('receive', envelope.body) ]
@@ -182,24 +182,20 @@ Kibitzer.prototype.replay = function (envelope) {
     this.played.push(envelope)
     switch (envelope.method) {
     case 'bootstrap':
-        this.paxos.republic = envelope.body.republic
-        this.paxos.government.republic = envelope.body.republic
-        this.paxos.bootstrap(envelope.when, envelope.body.properties)
+        this.paxos.bootstrap(envelope.republic, envelope.when, envelope.body.properties)
         break
     case 'join':
-        this.paxos.cookie = envelope.when
-        this.paxos.republic = envelope.body.republic
-        this.paxos.government.republic = envelope.body.republic
+        this.paxos.join(envelope.republic, envelope.when)
         break
-    case 'naturalize':
-        this.paxos.naturalize()
+    case 'acclimate':
+        this.paxos.acclimate()
         break
     case 'event':
         this.paxos.event(envelope.body)
         break
-    case 'immigrate':
+    case 'arrive':
         var body = envelope.body
-        return this.paxos.immigrate(envelope.when, body.republic, body.id, body.cookie, body.properties)
+        return this.paxos.arrive(envelope.when, body.republic, body.id, body.cookie, body.properties)
     case 'receive':
         // TODO Split pulse from messages somehow, make them siblings, not nested.
         return this.paxos.request(envelope.when, envelope.body)
@@ -251,7 +247,7 @@ Kibitzer.prototype.join = cadence(function (async, republic, leader, properties)
         // we request immigration.
         this._caller.invoke({
             module: 'kibitz',
-            method: 'immigrate',
+            method: 'arrive',
             to: leader,
             body: {
                 republic: this.paxos.republic,
@@ -266,8 +262,8 @@ Kibitzer.prototype.join = cadence(function (async, republic, leader, properties)
     })
 })
 
-Kibitzer.prototype.naturalize = function () {
-    this.play('naturalize', {})
+Kibitzer.prototype.acclimate = function () {
+    this.play('acclimate', {})
 }
 
 // Publish to consensus algorithm from islander retryable client.
@@ -331,10 +327,10 @@ Kibitzer.prototype._send = cadence(function (async) {
 
 // TODO Hopping is a second way of doing a thing and we don't need a second way
 // of doing a thing.
-Kibitzer.prototype._immigrate = cadence(function (async, post) {
+Kibitzer.prototype._arrive = cadence(function (async, post) {
     async(function () {
         assert(post.hops != null)
-        var outcome = this.play('immigrate', post)
+        var outcome = this.play('arrive', post)
         return outcome
     }, function (outcome) {
         if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
@@ -342,7 +338,7 @@ Kibitzer.prototype._immigrate = cadence(function (async, post) {
             post.hops++
             this._caller.invoke({
                 module: 'kibtiz',
-                method: 'immigrate',
+                method: 'arrive',
                 to: properties,
                 body: post
             }, async())

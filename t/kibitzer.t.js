@@ -30,7 +30,7 @@ function prove (async, assert) {
     }, function () {
         kibitzers[2].join(1, { location: '1' }, { location: '2' }, async())
     }, function () {
-        kibitzers[2].naturalize()
+        kibitzers[2].acclimate()
         shifter.join(function (entry) { return entry.body.body == 1 }, async())
         kibitzers[2].publish(1)
     }, function (entry) {
