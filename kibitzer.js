@@ -182,10 +182,10 @@ Kibitzer.prototype.replay = function (envelope) {
     this.played.push(envelope)
     switch (envelope.method) {
     case 'bootstrap':
-        this.paxos.bootstrap(envelope.republic, envelope.when, envelope.body.properties)
+        this.paxos.bootstrap(envelope.body.republic, envelope.when, envelope.body.properties)
         break
     case 'join':
-        this.paxos.join(envelope.republic, envelope.when)
+        this.paxos.join(envelope.body.republic, envelope.when)
         break
     case 'acclimate':
         this.paxos.acclimate()
@@ -250,7 +250,7 @@ Kibitzer.prototype.join = cadence(function (async, republic, leader, properties)
             method: 'arrive',
             to: leader,
             body: {
-                republic: this.paxos.republic,
+                republic: this.paxos.government.republic,
                 id: this.paxos.id,
                 cookie: this.paxos.cookie,
                 properties: properties,
@@ -281,7 +281,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
                 method: 'enqueue',
                 to: properties,
                 body: {
-                    republic: this.paxos.republic,
+                    republic: this.paxos.government.republic,
                     entries: envelope.messages
                 }
             }, async())
