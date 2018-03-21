@@ -55,7 +55,7 @@ var Monotonic = require('monotonic').asString
 
 // Construction notification and destruction.
 var Destructible = require('destructible')
-var Signal = require('signal')
+var Pump = require('procession/pump')
 
 // Logging.
 var logger = require('prolific.logger').createLogger('kibitz')
@@ -99,44 +99,37 @@ function Kibitzer (options) {
     this._shifters = null
 
     // Caller to make network requests.
-    this._caller = new Caller
-
-    this.read = this._caller.read
-    this.write = this._caller.write
+    this._caller = options.caller
 
     this.played = new Procession
-
-
-    this._destructible = new Destructible(1000, 'kibitzer')
-    this._destructible.markDestroyed(this, 'destroyed')
 
     this._shifters = {
         paxos: this.paxos.outbox.shifter(),
         islander: this.islander.outbox.shifter()
     }
-
-    this._destructible.destruct.wait(this._shifters.islander, 'destroy')
-    this._destructible.destruct.wait(this._shifters.paxos, 'destroy')
-
-    this._destructible.destruct.wait(this.paxos.scheduler, 'clear')
-    this._destructible.destruct.wait(this.write, 'push')
-
-    this.ready = new Signal
 }
 
-Kibitzer.prototype.listen = cadence(function (async) {
+Kibitzer.prototype._listen = function (destructible) {
+    destructible.markDestroyed(this, 'destroyed')
+
+    destructible.destruct.wait(this._shifters.islander, 'destroy')
+    destructible.destruct.wait(this._shifters.paxos, 'destroy')
+
+    destructible.destruct.wait(this.paxos.scheduler, 'clear')
+    destructible.destruct.wait(function () {
+        this.caller.write.push(null)
+    })
+
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
-    timer.events.shifter().pump(function (envelope) {
+    new Pump(timer.events.shifter(), this, function (envelope) {
         logger.info('timer', envelope)
         this.play('event', envelope)
-    }.bind(this))
-    this.paxos.scheduler.events.shifter().pump(timer, 'enqueue')
-    this._publish(this._destructible.monitor('publish'))
-    this._send(this._destructible.monitor('send'))
-    this.ready.unlatch()
-    this._destructible.completed.wait(async())
-})
+    }).pumpify(destructible.monitor('timer'))
+    new Pump(this.paxos.scheduler.events.shifter(), timer, 'enqueue').pumpify(destructible.monitor('scheduler'))
+    this._publish(destructible.monitor('publish'))
+    this._send(destructible.monitor('send'))
+}
 
 // You can just as easily use POSIX time for the `republic`.
 Kibitzer.prototype.bootstrap = function (republic, properties) {
@@ -209,12 +202,6 @@ Kibitzer.prototype.replay = function (envelope) {
         this.paxos.response(envelope.when, envelope.body.cookie, envelope.body.responses)
         break
     }
-}
-
-// Stop timers, and stop timers only. We're not in a position to notify clients
-// that there will be no more messages.
-Kibitzer.prototype.destroy = function () {
-    this._destructible.destroy()
 }
 
 // TODO You are assuming that an address is not an address but a set of
@@ -360,4 +347,8 @@ Kibitzer.prototype._enqueue = function (when, post) {
     return promises
 }
 
-module.exports = Kibitzer
+module.exports = cadence(function (async, destructible, options) {
+    var kibtizer = new Kibitzer(options)
+    kibtizer._listen(destructible)
+    return kibtizer
+})
