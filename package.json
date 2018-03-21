@@ -22,7 +22,7 @@
     {
                             "abend":                        "1.0.x",
                             "cadence":                      "1.0.x",
-                            "cliffhanger":                  "1.4.x",
+                            "cliffhanger":                  "2.0.x",
                             "conduit":                      "2.6.x",
                             "departure":                    "0.0.x",
                             "destructible":                 "0.27.x",
