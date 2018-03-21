@@ -91,10 +91,10 @@ function Kibitzer (options) {
     this.islander = new Islander(options.id)
 
     // Copy messages from the Paxos log to our log.
-    this.paxos.log.shifter().pump(this.log, 'enqueue')
+    this.paxos.log.shifter().pumpify(this.log)
 
     // Paxos also sends messages to Islander for accounting.
-    this.paxos.log.shifter().pump(this.islander, 'enqueue')
+    this.paxos.log.shifter().pumpify(this.islander)
 
     this._shifters = null
 
@@ -115,13 +115,11 @@ function Kibitzer (options) {
         islander: this.islander.outbox.shifter()
     }
 
-    this._destructible.addDestructor('publish', this._shifters.islander, 'destroy')
-    this._destructible.addDestructor('send', this._shifters.paxos, 'destroy')
+    this._destructible.destruct.wait(this._shifters.islander, 'destroy')
+    this._destructible.destruct.wait(this._shifters.paxos, 'destroy')
 
-    this._destructible.addDestructor('scheduler', this.paxos.scheduler, 'clear')
-    this._destructible.addDestructor('eos', this.write, 'push')
-
-    this.destruction = this._destructible.events
+    this._destructible.destruct.wait(this.paxos.scheduler, 'clear')
+    this._destructible.destruct.wait(this.write, 'push')
 
     this.ready = new Signal
 }
