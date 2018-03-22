@@ -116,8 +116,8 @@ Kibitzer.prototype._listen = function (destructible) {
     destructible.destruct.wait(this._shifters.paxos, 'destroy')
 
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
-    destructible.destruct.wait(function () {
-        this.caller.write.push(null)
+    destructible.destruct.wait(this, function () {
+        this._caller.write.push(null)
     })
 
     // TODO Pass an "operation" to `Procession.pump`.
