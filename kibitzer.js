@@ -126,7 +126,13 @@ Kibitzer.prototype._listen = function (destructible) {
         logger.info('timer', envelope)
         this.play('event', envelope)
     }).pumpify(destructible.monitor('timer'))
+    destructible.destruct.wait(function () {
+        timer.events.push(null)
+    })
     new Pump(this.paxos.scheduler.events.shifter(), timer, 'enqueue').pumpify(destructible.monitor('scheduler'))
+    destructible.destruct.wait(this, function () {
+        this.paxos.scheduler.events.push(null)
+    })
     this._publish(destructible.monitor('publish'))
     this._send(destructible.monitor('send'))
 }
