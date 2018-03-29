@@ -299,14 +299,14 @@ Kibitzer.prototype._send = cadence(function (async) {
         var responses = {}
         async(function () {
             communique.envelopes.forEach(function (envelope) {
-                async([function () {
+                async(function () {
                     this._caller.invoke({
                         module: 'kibitz',
                         method: 'receive',
                         to: envelope.properties,
                         body: envelope.request
                     }, async())
-                }, rescue(/^conduit#endOfStream$/m, null)], function (response) {
+                }, function (response) {
                     communique.responses[envelope.to] = response
                 })
             }, this)
