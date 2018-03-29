@@ -265,7 +265,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
         if (envelope == null) {
             return [ loop.break ]
         }
-        async([function () {
+        async(function () {
             var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
             this._caller.invoke({
                 module: 'kibitz',
@@ -276,7 +276,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
                     entries: envelope.messages
                 }
             }, async())
-        }, rescue(/^conduit#endOfStream$/m, null)], function (promises) {
+        }, function (promises) {
             this.play('published', { cookie: envelope.cookie, promises: promises })
         })
     })()
