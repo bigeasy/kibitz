@@ -265,7 +265,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
         if (envelope == null) {
             return [ loop.break ]
         }
-        async(function () {
+        async([function () {
             var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
             this._caller.invoke({
                 module: 'kibitz',
@@ -276,7 +276,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
                     entries: envelope.messages
                 }
             }, async())
-        }, function (promises) {
+        }, rescue(/^conduit#endOfStream$/m, null)], function (promises) {
             this.play('published', { cookie: envelope.cookie, promises: promises })
         })
     })()
@@ -299,14 +299,14 @@ Kibitzer.prototype._send = cadence(function (async) {
         var responses = {}
         async(function () {
             communique.envelopes.forEach(function (envelope) {
-                async(function () {
+                async([function () {
                     this._caller.invoke({
                         module: 'kibitz',
                         method: 'receive',
                         to: envelope.properties,
                         body: envelope.request
                     }, async())
-                }, function (response) {
+                }, rescue(/^conduit#endOfStream$/m, null)], function (response) {
                     communique.responses[envelope.to] = response
                 })
             }, this)
