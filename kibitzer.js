@@ -107,7 +107,7 @@ Kibitzer.prototype._listen = function (destructible) {
 
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
     destructible.destruct.wait(this, function () {
-        this._caller.write.push(null)
+        this._caller.inbox.push(null)
     })
 
     // Paxos also sends messages to Islander for accounting.
