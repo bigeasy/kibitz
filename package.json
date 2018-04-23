@@ -32,7 +32,7 @@
                             "nop":                          "1.0.0",
                             "paxos":                        "14.1.x",
                             "procession":                   "0.16.x",
-                            "prolific.logger":              "5.0.x",
+                            "prolific.logger":              "6.0.x",
                             "rescue":                       "3.2.x",
                             "sequester":                    "1.0.x",
                             "signal":                       "3.4.x"
