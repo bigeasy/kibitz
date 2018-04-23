@@ -71,9 +71,6 @@ var rescue = require('rescue')
 
 //
 function Kibitzer (options) {
-    // Log used to drain Islander.
-    this.log = new Procession
-
     // These defaults are a bit harsh if you're going to log everything.
     options.ping || (options.ping = 250)
     options.timeout || (options.timeout = 1000)
@@ -88,9 +85,6 @@ function Kibitzer (options) {
 
     // Submission queue with resubmission logic.
     this.islander = new Islander(options.id)
-
-    // Copy messages from the Paxos log to our log. TODO No. Just get `paxos.log`.
-    this.paxos.log.shifter().pump(this.log)
 
     this._shifters = null
 

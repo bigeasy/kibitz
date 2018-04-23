@@ -46,7 +46,7 @@ function prove (async, okay) {
         okay(kibitzers[0], 'construct')
         kibitzers[0].bootstrap(1, { location: '0' })
 
-        shifter = kibitzers[0].log.shifter()
+        shifter = kibitzers[0].paxos.log.shifter()
     }, function () {
         destructible.monitor([ 'kibitzer', 0 ], createKibitzer, '1', 0, async())
     }, function (kibitzer) {
