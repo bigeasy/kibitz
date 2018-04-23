@@ -318,6 +318,7 @@ Kibitzer.prototype._send = cadence(function (async) {
 
 // TODO Hopping is a second way of doing a thing and we don't need a second way
 // of doing a thing.
+// TODO No hopping and this is no longer async. Wee! No hopping, please.
 Kibitzer.prototype._arrive = cadence(function (async, post) {
     async(function () {
         assert(post.hops != null)
