@@ -55,7 +55,6 @@ var Monotonic = require('monotonic').asString
 
 // Construction notification and destruction.
 var Destructible = require('destructible')
-var Pump = require('procession/pump')
 
 // Logging.
 var logger = require('prolific.logger').createLogger('kibitz')
@@ -90,11 +89,8 @@ function Kibitzer (options) {
     // Submission queue with resubmission logic.
     this.islander = new Islander(options.id)
 
-    // Copy messages from the Paxos log to our log.
-    this.paxos.log.shifter().pumpify(this.log)
-
-    // Paxos also sends messages to Islander for accounting.
-    this.paxos.log.shifter().pumpify(this.islander)
+    // Copy messages from the Paxos log to our log. TODO No. Just get `paxos.log`.
+    this.paxos.log.shifter().pump(this.log)
 
     this._shifters = null
 
@@ -120,16 +116,19 @@ Kibitzer.prototype._listen = function (destructible) {
         this._caller.write.push(null)
     })
 
+    // Paxos also sends messages to Islander for accounting.
+    this.paxos.log.shifter().pump(this.islander, 'enqueue', destructible.monitor('islander'))
+
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
-    new Pump(timer.events.shifter(), this, function (envelope) {
+    timer.events.shifter().pump(this, function (envelope) {
         logger.info('timer', envelope)
         this.play('event', envelope)
-    }).pumpify(destructible.monitor('timer'))
+    }, destructible.monitor('timer'))
     destructible.destruct.wait(function () {
         timer.events.push(null)
     })
-    new Pump(this.paxos.scheduler.events.shifter(), timer, 'enqueue').pumpify(destructible.monitor('scheduler'))
+    this.paxos.scheduler.events.shifter().pump(timer, 'enqueue', destructible.monitor('scheduler'))
     destructible.destruct.wait(this, function () {
         this.paxos.scheduler.events.push(null)
     })
