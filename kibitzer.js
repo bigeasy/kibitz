@@ -147,9 +147,6 @@ Kibitzer.prototype.publish = function (entry) {
 // Kibitz.
 Kibitzer.prototype.request = cadence(function (async, envelope) {
     switch (envelope.method) {
-    case 'arrive':
-        this._arrive(envelope.body, async())
-        break
     case 'receive':
         return [ this.play('receive', envelope.body) ]
     case 'enqueue':
@@ -208,7 +205,7 @@ Kibitzer.prototype.replay = function (envelope) {
 // argument, not just a url or identifier.
 
 //
-Kibitzer.prototype.join = cadence(function (async, republic, leader, properties) {
+Kibitzer.prototype.join = function (republic, leader, properties) {
 // TODO Should this be or should this not be? It should be. You're sending your
 // enqueue messages until you immigrate. You don't know when that will be.
 // You're only going to know if you've succeeded if your legislator has
@@ -216,35 +213,11 @@ Kibitzer.prototype.join = cadence(function (async, republic, leader, properties)
 
 // TODO Was a test, but it is now an assertion and it really ought be an
 // exception because it is not impossible.
-    if (this.paxos.government.promise != '0/0') {
-        return
-    }
-
+    assert(this.paxos.government.promise == '0/0')
     assert(republic != null)
 
-    // throw new Error
-    async(function () {
-        this.play('join', { republic: republic })
-        // Note that we're passing properties so that they're logged for
-        // inspection during debugging replay, but they're not going to be used
-        // as an argument to Paxos on this side. We give them to our leader when
-        // we request immigration.
-        this._caller.invoke({
-            module: 'kibitz',
-            method: 'arrive',
-            to: leader,
-            body: {
-                republic: this.paxos.government.republic,
-                id: this.paxos.id,
-                cookie: this.paxos.cookie,
-                properties: properties,
-                hops: 0
-            }
-        }, async())
-    }, function (response) {
-        return response != null && response.enqueued
-    })
-})
+    this.play('join', { republic: republic })
+}
 
 Kibitzer.prototype.acclimate = function () {
     this.play('acclimate', {})
@@ -282,6 +255,9 @@ Kibitzer.prototype._publish = cadence(function (async) {
 //
 // TODO We could kill the timer in the scheduler, set the boolean we added to
 // tell it to no longer schedule.
+//
+// TODO Regarding the above, you need to make sure to destroy the timer as a
+// first step using truncate.
 Kibitzer.prototype._send = cadence(function (async) {
     var loop = async(function () {
         this._shifters.paxos.dequeue(async())
@@ -309,29 +285,14 @@ Kibitzer.prototype._send = cadence(function (async) {
     })()
 })
 
-// TODO Hopping is a second way of doing a thing and we don't need a second way
-// of doing a thing.
-// TODO No hopping and this is no longer async. Wee! No hopping, please.
-Kibitzer.prototype._arrive = cadence(function (async, post) {
-    async(function () {
-        assert(post.hops != null)
-        var outcome = this.play('arrive', post)
-        return outcome
-    }, function (outcome) {
-        if (!outcome.enqueued && outcome.leader != null && post.hops == 0) {
-            var properties = this.paxos.government.properties[outcome.leader]
-            post.hops++
-            this._caller.invoke({
-                module: 'kibtiz',
-                method: 'arrive',
-                to: properties,
-                body: post
-            }, async())
-        } else {
-            return [ outcome ]
-        }
+Kibitzer.prototype.arrive = function (republic, id, cookie, properties) {
+    return this.play('arrive', {
+        republic: republic,
+        id: id,
+        cookie: cookie,
+        properties: properties
     })
-})
+}
 
 Kibitzer.prototype._enqueue = function (when, post) {
     var promises = {}

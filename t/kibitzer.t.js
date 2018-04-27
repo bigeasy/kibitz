@@ -51,22 +51,26 @@ function prove (async, okay) {
         destructible.monitor([ 'kibitzer', 0 ], createKibitzer, '1', 0, async())
     }, function (kibitzer) {
         kibitzers.push(kibitzer)
-        kibitzers[1].join(1, { location: '0' }, { location: '1' }, async())
+        kibitzers[1].join(1)
+        kibitzers[0].arrive(1, '1', kibitzers[1].paxos.cookie, { location: '1' })
     }, function () {
         setTimeout(async(), 100)
     }, function () {
         destructible.monitor([ 'kibitzer', 0 ], createKibitzer, '2', 0, async())
     }, function (kibitzer) {
         kibitzers.push(kibitzer)
-        kibitzers[2].join(1, { location: '1' }, { location: '2' }, async())
-    }, function () {
-        setTimeout(async(), 100)
-    }, function () {
-        kibitzers[2].join(1, { location: '1' }, { location: '2' }, async())
+        kibitzers[2].join(1)
+        kibitzers[0].arrive(1, '2', kibitzers[2].paxos.cookie, { location: '2' })
+        shifter.join(function (entry) {
+            return entry.promise == '3/0'
+        }, async())
     }, function () {
         kibitzers[2].acclimate()
-        shifter.join(function (entry) { return entry.body.body == 1 }, async())
         kibitzers[2].publish(1)
+        kibitzers[0].publish(1)
+        shifter.join(function (entry) {
+            return entry.promise == '3/1'
+        }, async())
     }, function (entry) {
         okay(entry.body.body, 1, 'published')
         kibitzers[2].request({
