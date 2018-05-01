@@ -111,18 +111,18 @@ Kibitzer.prototype._listen = function (destructible) {
     })
 
     // Paxos also sends messages to Islander for accounting.
-    this.paxos.log.shifter().pump(this.islander, 'enqueue', destructible.monitor('islander'))
+    this.paxos.log.pump(this.islander, 'enqueue', destructible.monitor('islander'))
 
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
-    timer.events.shifter().pump(this, function (envelope) {
+    timer.events.pump(this, function (envelope) {
         logger.info('timer', envelope)
         this.play('event', envelope)
     }, destructible.monitor('timer'))
     destructible.destruct.wait(function () {
         timer.events.push(null)
     })
-    this.paxos.scheduler.events.shifter().pump(timer, 'enqueue', destructible.monitor('scheduler'))
+    this.paxos.scheduler.events.pump(timer, 'enqueue', destructible.monitor('scheduler'))
     destructible.destruct.wait(this, function () {
         this.paxos.scheduler.events.push(null)
     })

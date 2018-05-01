@@ -30,8 +30,8 @@ function prove (async, okay) {
             async(function () {
                 destructible.monitor('caller', Caller, async())
             }, function (caller) {
-                caller.outbox.shifter().pump(procedure.inbox)
-                procedure.outbox.shifter().pump(caller.inbox)
+                caller.outbox.pump(procedure.inbox)
+                procedure.outbox.pump(caller.inbox)
                 destructible.monitor('kibitzer', Kibitzer, {
                     republic: republic, id: id, caller: caller
                 }, async())
