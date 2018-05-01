@@ -31,7 +31,7 @@
                             "monotonic":                    "3.0.x",
                             "nop":                          "1.0.0",
                             "paxos":                        "14.2.x",
-                            "procession":                   "0.18.x",
+                            "procession":                   "0.19.x",
                             "prolific.logger":              "6.0.x",
                             "rescue":                       "3.2.x",
                             "sequester":                    "1.0.x",
