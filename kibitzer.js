@@ -309,11 +309,4 @@ Kibitzer.prototype._enqueue = function (when, post) {
     return promises
 }
 
-module.exports = cadence(function (async, destructible, options) {
-    var kibtizer = new Kibitzer(options)
-    async(function () {
-        kibtizer.listen(destructible, async())
-    }, function () {
-        return kibtizer
-    })
-})
+module.exports = Kibitzer

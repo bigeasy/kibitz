@@ -32,9 +32,14 @@ function prove (async, okay) {
             }, function (caller) {
                 caller.outbox.pump(procedure.inbox)
                 procedure.outbox.pump(caller.inbox)
-                destructible.monitor('kibitzer', Kibitzer, {
+                var kibitzer = new Kibitzer({
                     republic: republic, id: id, caller: caller
-                }, async())
+                })
+                async(function () {
+                    destructible.monitor('kibitzer', kibitzer, 'listen', async())
+                }, function () {
+                    return kibitzer
+                })
             })
         })
     })
