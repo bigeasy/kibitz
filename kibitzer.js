@@ -99,7 +99,7 @@ function Kibitzer (options) {
     }
 }
 
-Kibitzer.prototype._listen = function (destructible) {
+Kibitzer.prototype.listen = cadence(function (async, destructible) {
     destructible.markDestroyed(this, 'destroyed')
 
     destructible.destruct.wait(this._shifters.islander, 'destroy')
@@ -128,7 +128,8 @@ Kibitzer.prototype._listen = function (destructible) {
     })
     this._publish(destructible.monitor('publish'))
     this._send(destructible.monitor('send'))
-}
+    return []
+})
 
 // You can just as easily use POSIX time for the `republic`.
 Kibitzer.prototype.bootstrap = function (republic, properties) {
@@ -310,6 +311,9 @@ Kibitzer.prototype._enqueue = function (when, post) {
 
 module.exports = cadence(function (async, destructible, options) {
     var kibtizer = new Kibitzer(options)
-    kibtizer._listen(destructible)
-    return kibtizer
+    async(function () {
+        kibtizer.listen(destructible, async())
+    }, function () {
+        return kibtizer
+    })
 })
