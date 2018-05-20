@@ -70,12 +70,12 @@ function prove (async, okay) {
         kibitzers.push(kibitzer)
         kibitzers[2].join(1)
         kibitzers[0].arrive(1, '2', kibitzers[2].paxos.cookie, { location: '2' })
-        shifter.join(function (entry) {
+        kibitzers[2].paxos.log.shifter().join(function (entry) {
             return entry.promise == '3/0'
         }, async())
     }, function () {
         kibitzers[2].acclimate()
-        // kibitzers[2].publish(1)
+        kibitzers[2].publish(1)
         kibitzers[0].publish(1)
     }, function () {
         shifter.join(function (entry) {
