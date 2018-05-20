@@ -84,7 +84,7 @@ function Kibitzer (options) {
     })
 
     // Submission queue with resubmission logic.
-    this.islander = new Islander(options.id)
+    this._islander = new Islander(options.id)
 
     this._shifters = null
 
@@ -95,7 +95,7 @@ function Kibitzer (options) {
 
     this._shifters = {
         paxos: this.paxos.outbox.shifter(),
-        islander: this.islander.outbox.shifter()
+        islander: this._islander.outbox.shifter()
     }
 }
 
@@ -111,7 +111,7 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     })
 
     // Paxos also sends messages to Islander for accounting.
-    var pumper = this.paxos.log.pump(this.islander, 'enqueue', destructible.monitor('islander'))
+    var pumper = this.paxos.log.pump(this._islander, 'enqueue', destructible.monitor('islander'))
     destructible.completed.wait(this, function () {
         console.log('done', this.paxos.id)
     })
@@ -199,10 +199,10 @@ Kibitzer.prototype.replay = function (envelope) {
     case 'enqueue':
         return this._enqueue(envelope.when, envelope.body)
     case 'publish':
-        this.islander.publish(envelope.body)
+        this._islander.publish(envelope.body)
         break
     case 'published':
-        this.islander.sent(envelope.body.cookie, envelope.body.promises)
+        this._islander.sent(envelope.body.cookie, envelope.body.promises)
         break
     case 'sent':
         this.paxos.response(envelope.when, envelope.body.cookie, envelope.body.responses)
