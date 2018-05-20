@@ -19,6 +19,8 @@ function prove (async, okay) {
 
     var destructible = new Destructible('t/kibitzer.t.js')
 
+    destructible.completed.wait(async())
+
     var createKibitzer = cadence(function (async, destructible, id, republic) {
         async(function () {
             destructible.monitor('procedure', Procedure, cadence(function (async, envelope) {
