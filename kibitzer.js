@@ -115,17 +115,11 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
 
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
-    timer.events.pump(this, function (envelope) {
+    destructible.destruct.wait(timer.events.pump(this, function (envelope) {
         logger.info('timer', envelope)
         this.play('event', envelope)
-    }, destructible.monitor('timer'))
-    destructible.destruct.wait(function () {
-        timer.events.push(null)
-    })
-    this.paxos.scheduler.events.pump(timer, 'enqueue', destructible.monitor('scheduler'))
-    destructible.destruct.wait(this, function () {
-        this.paxos.scheduler.events.push(null)
-    })
+    }, destructible.monitor('timer')), 'destroy')
+    destructible.destruct.wait(this.paxos.scheduler.events.pump(timer, 'enqueue', destructible.monitor('scheduler')), 'destroy')
     this._publish(destructible.monitor('publish'))
     this._send(destructible.monitor('send'))
     return []
