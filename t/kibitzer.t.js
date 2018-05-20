@@ -24,6 +24,7 @@ function prove (async, okay) {
     var createKibitzer = cadence(function (async, destructible, id, republic) {
         async(function () {
             destructible.monitor('procedure', Procedure, cadence(function (async, envelope) {
+                console.log(envelope.to, envelope)
                 kibitzers.filter(function (kibitzer) {
                     return kibitzer.paxos.id == envelope.to.location
                 }).pop().request(JSON.parse(JSON.stringify(envelope)), async())
@@ -46,8 +47,10 @@ function prove (async, okay) {
         })
     })
 
-    async(function () {
-        destructible.monitor([ 'kibitzer', 0 ], createKibitzer, '0', 0, async())
+    async([function () {
+        console.log('destructed!!??!')
+    }], function () {
+        destructible.monitor([ 'kibitzer', 0 ], true, createKibitzer, '0', 0, async())
     }, function (kibitzer) {
         kibitzers.push(kibitzer)
         okay(kibitzers[0], 'construct')
@@ -55,7 +58,7 @@ function prove (async, okay) {
 
         shifter = kibitzers[0].paxos.log.shifter()
     }, function () {
-        destructible.monitor([ 'kibitzer', 0 ], createKibitzer, '1', 0, async())
+        destructible.monitor([ 'kibitzer', 0 ], true, createKibitzer, '1', 0, async())
     }, function (kibitzer) {
         kibitzers.push(kibitzer)
         kibitzers[1].join(1)
@@ -63,7 +66,7 @@ function prove (async, okay) {
     }, function () {
         setTimeout(async(), 100)
     }, function () {
-        destructible.monitor([ 'kibitzer', 0 ], createKibitzer, '2', 0, async())
+        destructible.monitor([ 'kibitzer', 0 ], true, createKibitzer, '2', 0, async())
     }, function (kibitzer) {
         kibitzers.push(kibitzer)
         kibitzers[2].join(1)
@@ -73,12 +76,17 @@ function prove (async, okay) {
         }, async())
     }, function () {
         kibitzers[2].acclimate()
-        kibitzers[2].publish(1)
+        // kibitzers[2].publish(1)
         kibitzers[0].publish(1)
+        console.log('here')
+    }, function () {
+        console.log('xxx')
         shifter.join(function (entry) {
             return entry.promise == '3/1'
         }, async())
     }, function (entry) {
+        console.log('xxx')
+        console.log('there')
         okay(entry.body.body, 1, 'published')
         kibitzers[2].request({
             method: 'enqueue',

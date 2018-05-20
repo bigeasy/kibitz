@@ -111,7 +111,16 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     })
 
     // Paxos also sends messages to Islander for accounting.
-    destructible.destruct.wait(this.paxos.log.pump(this.islander, 'enqueue', destructible.monitor('islander')), 'destroy')
+    var pumper = this.paxos.log.pump(this.islander, 'enqueue', destructible.monitor('islander'))
+    destructible.completed.wait(this, function () {
+        console.log('done', this.paxos.id)
+    })
+    destructible.destruct.wait(this, function () {
+        console.log('destroy', this.paxos.id)
+            pumper.destroy()
+        setImmediate(function () {
+        })
+    })
 
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
@@ -234,6 +243,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
         }
         async([function () {
             var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
+            console.log('publish!!', envelope, '/', this.paxos.government)
             this._caller.invoke({
                 module: 'kibitz',
                 method: 'enqueue',
