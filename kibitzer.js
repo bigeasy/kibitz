@@ -59,9 +59,6 @@ var Destructible = require('destructible')
 // Logging.
 var logger = require('prolific.logger').createLogger('kibitz')
 
-// Message queue.
-var Caller = require('conduit/caller')
-
 // Catch exceptions based on a regex match of an error message or property.
 var rescue = require('rescue')
 
@@ -78,6 +75,8 @@ function Kibitzer (options) {
     // Time obtained from optional `Date` for unit testing.
     this._Date = options.Date || Date
 
+    this._ua = options.ua
+
     this.paxos = new Paxos(this._Date.now(), options.id, {
         ping: options.ping,
         timeout: options.timeout
@@ -87,9 +86,6 @@ function Kibitzer (options) {
     this._islander = new Islander(options.id)
 
     this._shifters = null
-
-    // Caller to make network requests.
-    this._caller = options.caller
 
     this.played = new Procession
 
@@ -106,9 +102,6 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     destructible.destruct.wait(this._shifters.paxos, 'destroy')
 
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
-    destructible.destruct.wait(this, function () {
-        this._caller.inbox.push(null)
-    })
 
     // Paxos also sends messages to Islander for accounting.
     destructible.destruct.wait(this.paxos.log.pump(this._islander, 'enqueue', destructible.monitor('islander')), 'destroy')
@@ -228,7 +221,7 @@ Kibitzer.prototype._publish = cadence(function (async) {
         }
         async([function () {
             var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
-            this._caller.invoke({
+            this._ua.send({
                 module: 'kibitz',
                 method: 'enqueue',
                 to: properties,
@@ -264,7 +257,7 @@ Kibitzer.prototype._send = cadence(function (async) {
         async(function () {
             communique.envelopes.forEach(function (envelope) {
                 async([function () {
-                    this._caller.invoke({
+                    this._ua.send({
                         module: 'kibitz',
                         method: 'receive',
                         to: envelope.properties,

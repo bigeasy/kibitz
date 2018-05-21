@@ -22,27 +22,21 @@ function prove (async, okay) {
     destructible.completed.wait(async())
 
     var createKibitzer = cadence(function (async, destructible, id, republic) {
+        var kibitzer = new Kibitzer({
+            republic: republic,
+            id: id,
+            ua: {
+                send: cadence(function (async, envelope) {
+                    kibitzers.filter(function (kibitzer) {
+                        return kibitzer.paxos.id == envelope.to.location
+                    }).pop().request(JSON.parse(JSON.stringify(envelope)), async())
+                })
+            }
+        })
         async(function () {
-            destructible.monitor('procedure', Procedure, cadence(function (async, envelope) {
-                kibitzers.filter(function (kibitzer) {
-                    return kibitzer.paxos.id == envelope.to.location
-                }).pop().request(JSON.parse(JSON.stringify(envelope)), async())
-            }), async())
-        }, function (procedure) {
-            async(function () {
-                destructible.monitor('caller', Caller, async())
-            }, function (caller) {
-                caller.outbox.pump(procedure.inbox)
-                procedure.outbox.pump(caller.inbox)
-                var kibitzer = new Kibitzer({
-                    republic: republic, id: id, caller: caller
-                })
-                async(function () {
-                    destructible.monitor('kibitzer', kibitzer, 'listen', async())
-                }, function () {
-                    return kibitzer
-                })
-            })
+            destructible.monitor('kibitzer', kibitzer, 'listen', async())
+        }, function () {
+            return kibitzer
         })
     })
 
