@@ -113,7 +113,7 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
         this.play('event', envelope)
     }, destructible.monitor('timer')), 'destroy')
     destructible.destruct.wait(this.paxos.scheduler.events.pump(timer, 'enqueue', destructible.monitor('scheduler')), 'destroy')
-    this._publish(destructible.monitor('publish'))
+    destructible.destruct.wait(this._islander.outbox.pump(false, this, '_publish', destructible.monitor('publish')), 'destroy')
     this._send(destructible.monitor('send'))
     return []
 })
@@ -212,28 +212,21 @@ Kibitzer.prototype.acclimate = function () {
 }
 
 // Publish to consensus algorithm from islander retryable client.
-Kibitzer.prototype._publish = cadence(function (async) {
-    var loop = async(function () {
-        this._shifters.islander.dequeue(async())
-    }, function (envelope) {
-        if (envelope == null) {
-            return [ loop.break ]
-        }
-        async([function () {
-            var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
-            this._ua.send({
-                module: 'kibitz',
-                method: 'enqueue',
-                to: properties,
-                body: {
-                    republic: this.paxos.government.republic,
-                    entries: envelope.messages
-                }
-            }, async())
-        }, rescue(/^conduit#endOfStream$/m, null)], function (promises) {
-            this.play('published', { cookie: envelope.cookie, promises: promises })
-        })
-    })()
+Kibitzer.prototype._publish = cadence(function (async, envelope) {
+    async([function () {
+        var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
+        this._ua.send({
+            module: 'kibitz',
+            method: 'enqueue',
+            to: properties,
+            body: {
+                republic: this.paxos.government.republic,
+                entries: envelope.messages
+            }
+        }, async())
+    }, rescue(/^conduit#endOfStream$/m, null)], function (promises) {
+        this.play('published', { cookie: envelope.cookie, promises: promises })
+    })
 })
 
 // TODO Annoying how difficult it is to stop this crazy thing. There are going
