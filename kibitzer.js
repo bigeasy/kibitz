@@ -85,21 +85,11 @@ function Kibitzer (options) {
     // Submission queue with resubmission logic.
     this._islander = new Islander(options.id)
 
-    this._shifters = null
-
     this.played = new Procession
-
-    this._shifters = {
-        paxos: this.paxos.outbox.shifter(),
-        islander: this._islander.outbox.shifter()
-    }
 }
 
 Kibitzer.prototype.listen = cadence(function (async, destructible) {
     destructible.markDestroyed(this, 'destroyed')
-
-    destructible.destruct.wait(this._shifters.islander, 'destroy')
-    destructible.destruct.wait(this._shifters.paxos, 'destroy')
 
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
 
@@ -114,7 +104,7 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     }, destructible.monitor('timer')), 'destroy')
     destructible.destruct.wait(this.paxos.scheduler.events.pump(timer, 'enqueue', destructible.monitor('scheduler')), 'destroy')
     destructible.destruct.wait(this._islander.outbox.pump(false, this, '_publish', destructible.monitor('publish')), 'destroy')
-    this._send(destructible.monitor('send'))
+    destructible.destruct.wait(this.paxos.outbox.pump(false, this, '_send', destructible.monitor('send')), 'destroy')
     return []
 })
 
@@ -239,31 +229,24 @@ Kibitzer.prototype._publish = cadence(function (async, envelope) {
 //
 // TODO Regarding the above, you need to make sure to destroy the timer as a
 // first step using truncate.
-Kibitzer.prototype._send = cadence(function (async) {
-    var loop = async(function () {
-        this._shifters.paxos.dequeue(async())
-    }, function (communique) {
-        if (communique == null) {
-            return [ loop.break ]
-        }
-        var responses = {}
-        async(function () {
-            communique.envelopes.forEach(function (envelope) {
-                async([function () {
-                    this._ua.send({
-                        module: 'kibitz',
-                        method: 'receive',
-                        to: envelope.properties,
-                        body: envelope.request
-                    }, async())
-                }, rescue(/^conduit#endOfStream$/m, null)], function (response) {
-                    communique.responses[envelope.to] = response
-                })
-            }, this)
-        }, function () {
-            this.play('sent', { cookie: communique.cookie, responses: communique.responses })
-        })
-    })()
+Kibitzer.prototype._send = cadence(function (async, communique) {
+    var responses = {}
+    async(function () {
+        communique.envelopes.forEach(function (envelope) {
+            async([function () {
+                this._ua.send({
+                    module: 'kibitz',
+                    method: 'receive',
+                    to: envelope.properties,
+                    body: envelope.request
+                }, async())
+            }, rescue(/^conduit#endOfStream$/m, null)], function (response) {
+                communique.responses[envelope.to] = response
+            })
+        }, this)
+    }, function () {
+        this.play('sent', { cookie: communique.cookie, responses: communique.responses })
+    })
 })
 
 Kibitzer.prototype.arrive = function (republic, id, cookie, properties) {
