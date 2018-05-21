@@ -83,7 +83,7 @@ function Kibitzer (options) {
     })
 
     // Submission queue with resubmission logic.
-    this._islander = new Islander(options.id)
+    this.islander = new Islander(options.id)
 
     this.played = new Procession
 }
@@ -94,7 +94,7 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
 
     // Paxos also sends messages to Islander for accounting.
-    destructible.destruct.wait(this.paxos.log.pump(this._islander, 'enqueue', destructible.monitor('islander')), 'destroy')
+    destructible.destruct.wait(this.paxos.log.pump(this.islander, 'enqueue', destructible.monitor('islander')), 'destroy')
 
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
@@ -103,7 +103,7 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
         this.play('event', envelope)
     }, destructible.monitor('timer')), 'destroy')
     destructible.destruct.wait(this.paxos.scheduler.events.pump(timer, 'enqueue', destructible.monitor('scheduler')), 'destroy')
-    destructible.destruct.wait(this._islander.outbox.pump(false, this, '_publish', destructible.monitor('publish')), 'destroy')
+    destructible.destruct.wait(this.islander.outbox.pump(false, this, '_publish', destructible.monitor('publish')), 'destroy')
     destructible.destruct.wait(this.paxos.outbox.pump(false, this, '_send', destructible.monitor('send')), 'destroy')
     return []
 })
@@ -167,10 +167,10 @@ Kibitzer.prototype.replay = function (envelope) {
     case 'enqueue':
         return this._enqueue(envelope.when, envelope.body)
     case 'publish':
-        this._islander.publish(envelope.body)
+        this.islander.publish(envelope.body)
         break
     case 'published':
-        this._islander.sent(envelope.body.cookie, envelope.body.promises)
+        this.islander.sent(envelope.body.cookie, envelope.body.promises)
         break
     case 'sent':
         this.paxos.response(envelope.when, envelope.body.cookie, envelope.body.responses)
