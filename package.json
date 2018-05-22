@@ -30,7 +30,7 @@
                             "islander":                     "2.1.x",
                             "monotonic":                    "3.0.x",
                             "nop":                          "1.0.0",
-                            "paxos":                        "14.2.x",
+                            "paxos":                        "14.4.x",
                             "procession":                   "0.19.x",
                             "prolific.logger":              "6.0.x",
                             "rescue":                       "3.2.x",
