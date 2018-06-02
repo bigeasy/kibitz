@@ -26,7 +26,7 @@
                             "conduit":                      "2.9.x",
                             "departure":                    "0.0.x",
                             "destructible":                 "0.30.x",
-                            "happenstance":                 "10.2.x",
+                            "happenstance":                 "10.3.x",
                             "islander":                     "2.1.x",
                             "monotonic":                    "3.0.x",
                             "nop":                          "1.0.0",
