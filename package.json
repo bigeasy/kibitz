@@ -33,7 +33,7 @@
                             "procession":                   "0.20.x",
                             "prolific.logger":              "6.0.x",
                             "rescue":                       "3.2.x",
-                            "signal":                       "3.4.x"
+                            "signal":                       "4.0.x"
     },
     "devDependencies":
     {
