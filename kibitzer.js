@@ -94,7 +94,7 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
 
     // Paxos also sends messages to Islander for accounting.
-    destructible.destruct.wait(this.paxos.log.pump(this.islander, 'enqueue', destructible.monitor('islander')), 'destroy')
+    destructible.destruct.wait(this.paxos.log.pump(this.islander, 'push', destructible.monitor('islander')), 'destroy')
 
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
