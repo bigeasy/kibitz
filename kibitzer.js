@@ -56,9 +56,6 @@ var Monotonic = require('monotonic').asString
 // Construction notification and destruction.
 var Destructible = require('destructible')
 
-// Logging.
-var logger = require('prolific.logger').createLogger('kibitz')
-
 // Catch exceptions based on a regex match of an error message or property.
 var rescue = require('rescue')
 
@@ -99,7 +96,6 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
     destructible.destruct.wait(timer.events.pump(this, function (envelope) {
-        logger.info('timer', envelope)
         this.play('event', envelope)
     }, destructible.monitor('timer')), 'destroy')
     destructible.destruct.wait(this.paxos.scheduler.events.pump(timer, 'enqueue', destructible.monitor('scheduler')), 'destroy')
