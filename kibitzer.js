@@ -53,9 +53,6 @@ var Paxos = require('paxos')
 var Islander = require('islander')
 var Monotonic = require('monotonic').asString
 
-// Construction notification and destruction.
-var Destructible = require('destructible')
-
 // Catch exceptions based on a regex match of an error message or property.
 var rescue = require('rescue')
 
