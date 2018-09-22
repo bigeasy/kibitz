@@ -222,6 +222,8 @@ Kibitzer.prototype._publish = cadence(function (async, envelope) {
 //
 // TODO Regarding the above, you need to make sure to destroy the timer as a
 // first step using truncate.
+//
+// TODO This needs to be parallelized.
 Kibitzer.prototype._send = cadence(function (async, communique) {
     var responses = {}
     async(function () {
