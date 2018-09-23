@@ -1,7 +1,6 @@
 require('proof')(3, require('cadence')(prove))
 
 function prove (async, okay) {
-    var abend = require('abend')
     var cadence = require('cadence')
     var Procession = require('procession')
 

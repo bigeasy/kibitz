@@ -30,12 +30,11 @@
 // it makes any asynchronous calls in response to an event require subsequent
 // queuing of events, so why not use this queue that already exists?
 
-// Quality control.
+// Node.js API.
 var assert = require('assert')
-
-// EventEmitter API.
-var events = require('events')
 var util = require('util')
+
+// Deep diff.
 var departure = require('departure')
 
 // Common utiltieis.
@@ -43,7 +42,6 @@ var util = require('util')
 var nop = require('nop')
 
 // Control-flow libraries.
-var abend = require('abend')
 var cadence = require('cadence')
 var Timer = require('happenstance').Timer
 var Procession = require('procession')
