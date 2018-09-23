@@ -144,9 +144,9 @@ Kibitzer.prototype.replay = function (envelope) {
 //
 Kibitzer.prototype.join = function (republic, leader, properties) {
 // TODO Should this be or should this not be? It should be. You're sending your
-// enqueue messages until you immigrate. You don't know when that will be.
-// You're only going to know if you've succeeded if your legislator has
-// immigrated. That's the only way.
+// enqueue messages until you arrive. You don't know when that will be. You're
+// only going to know if you've succeeded when you've finally arrived. That's
+// the only way.
 
 // TODO Was a test, but it is now an assertion and it really ought be an
 // exception because it is not impossible.
