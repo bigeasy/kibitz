@@ -1,35 +1,3 @@
-// TODO I suppose my attitude is to use an event emitter very sparingly, because
-// I want to use one to emit Kibitzer events, the paxos log, but I don't want to
-// create an interface that looks like one of the EventEmitter heavy interfaces.
-//
-// One of the challenges here is that events are going to flow immediately,
-// unless I do something compliacated like only emit events when there is a
-// listener. Having looked at that, it is not actually that complicated.
-//
-// Now we can fuss about some terminate logic.
-//
-// Put it out again, I prefer to program with error-first callbacks, but events
-// happen. They are generally a way in which information enters the system. They
-// are synchronous. Here is more information. Generally, they shouldn't block.
-//
-// That's how I use EventEmitters, but I'm not in for a penny, in for a pound.
-// If there is a source of events, I treat that as a stream of events. Not in
-// the Node.js streams sense, but I create an event emitter that emits a
-// homogenous series of events terminated by a specific termination event.
-//
-// Then I stop. I don't go on to implement multi-interfaces that could take an
-// error-first callback, or maybe register an event handler, or maybe use some
-// other form of asynchronous notification.
-//
-// TODO Which is why I've made the event emitter in this class a separate
-// object. Which is such a good idea, I belive I'll go and do it Happenstance.
-//
-// TODO Here I am, back to remove the EventEmitter. Not sure how anyone is able
-// to program that way, treating everything in your application as a stream.
-// Pushing log entires as events, hard to reason about this firehose events, and
-// it makes any asynchronous calls in response to an event require subsequent
-// queuing of events, so why not use this queue that already exists?
-
 // Node.js API.
 var assert = require('assert')
 var util = require('util')
