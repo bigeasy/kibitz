@@ -117,7 +117,7 @@ Kibitzer.prototype.replay = function (envelope) {
     case 'event':
         this.paxos.event(envelope.body)
         break
-    case 'arrive':
+    case 'embark':
         var body = envelope.body
         return this.paxos.arrive(envelope.when, body.republic, body.id, body.cookie, body.properties)
     case 'receive':
@@ -210,8 +210,8 @@ Kibitzer.prototype._send = cadence(function (async, communique) {
     })
 })
 
-Kibitzer.prototype.arrive = function (republic, id, cookie, properties) {
-    return this.play('arrive', {
+Kibitzer.prototype.embark = function (republic, id, cookie, properties) {
+    return this.play('embark', {
         republic: republic,
         id: id,
         cookie: cookie,

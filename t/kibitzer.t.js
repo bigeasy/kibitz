@@ -54,7 +54,7 @@ function prove (async, okay) {
     }, function (kibitzer) {
         kibitzers.push(kibitzer)
         kibitzers[1].join(1)
-        kibitzers[0].arrive(1, '1', kibitzers[1].paxos.cookie, { location: '1' })
+        kibitzers[0].embark(1, '1', kibitzers[1].paxos.cookie, { location: '1' })
     }, function () {
         setTimeout(async(), 100)
     }, function () {
@@ -62,7 +62,7 @@ function prove (async, okay) {
     }, function (kibitzer) {
         kibitzers.push(kibitzer)
         kibitzers[2].join(1)
-        kibitzers[0].arrive(1, '2', kibitzers[2].paxos.cookie, { location: '2' })
+        kibitzers[0].embark(1, '2', kibitzers[2].paxos.cookie, { location: '2' })
         kibitzers[2].paxos.log.shifter().join(function (entry) {
             return entry.promise == '3/0'
         }, async())
