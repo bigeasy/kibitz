@@ -59,10 +59,12 @@ function prove (okay, callback) {
             kibitzers.push(kibitzer)
             kibitzers[2].join(1)
             kibitzers[0].embark(1, '2', kibitzers[2].paxos.cookie, { location: '2' })
+            console.log('-1------------------------------------------------------------------------------')
             kibitzers[2].paxos.log.shifter().join(function (entry) {
                 return entry.promise == '3/0'
             }, async())
         }, function () {
+            console.log('-2------------------------------------------------------------------------------')
             kibitzers[2].acclimate()
             kibitzers[2].publish(1)
             kibitzers[0].publish(1)

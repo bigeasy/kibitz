@@ -54,16 +54,22 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
 
     // Paxos also sends messages to Islander for accounting.
-    destructible.destruct.wait(this.paxos.log.pump(this.islander, 'push', destructible.monitor('islander')), 'destroy')
+    destructible.monitor('islander', this.paxos.log.pump(this.islander, 'push'), 'destructible', null)
 
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
-    destructible.destruct.wait(timer.events.pump(this, function (envelope) {
+    destructible.monitor('timer', timer.events.pump(this, function (envelope) {
         this.play('event', envelope)
-    }, destructible.monitor('timer')), 'destroy')
-    destructible.destruct.wait(this.paxos.scheduler.events.pump(timer, 'enqueue', destructible.monitor('scheduler')), 'destroy')
-    destructible.destruct.wait(this.islander.outbox.pump(false, this, '_publish', destructible.monitor('publish')), 'destroy')
-    destructible.destruct.wait(this.paxos.outbox.pump(false, this, '_send', destructible.monitor('send')), 'destroy')
+    }), 'destructible', null)
+    destructible.monitor('scheduler', this.paxos.scheduler.events.pump(timer, 'enqueue'), 'destructible', null)
+    destructible.monitor('publish', this.islander.outbox.pump(this, '_publish'), 'destructible', null)
+    /*
+    this.islander.outbox.pump(this, '_publish').run(destructible.monitor('publish'))
+    destructible.destruct.wait(this, function () {
+        this.islander.outbox.push(null)
+    })
+    */
+    destructible.monitor('send', this.paxos.outbox.pump(this, '_send'), 'destructible', null)
     return []
 })
 
@@ -162,6 +168,9 @@ Kibitzer.prototype.acclimate = function () {
 
 // Publish to consensus algorithm from islander retryable client.
 Kibitzer.prototype._publish = cadence(function (async, envelope) {
+    if (envelope == null) {
+        return
+    }
     async([function () {
         var properties = this.paxos.government.properties[this.paxos.government.majority[0]]
         this._ua.send({
@@ -191,6 +200,9 @@ Kibitzer.prototype._publish = cadence(function (async, envelope) {
 //
 // TODO This needs to be parallelized.
 Kibitzer.prototype._send = cadence(function (async, communique) {
+    if (communique == null) {
+        return
+    }
     var responses = {}
     async(function () {
         communique.envelopes.forEach(function (envelope) {
