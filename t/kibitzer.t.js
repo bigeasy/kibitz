@@ -4,9 +4,6 @@ function prove (okay, callback) {
     var cadence = require('cadence')
     var Procession = require('procession')
 
-    var Procedure = require('conduit/procedure')
-    var Caller = require('conduit/caller')
-
     var Destructible = require('destructible')
 
     var Timer = require('happenstance').Timer
