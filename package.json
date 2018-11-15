@@ -23,7 +23,7 @@
                             "cadence":                      "1.0.x",
                             "departure":                    "0.0.x",
                             "destructible":                 "0.35.x",
-                            "happenstance":                 "10.10.x",
+                            "happenstance":                 "10.12.x",
                             "islander":                     "2.8.x",
                             "monotonic":                    "3.0.x",
                             "nop":                          "1.0.0",
