@@ -20,7 +20,7 @@
     },
     "dependencies":
     {
-                            "cadence":                      "1.0.x",
+                            "cadence":                      "2.0.x",
                             "departure":                    "0.0.x",
                             "destructible":                 "0.36.x",
                             "happenstance":                 "10.14.x",
