@@ -30,7 +30,7 @@
                             "paxos":                        "14.19.x",
                             "procession":                   "2.7.x",
                             "rescue":                       "4.1.x",
-                            "signal":                       "4.0.x"
+                            "signal":                       "6.0.x"
     },
     "devDependencies":
     {
