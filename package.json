@@ -27,7 +27,7 @@
                             "islander":                     "2.11.x",
                             "monotonic":                    "3.0.x",
                             "nop":                          "1.0.0",
-                            "paxos":                        "14.18.x",
+                            "paxos":                        "14.19.x",
                             "procession":                   "2.6.x",
                             "rescue":                       "4.1.x",
                             "signal":                       "4.0.x"
