@@ -22,7 +22,7 @@
     {
                             "cadence":                      "2.0.x",
                             "departure":                    "0.0.x",
-                            "destructible":                 "0.36.x",
+                            "destructible":                 "0.37.x",
                             "happenstance":                 "10.15.x",
                             "islander":                     "2.12.x",
                             "monotonic":                    "3.0.x",
