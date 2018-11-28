@@ -30,7 +30,7 @@ function prove (okay, callback) {
             }
         })
         async(function () {
-            destructible.monitor('kibitzer', kibitzer, 'listen', async())
+            destructible.durable('kibitzer', kibitzer, 'listen', async())
         }, function () {
             return kibitzer
         })
@@ -38,7 +38,7 @@ function prove (okay, callback) {
 
     cadence(function (async) {
         async(function () {
-            destructible.monitor([ 'kibitzer', 0 ], true, createKibitzer, '0', 0, async())
+            destructible.ephemeral([ 'kibitzer', 0 ], createKibitzer, '0', 0, async())
         }, function (kibitzer) {
             kibitzers.push(kibitzer)
             okay(kibitzers[0], 'construct')
@@ -46,7 +46,7 @@ function prove (okay, callback) {
 
             shifter = kibitzers[0].paxos.log.shifter()
         }, function () {
-            destructible.monitor([ 'kibitzer', 0 ], true, createKibitzer, '1', 0, async())
+            destructible.ephemeral([ 'kibitzer', 0 ], createKibitzer, '1', 0, async())
         }, function (kibitzer) {
             kibitzers.push(kibitzer)
             kibitzers[1].join(1)
@@ -54,7 +54,7 @@ function prove (okay, callback) {
         }, function () {
             setTimeout(async(), 100)
         }, function () {
-            destructible.monitor([ 'kibitzer', 0 ], true, createKibitzer, '2', 0, async())
+            destructible.ephemeral([ 'kibitzer', 0 ], createKibitzer, '2', 0, async())
         }, function (kibitzer) {
             kibitzers.push(kibitzer)
             kibitzers[2].join(1)
@@ -82,5 +82,5 @@ function prove (okay, callback) {
             okay(response, null, 'failed submission')
             destructible.destroy()
         })
-    })(destructible.monitor('test'))
+    })(destructible.durable('test'))
 }

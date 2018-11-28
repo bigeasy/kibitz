@@ -54,22 +54,22 @@ Kibitzer.prototype.listen = cadence(function (async, destructible) {
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
 
     // Paxos also sends messages to Islander for accounting.
-    destructible.monitor('islander', this.paxos.log.pump(this.islander, 'push'), 'destructible', null)
+    destructible.durable('islander', this.paxos.log.pump(this.islander, 'push'), 'destructible', null)
 
     // TODO Pass an "operation" to `Procession.pump`.
     var timer = new Timer(this.paxos.scheduler)
-    destructible.monitor('timer', timer.events.pump(this, function (envelope) {
+    destructible.durable('timer', timer.events.pump(this, function (envelope) {
         this.play('event', envelope)
     }), 'destructible', null)
-    destructible.monitor('scheduler', this.paxos.scheduler.events.pump(timer, 'enqueue'), 'destructible', null)
-    destructible.monitor('publish', this.islander.outbox.pump(this, '_publish'), 'destructible', null)
+    destructible.durable('scheduler', this.paxos.scheduler.events.pump(timer, 'enqueue'), 'destructible', null)
+    destructible.durable('publish', this.islander.outbox.pump(this, '_publish'), 'destructible', null)
     /*
     this.islander.outbox.pump(this, '_publish').run(destructible.monitor('publish'))
     destructible.destruct.wait(this, function () {
         this.islander.outbox.push(null)
     })
     */
-    destructible.monitor('send', this.paxos.outbox.pump(this, '_send'), 'destructible', null)
+    destructible.durable('send', this.paxos.outbox.pump(this, '_send'), 'destructible', null)
     return []
 })
 
