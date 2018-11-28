@@ -28,7 +28,7 @@
                             "monotonic":                    "3.0.x",
                             "nop":                          "1.0.0",
                             "paxos":                        "14.20.x",
-                            "procession":                   "2.7.x",
+                            "procession":                   "2.8.x",
                             "rescue":                       "4.2.x",
                             "signal":                       "6.0.x"
     },
