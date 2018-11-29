@@ -49,7 +49,7 @@ function Kibitzer (options) {
 }
 
 Kibitzer.prototype.listen = cadence(function (async, destructible) {
-    destructible.markDestroyed(this, 'destroyed')
+    destructible.destruct.wait(this, function () { this.destroyed = this })
 
     destructible.destruct.wait(this.paxos.scheduler, 'clear')
 
