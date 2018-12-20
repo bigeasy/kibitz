@@ -34,7 +34,7 @@
     "devDependencies":
     {
                             "delta":                        "3.0.x",
-                            "destructible":                 "0.41.x",
+                            "destructible":                 "0.42.x",
                             "proof":                        "5.0.x"
     },
     "main":                 "kibitzer",
