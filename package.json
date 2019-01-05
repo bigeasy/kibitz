@@ -28,7 +28,7 @@
                             "nop":                          "1.0.0",
                             "paxos":                        "15.0.x",
                             "procession":                   "3.0.x",
-                            "rescue":                       "4.2.x",
+                            "rescue":                       "5.0.x",
                             "signal":                       "6.0.x"
     },
     "devDependencies":
