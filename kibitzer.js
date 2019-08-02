@@ -2,9 +2,6 @@
 var assert = require('assert')
 var util = require('util')
 
-// Deep diff.
-var departure = require('departure')
-
 // Common utiltieis.
 var util = require('util')
 var nop = require('nop')
