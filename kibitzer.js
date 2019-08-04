@@ -9,7 +9,7 @@ var nop = require('nop')
 // Control-flow libraries.
 var cadence = require('cadence')
 var Timer = require('happenstance').Timer
-var Procession = require('procession')
+var Avenue = require('avenue')
 
 // Paxos libraries.
 var Paxos = require('paxos')
@@ -24,51 +24,52 @@ var rescue = require('rescue')
 // have been dropped.
 
 //
-function Kibitzer (options) {
-    // These defaults are a bit harsh if you're going to log everything.
-    options.ping || (options.ping = 250)
-    options.timeout || (options.timeout = 1000)
+class Kibitzer {
+    constructor (options) {
+        // These defaults are a bit harsh if you're going to log everything.
+        options.ping || (options.ping = 250)
+        options.timeout || (options.timeout = 1000)
 
-    // Time obtained from optional `Date` for unit testing.
-    this._Date = options.Date || Date
+        // Time obtained from optional `Date` for unit testing.
+        this._Date = options.Date || Date
 
-    this._ua = options.ua
+        this._ua = options.ua
 
-    this.paxos = new Paxos(this._Date.now(), options.id, {
-        ping: options.ping,
-        timeout: options.timeout
-    })
+        this.paxos = new Paxos(this._Date.now(), options.id, {
+            ping: options.ping,
+            timeout: options.timeout
+        })
 
-    // Submission queue with resubmission logic.
-    this.islander = new Islander(options.id)
+        // Submission queue with resubmission logic.
+        this.islander = new Islander(options.id)
 
-    this.played = new Procession
-}
+        this.played = new Avenue
+    }
 
-Kibitzer.prototype.listen = cadence(function (async, destructible) {
-    destructible.destruct.wait(this, function () { this.destroyed = this })
+    listen (destructible) {
+        destructible.destruct(() => this.destroyed = this)
 
-    destructible.destruct.wait(this.paxos.scheduler, 'clear')
+        destructible.destruct(() => this.paxos.scheduler.clear())
 
-    // Paxos also sends messages to Islander for accounting.
-    destructible.durable('islander', this.paxos.log.pump(this.islander, 'push'), 'destructible', null)
+        // Paxos also sends messages to Islander for accounting.
+        destructible.durable('islander', this.paxos.log.pump(this.islander, 'push'), 'destructible', null)
 
-    // TODO Pass an "operation" to `Procession.pump`.
-    var timer = new Timer(this.paxos.scheduler)
-    destructible.durable('timer', timer.events.pump(this, function (envelope) {
-        this.play('event', envelope)
-    }), 'destructible', null)
-    destructible.durable('scheduler', this.paxos.scheduler.events.pump(timer, 'enqueue'), 'destructible', null)
-    destructible.durable('publish', this.islander.outbox.pump(this, '_publish'), 'destructible', null)
-    /*
-    this.islander.outbox.pump(this, '_publish').run(destructible.monitor('publish'))
-    destructible.destruct.wait(this, function () {
-        this.islander.outbox.push(null)
-    })
-    */
-    destructible.durable('send', this.paxos.outbox.pump(this, '_send'), 'destructible', null)
-    return []
-})
+        // TODO Pass an "operation" to `Avenue.pump`.
+        var timer = new Timer(this.paxos.scheduler)
+        destructible.durable('timer', timer.events.pump(this, function (envelope) {
+            this.play('event', envelope)
+        }), 'destructible', null)
+        destructible.durable('scheduler', this.paxos.scheduler.events.pump(timer, 'enqueue'), 'destructible', null)
+        destructible.durable('publish', this.islander.outbox.pump(this, '_publish'), 'destructible', null)
+        /*
+        this.islander.outbox.pump(this, '_publish').run(destructible.monitor('publish'))
+        destructible.destruct.wait(this, function () {
+            this.islander.outbox.push(null)
+        })
+        */
+        destructible.durable('send', this.paxos.outbox.pump(this, '_send'), 'destructible', null)
+        return []
+    }
 
 // You can just as easily use POSIX time for the `republic`.
 Kibitzer.prototype.bootstrap = function (republic, properties) {
