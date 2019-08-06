@@ -20,25 +20,23 @@
     },
     "dependencies":
     {
-                            "cadence":                      "3.0.x",
-                            "happenstance":                 "11.0.x",
-                            "islander":                     "3.0.x",
+                            "extant":                       "1.0.x",
+                            "happenstance":                 "12.0.x",
+                            "islander":                     "4.0.x",
                             "monotonic":                    "3.0.x",
                             "nop":                          "1.0.0",
-                            "paxos":                        "15.0.x",
-                            "procession":                   "4.0.x",
-                            "rescue":                       "5.0.x",
-                            "signal":                       "7.0.x"
+                            "paxos":                        "18.0.x",
+                            "avenue":                       "0.1.x",
+                            "rescue":                       "6.0.x",
+                            "signal":                       "8.0.x"
     },
     "devDependencies":
     {
-                            "delta":                        "3.0.x",
-                            "destructible":                 "2.0.x",
-                            "proof":                        "7.0.x"
+                            "destructible":                 "4.0.x"
     },
     "main":                 "kibitzer",
     "scripts":
     {
-                            "test": "proof test test/*.t.js"
+                            "test": "mocha test/*.test.js"
     }
 }
