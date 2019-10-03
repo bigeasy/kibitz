@@ -32,11 +32,12 @@
     },
     "devDependencies":
     {
-                            "destructible":                 "4.0.x"
+                            "destructible":                 "4.0.x",
+                            "proof":                        "^8.0.0-alpha.7"
     },
     "main":                 "kibitzer",
     "scripts":
     {
-                            "test": "mocha test/*.test.js"
+                            "test": "proof test/*.test.js"
     }
 }
