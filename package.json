@@ -27,8 +27,7 @@
                             "nop":                          "1.0.0",
                             "paxos":                        "18.0.x",
                             "avenue":                       "0.1.x",
-                            "rescue":                       "6.0.x",
-                            "signal":                       "8.0.x"
+                            "rescue":                       "6.0.x"
     },
     "devDependencies":
     {
