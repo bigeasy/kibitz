@@ -20,17 +20,17 @@
     },
     "dependencies":
     {
-                            "extant":                       "1.0.x",
-                            "happenstance":                 "12.0.x",
+                            "extant":                       "^1.0.15",
+                            "happenstance":                 "^12.0.1",
                             "islander":                     "4.0.x",
                             "nop":                          "1.0.0",
-                            "paxos":                        "19.0.0-alpha.4",
-                            "avenue":                       "0.2.0-alpha.0",
-                            "rescue":                       "6.0.x"
+                            "paxos":                        "^19.0.0-alpha.4",
+                            "avenue":                       "^0.2.0-alpha.0",
+                            "rescue":                       "^6.0.2"
     },
     "devDependencies":
     {
-                            "destructible":                 "5.2.0-alpha.1",
+                            "destructible":                 "^5.2.0-alpha.1",
                             "proof":                        "^8.0.0-alpha.7"
     },
     "main":                 "kibitzer",
