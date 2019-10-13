@@ -13,7 +13,6 @@ const Avenue = require('avenue')
 // Paxos libraries.
 const Paxos = require('paxos')
 const Islander = require('islander')
-const Monotonic = require('monotonic').asString
 
 // Catch exceptions based on a regex match of an error message or property.
 const rescue = require('rescue')
