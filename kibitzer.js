@@ -23,7 +23,7 @@ const rescue = require('rescue')
 
 //
 class Kibitzer {
-    constructor (options) {
+    constructor (destructible, options) {
         // Time obtained from optional `Date` for unit testing.
         this._Date = options.Date || Date
 
@@ -38,9 +38,7 @@ class Kibitzer {
         this.islander = new Islander(options.id, new Avenue())
 
         this.played = new Avenue
-    }
 
-    listen (destructible) {
         destructible.destruct(() => this.destroyed = this)
 
         destructible.destruct(() => this.paxos.scheduler.clear())

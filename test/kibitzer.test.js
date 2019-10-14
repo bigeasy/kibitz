@@ -7,7 +7,7 @@ require('proof')(1, async (okay) => {
     const kibitzers = []
 
     function _createKibitzer (destructible, id, republic) {
-        const kibitzer = new Kibitzer({
+        const kibitzer = new Kibitzer(destructible, {
             republic: republic,
             id: id,
             ua: {
@@ -20,7 +20,6 @@ require('proof')(1, async (okay) => {
             ping: 50,
             timeout: 150
         })
-        kibitzer.listen(destructible)
         return kibitzer
     }
 
