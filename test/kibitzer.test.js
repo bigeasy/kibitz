@@ -58,6 +58,6 @@ require('proof')(1, async (okay) => {
         body: { cookie: '1', republic: 0, entries: [ '1' ] }
     })
     destructible.destroy()
-    await destructible.destructed
+    await destructible.promise
     okay(true, 'complete')
 })

@@ -161,6 +161,10 @@ class Kibitzer {
             return
         }
         const properties = this.paxos.government.properties[this.paxos.government.majority[0]]
+        if (properties == null) {
+            console.log(this.paxos.government)
+            process.exit()
+        }
         const promises = await this._ua.send({
             module: 'kibitz',
             method: 'enqueue',
