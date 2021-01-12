@@ -13,6 +13,7 @@ require('proof')(1, async (okay) => {
             ua: {
                 send: function (envelope) {
                     return kibitzers.filter(function (kibitzer) {
+                        console.log(envelope.to, envelope)
                         return kibitzer.paxos.id == envelope.to.location
                     }).pop().request(JSON.parse(JSON.stringify(envelope)))
                 }
@@ -38,7 +39,7 @@ require('proof')(1, async (okay) => {
     kibitzers[2].join(1)
     kibitzers[0].embark(1, '2', kibitzers[2].paxos.cookie, { location: '2' })
     const join = kibitzers[2].paxos.log.shifter()
-    await join.pump(entry => {
+    await join.push(entry => {
         if (entry != null && entry.promise == '3/0') {
             join.destroy()
         }
@@ -47,7 +48,7 @@ require('proof')(1, async (okay) => {
     kibitzers[2].publish(1)
     kibitzers[0].publish(1)
     const publish = kibitzers[2].paxos.log.shifter()
-    await publish.pump(entry => {
+    await publish.push(entry => {
         if (entry != null && entry.promise == '3/1') {
             publish.destroy()
         }

@@ -42,7 +42,7 @@ class Kibitzer {
 
         // Paxos also sends messages to Islander for accounting.
         const islander = this.paxos.log.shifter()
-        destructible.durable('islander', islander.pump(entry => this.islander.push(entry)))
+        destructible.durable('islander', islander.push(entry => this.islander.push(entry)))
         destructible.destruct(() => islander.destroy())
 
         // TODO Pass an "operation" to `Avenue.pump`.
@@ -50,7 +50,7 @@ class Kibitzer {
         destructible.destruct(() => timer.destroy())
         this.paxos.scheduler.on('data', data => this.play('event', data))
         const publish = this.islander.outbox.shifter()
-        destructible.durable('publish', publish.pump(entry => this._publish(entry)))
+        destructible.durable('publish', publish.push(entry => this._publish(entry)))
         destructible.destruct(() => publish.destroy())
         /*
         this.islander.outbox.pump(this, '_publish').run(destructible.monitor('publish'))
@@ -59,7 +59,7 @@ class Kibitzer {
         })
         */
         const send = this.paxos.outbox.shifter()
-        destructible.durable('send', send.pump(entry => this._send(entry)))
+        destructible.durable('send', send.push(entry => this._send(entry)))
         destructible.destruct(() => send.destroy())
     }
 
