@@ -42,7 +42,7 @@ class Kibitzer {
 
         // Paxos also sends messages to Islander for accounting.
         const islander = this.paxos.log.shifter()
-        destructible.durable('islander', islander.push(entry => this.islander.push(entry)))
+        destructible.ephemeral('islander', islander.push(entry => this.islander.push(entry)))
         destructible.destruct(() => islander.destroy())
 
         // TODO Pass an "operation" to `Avenue.pump`.
@@ -50,7 +50,7 @@ class Kibitzer {
         destructible.destruct(() => timer.destroy())
         this.paxos.scheduler.on('data', data => this.play('event', data))
         const publish = this.islander.outbox.shifter()
-        destructible.durable('publish', publish.push(entry => this._publish(entry)))
+        destructible.ephemeral('publish', publish.push(entry => this._publish(entry)))
         destructible.destruct(() => publish.destroy())
         /*
         this.islander.outbox.pump(this, '_publish').run(destructible.monitor('publish'))
@@ -59,7 +59,7 @@ class Kibitzer {
         })
         */
         const send = this.paxos.outbox.shifter()
-        destructible.durable('send', send.push(entry => this._send(entry)))
+        destructible.ephemeral('send', send.push(entry => this._send(entry)))
         destructible.destruct(() => send.destroy())
     }
 
@@ -161,10 +161,6 @@ class Kibitzer {
             return
         }
         const properties = this.paxos.government.properties[this.paxos.government.majority[0]]
-        if (properties == null) {
-            console.log(this.paxos.government)
-            process.exit()
-        }
         const promises = await this._ua.send({
             module: 'kibitz',
             method: 'enqueue',

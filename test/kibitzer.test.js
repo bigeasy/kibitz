@@ -13,7 +13,6 @@ require('proof')(1, async (okay) => {
             ua: {
                 send: function (envelope) {
                     return kibitzers.filter(function (kibitzer) {
-                        console.log(envelope.to, envelope)
                         return kibitzer.paxos.id == envelope.to.location
                     }).pop().request(JSON.parse(JSON.stringify(envelope)))
                 }
@@ -25,39 +24,41 @@ require('proof')(1, async (okay) => {
     }
 
     function createKibitzer (id, republic) {
-        return _createKibitzer(destructible.ephemeral([ 'kibitzer', 0 ]), id, republic)
+        return _createKibitzer(destructible.ephemeral(`kibitzer.${id}`), id, republic)
     }
 
-    kibitzers.push(createKibitzer('0', 0))
-    kibitzers[0].bootstrap(1, { location: '0' })
-    const shifter = kibitzers[0].paxos.log.shifter()
-    kibitzers.push(createKibitzer('1', 0))
-    kibitzers[1].join(1)
-    kibitzers[0].embark(1, '1', kibitzers[1].paxos.cookie, { location: '1' })
-    await new Promise(resolve => setTimeout(resolve, 100))
-    kibitzers.push(createKibitzer('2', 0))
-    kibitzers[2].join(1)
-    kibitzers[0].embark(1, '2', kibitzers[2].paxos.cookie, { location: '2' })
-    const join = kibitzers[2].paxos.log.shifter()
-    await join.push(entry => {
-        if (entry != null && entry.promise == '3/0') {
-            join.destroy()
-        }
+    destructible.ephemeral('test', async () => {
+        kibitzers.push(createKibitzer('0', 0))
+        kibitzers[0].bootstrap(1, { location: '0' })
+        const shifter = kibitzers[0].paxos.log.shifter()
+        kibitzers.push(createKibitzer('1', 0))
+        kibitzers[1].join(1)
+        kibitzers[0].embark(1, '1', kibitzers[1].paxos.cookie, { location: '1' })
+        await new Promise(resolve => setTimeout(resolve, 100))
+        kibitzers.push(createKibitzer('2', 0))
+        kibitzers[2].join(1)
+        kibitzers[0].embark(1, '2', kibitzers[2].paxos.cookie, { location: '2' })
+        const join = kibitzers[2].paxos.log.shifter().async
+        await join.push(entry => {
+            if (entry != null && entry.promise == '3/0') {
+                join.destroy()
+            }
+        })
+        kibitzers[2].acclimate()
+        kibitzers[2].publish(1)
+        kibitzers[0].publish(1)
+        const publish = kibitzers[2].paxos.log.shifter()
+        await publish.push(entry => {
+            if (entry != null && entry.promise == '3/1') {
+                publish.destroy()
+            }
+        })
+        kibitzers[2].request({
+            method: 'enqueue',
+            body: { cookie: '1', republic: 0, entries: [ '1' ] }
+        })
+        destructible.destroy()
     })
-    kibitzers[2].acclimate()
-    kibitzers[2].publish(1)
-    kibitzers[0].publish(1)
-    const publish = kibitzers[2].paxos.log.shifter()
-    await publish.push(entry => {
-        if (entry != null && entry.promise == '3/1') {
-            publish.destroy()
-        }
-    })
-    kibitzers[2].request({
-        method: 'enqueue',
-        body: { cookie: '1', republic: 0, entries: [ '1' ] }
-    })
-    destructible.destroy()
     await destructible.promise
     okay(true, 'complete')
 })
