@@ -20,16 +20,16 @@
     },
     "dependencies":
     {
-                            "avenue":                       "^0.6.8",
+                            "avenue":                       "0.6.8",
                             "extant":                       "^1.0.15",
                             "happenstance":                 "^12.0.1",
                             "islander":                     "^5.0.0-alpha.1",
                             "nop":                          "1.0.0",
-                            "paxos":                        "^19.0.0-alpha.4"
+                            "paxos":                        "19.0.0-alpha.4"
     },
     "devDependencies":
     {
-                            "destructible":                 "^7.0.0-alpha.38",
+                            "destructible":                 "7.0.0-alpha.38",
                             "proof":                        "^9.0.3"
     },
     "main":                 "kibitzer",
