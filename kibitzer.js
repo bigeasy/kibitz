@@ -4,11 +4,11 @@ const util = require('util')
 
 // Common utiltieis.
 const nop = require('nop')
-const coalesce = require('extant')
+const { coalesce } = require('extant')
 
 // Control-flow libraries.
 const { Timer } = require('happenstance')
-const Avenue = require('avenue')
+const { Queue } = require('avenue')
 
 // Paxos libraries.
 const Paxos = require('paxos')
@@ -32,9 +32,9 @@ class Kibitzer {
         })
 
         // Submission queue with resubmission logic.
-        this.islander = new Islander(options.id, new Avenue())
+        this.islander = new Islander(options.id, new Queue())
 
-        this.played = new Avenue
+        this.played = new Queue
 
         destructible.destruct(() => this.destroyed = this)
 
@@ -45,7 +45,7 @@ class Kibitzer {
         destructible.ephemeral('islander', islander.push(entry => this.islander.push(entry)))
         destructible.destruct(() => islander.destroy())
 
-        // TODO Pass an "operation" to `Avenue.pump`.
+        // TODO Pass an "operation" to `Queue.pump`.
         const timer = new Timer(this.paxos.scheduler)
         destructible.destruct(() => timer.destroy())
         this.paxos.scheduler.on('data', data => this.play('event', data))
