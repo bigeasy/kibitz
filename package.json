@@ -20,7 +20,7 @@
     },
     "dependencies":
     {
-                            "avenue":                       "0.6.15",
+                            "avenue":                       "0.6.16",
                             "extant":                       "^2.0.0-alpha.4",
                             "happenstance":                 "^12.0.5",
                             "islander":                     "5.0.0-alpha.7",
