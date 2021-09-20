@@ -25,7 +25,7 @@
                             "happenstance":                 "^12.0.5",
                             "islander":                     "5.0.0-alpha.6",
                             "nop":                          "1.0.0",
-                            "paxos":                        "19.0.0-alpha.11"
+                            "paxos":                        "19.0.0-alpha.12"
     },
     "devDependencies":
     {
