@@ -21,7 +21,7 @@
     "dependencies":
     {
                             "avenue":                       "0.6.15",
-                            "extant":                       "^2.0.0-alpha.2",
+                            "extant":                       "^2.0.0-alpha.4",
                             "happenstance":                 "^12.0.5",
                             "islander":                     "5.0.0-alpha.6",
                             "nop":                          "1.0.0",
