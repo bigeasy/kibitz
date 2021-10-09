@@ -38,7 +38,7 @@ class Kibitzer {
 
         destructible.destruct(() => this.destroyed = this)
 
-        destructible.destruct(() => this.paxos.scheduler.clear())
+        destructible.destruct(() => this.paxos.calendar.clear())
 
         // Paxos also sends messages to Islander for accounting.
         const islander = this.paxos.log.shifter()
@@ -46,9 +46,9 @@ class Kibitzer {
         destructible.destruct(() => islander.destroy())
 
         // TODO Pass an "operation" to `Queue.pump`.
-        const timer = new Timer(this.paxos.scheduler)
+        const timer = new Timer(this.paxos.calendar)
         destructible.destruct(() => timer.destroy())
-        this.paxos.scheduler.on('data', data => this.play('event', data))
+        this.paxos.calendar.on('data', data => this.play('event', data))
         const publish = this.islander.outbox.shifter()
         destructible.ephemeral('publish', publish.push(entry => this._publish(entry)))
         destructible.destruct(() => publish.destroy())
@@ -176,10 +176,10 @@ class Kibitzer {
     // TODO Annoying how difficult it is to stop this crazy thing. There are
     // going to be race conditions where we have a termination, come in, we shut
     // things down, but then we continue with processing a pulse which triggers
-    // a timer. Sending messages to paxos can restart it's scheduler.
+    // a timer. Sending messages to paxos can restart it's calendar.
     //
-    // TODO We could kill the timer in the scheduler, set the boolean we added
-    // to tell it to no longer schedule.
+    // TODO We could kill the timer in the calendar, set the boolean we added to
+    // tell it to no longer schedule.
     //
     // TODO Regarding the above, you need to make sure to destroy the timer as a
     // first step using truncate.
